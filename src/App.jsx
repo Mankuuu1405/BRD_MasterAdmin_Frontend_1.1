@@ -35,9 +35,9 @@ import MasterData from "./pages/masterData/MasterData";
 import LoanProduct from "./pages/masterData/LoanProducts";
 import InterestSettings from "./pages/masterData/InterestSettings";
 import DocumentTemplates from "./pages/masterData/DocumentTemplates";
-import CreditScorings from "./pages/masterData/CreditScoring";
 
-import IntegrationManagament from "./pages/integration/IntegrationManagement";
+
+
 import Notification from "./pages/notifications/Notifications";
 
 import ReportingAnalytics from "./pages/Reports/ReportingAnalytics";
@@ -76,15 +76,7 @@ import EditOccupationTypePage from "./pages/occupation/EditOccupationTypePage";
 import OccupationTypePage from "./pages/occupation/OccupationTypePage";
 import ViewOccupationTypePage from "./pages/occupation/ViewOccupationTypePage";
 import RequireMasterAdmin from "./auth/RequireMasterAdmin";
-import ManageCreditBureau from "./pages/integration/ManageCreditBureau";
-import ManageSmsEmailApi from "./pages/integration/ManageSmsEmailApi";
-import ManageAccountingErp from "./pages/integration/ManageAccountingErp";
-import ManageCrm from "./pages/integration/ManageCrm";
-import ManagePaymentGateway from "./pages/integration/ManagePaymentGateway";
-import AddApiKeys from "./pages/integration/AddApiKeys";
-import SetEndpoints from "./pages/integration/SetEndPoints";
-import MonitorStatus from "./pages/integration/MonitorStatus";
-import TestConnections from "./pages/integration/TestConnections";
+
 
 
 function App() {
@@ -182,18 +174,10 @@ function App() {
            <Route path="/master-data/loan-products" element={<LoanProduct />} />
            <Route path="/master-data/interest-setting" element={<InterestSettings />} />
            <Route path="/master-data/document-template" element={<DocumentTemplates />} />
-           <Route path="/master-data/credit-score" element={<CreditScorings />} />
+
            
 
-           <Route path="/integrations/payment-gateway" element={<IntegrationManagament />} />
-           <Route path="/integrations/credit-bureau" element={<ManageCreditBureau />} />
-           <Route path="/integrations/sms-email-api" element={<ManageSmsEmailApi />} />
-           <Route path="/integrations/accounting-erp" element={<ManageCrm />} />
-           <Route path="/integrations/crm" element={<ManagePaymentGateway />} />
-           <Route path="/integrations/api-keys" element={<AddApiKeys />} />
-           <Route path="/integrations/endpoints" element={<SetEndpoints />} />
-           <Route path="/integrations/monitor-status" element={<MonitorStatus />} />
-           <Route path="/integrations/test-connections" element={<TestConnections />} />
+
 
 
            <Route path="/document" element={<Notification />} />
