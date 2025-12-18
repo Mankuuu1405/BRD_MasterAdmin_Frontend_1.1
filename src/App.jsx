@@ -34,6 +34,9 @@ import MasterData from "./pages/masterData/MasterData";
 import LoanProduct from "./pages/masterData/LoanProducts";
 import InterestSettings from "./pages/masterData/InterestSettings";
 import DocumentTemplates from "./pages/masterData/DocumentTemplates";
+// import CreditScorings from "./pages/masterData/CreditScoring";
+
+// import IntegrationManagament from "./pages/integration/IntegrationManagement";
 
 import Notification from "./pages/notifications/Notifications";
 
@@ -73,6 +76,22 @@ import EditOccupationTypePage from "./pages/occupation/EditOccupationTypePage";
 import OccupationTypePage from "./pages/occupation/OccupationTypePage";
 import ViewOccupationTypePage from "./pages/occupation/ViewOccupationTypePage";
 import RequireMasterAdmin from "./auth/RequireMasterAdmin";
+// import ManageCreditBureau from "./pages/integration/ManageCreditBureau";
+// import ManageSmsEmailApi from "./pages/integration/ManageSmsEmailApi";
+// import ManageAccountingErp from "./pages/integration/ManageAccountingErp";
+// import ManageCrm from "./pages/integration/ManageCrm";
+// import ManagePaymentGateway from "./pages/integration/ManagePaymentGateway";
+// import AddApiKeys from "./pages/integration/AddApiKeys";
+// import SetEndpoints from "./pages/integration/SetEndPoints";
+// import MonitorStatus from "./pages/integration/MonitorStatus";
+// import TestConnections from "./pages/integration/TestConnections";
+
+import ApprovalPage from "./pages/approvalMaster/ApprovalPage";
+import AddApproval from "./pages/approvalMaster/AddApproval";
+import EditApproval from "./pages/approvalMaster/EditApproval";
+import { ManageApprovalPage } from "./pages/approvalMaster/ManageApprovalPage";
+import { EscalationPage } from "./pages/approvalMaster/EscalationPage";
+
 import ProductList from "./pages/productManagement/product/ProductList";
 import AddProduct from "./pages/productManagement/product/AddProduct";
 import EditProduct from "./pages/productManagement/product/EditProduct";
@@ -123,6 +142,14 @@ function App() {
         <Route path="/organizations/list" element={<OrganizationList />} />
         <Route path="/organizations/edit/:id" element={<EditOrganization />} />
 
+
+        <Route path="/approvals" element={<ApprovalPage />} />
+        <Route path="/approvals/add" element={<AddApproval />} />
+        <Route path="/approvals/edit/:id" element={<EditApproval />} />
+        <Route path="/manage-approvals" element={<ManageApprovalPage />} />
+        <Route path="/escalation" element={<EscalationPage />} />
+
+       
         <Route path="/organizations/branches/list" element={<BranchList />} />
         <Route
           path="/organizations/branches/update/:id"
@@ -139,6 +166,75 @@ function App() {
         <Route path="/roles/list" element={<RoleList />} />
         <Route path="/roles/create" element={<CreateRole />} />
         <Route path="/roles/set-permissions" element={<SetPermissions />} />
+        <Route path="/roles/assign-permissions" element={<AssignPermissions />} />
+
+
+
+       
+          <Route path="/reports" element={<ReportingAnalytics />} />
+          <Route path="/reports/daily-disbursement" element={<DailyDisbursementReport/>} />
+          <Route path="/reports/branch-performance" element={<BranchPerformanceReport/>} />
+          <Route path="/reports/loan-approval-rejection" element={<LoanApprovalRejectionReport/>} />
+          <Route path="/reports/npa-report" element={<NpaReport/>} />
+          <Route path="/reports/revenue-report" element={<RevenueReport/>} />
+          <Route path="/reports/user-activity-report" element={<UserActivityReport/>} />
+      
+          <Route path="/audits" element={<AuditMain />} />
+          <Route path="/audits/user-actions" element={<ViewUserActions />} />
+          <Route path="/audits/user-actions" element={<ViewUserActions />} />
+          <Route path="/audits/edits-deletes" element={<TrackEditsDeletes />} />
+          <Route path="/audits/timestamps" element={<ActivityTimeline />} />
+          <Route path="/audits/ip-logs" element={<TrackIpLogs />} />
+          <Route path="/audits/branch-data" element={<BranchDataMonitor />} />
+          
+          <Route path="/subscriptions" element={<SubscriptionHome />} />
+          <Route path="/subscriptions/list" element={<SubscriptionPage />} />
+          <Route path="/subscriptions/add" element={<AddSubscription />} />
+          <Route path="/subscriptions/edit/:uuid" element={<EditSubscription />} />
+
+          <Route path="/coupons" element={<CouponPage />} />
+          <Route path="/coupons/add" element={<AddCoupon />} />
+          <Route path="/coupons/edit/:uuid" element={<EditCoupon />} />
+
+          <Route path="/subscribers" element={<SubscribersPage />} />
+
+          <Route path="/employment-types" element={<EmploymentTypePage />} />
+          <Route path="/employment-types/add" element={<AddEmploymentTypePage />} />
+          <Route path="/employment-types/edit/:uuid" element={<EditEmploymentTypePage />} />
+          <Route path="/employment-types/view/:uuid" element={<ViewEmploymentTypePage />} />
+
+           <Route path="/occupation-types" element={<OccupationTypePage />} />
+           <Route path="/occupation-types/add" element={<AddOccupationTypePage />} />
+           <Route path="/occupation-types/edit/:uuid" element={<EditOccupationTypePage />} />
+           <Route path="/occupation-types/view/:uuid" element={<ViewOccupationTypePage />} />
+           
+
+           <Route path="/master-data" element={<MasterData />} />
+           <Route path="/master-data/loan-products" element={<LoanProduct />} />
+           <Route path="/master-data/interest-setting" element={<InterestSettings />} />
+           <Route path="/master-data/document-template" element={<DocumentTemplates />} />
+           {/* <Route path="/master-data/credit-score" element={<CreditScorings />} />
+           
+
+           <Route path="/integrations/payment-gateway" element={<IntegrationManagament />} />
+           <Route path="/integrations/credit-bureau" element={<ManageCreditBureau />} />
+           <Route path="/integrations/sms-email-api" element={<ManageSmsEmailApi />} />
+           <Route path="/integrations/accounting-erp" element={<ManageCrm />} />
+           <Route path="/integrations/crm" element={<ManagePaymentGateway />} />
+           <Route path="/integrations/api-keys" element={<AddApiKeys />} />
+           <Route path="/integrations/endpoints" element={<SetEndpoints />} />
+           <Route path="/integrations/monitor-status" element={<MonitorStatus />} />
+           <Route path="/integrations/test-connections" element={<TestConnections />} /> */}
+
+
+           <Route path="/document" element={<Notification />} />
+
+
+        
+
+
+       
+         
         <Route
           path="/roles/assign-permissions"
           element={<AssignPermissions />}

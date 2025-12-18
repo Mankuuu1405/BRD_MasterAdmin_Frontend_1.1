@@ -44,6 +44,54 @@ const Sidebar = () => {
          : "text-gray-700 hover:bg-gray-100"
      }`;
 
+  // -------------------------
+  // MENU CONFIG (FIXED)
+  // -------------------------
+  const menuItems = [
+    { name: "Home", path: "/dashboard", icon: <FiHome size={18} /> },
+    { name: "Organizations", path: "/organizations", icon: <FiGrid size={18} /> },
+    { name: "Users", path: "/users", icon: <FiUsers size={18} /> },
+    { name: "Roles", path: "/roles", icon: <FiKey size={18} /> },
+    { name: "Subscription", path: "/subscriptions", icon: <FiCreditCard size={18} /> },
+    { name: "Approval Master", path: "/approvals", icon: <FiCreditCard size={18} /> },
+    { name: "Manage Approvals", path: "/manage-approvals", icon: <FiCreditCard size={18} /> },
+    { name: "Escalation", path: "/escalation", icon: <FiCreditCard size={18} /> },
+
+    // ===== SECTION =====
+    { section: "Master Data & Governance" },
+
+    { name: "Master Data Config", path: "/master-data", icon: <FiShield size={18} /> },
+
+    {
+      name: "Integration & API",
+      path: "/integrations",
+      icon: <FiLink size={18} />,
+    },
+    {
+      name: "Audit & Security",
+      path: "/audits",
+      icon: <FiShield size={18} />,
+    },
+    {
+      name: "Reports & Analytics",
+      path: "/reports",
+      icon: <FiBarChart2 size={18} />,
+    },
+
+    // ===== SECTION =====
+    { section: "User Master" },
+
+    {
+      name: "Employment Types",
+      path: "/employment-types",
+      icon: <FiUserCheck size={18} />,
+    },
+    {
+      name: "Occupation Types",
+      path: "/occupation-types",
+      icon: <FiBriefcase size={18} />,
+    },
+  ];
   const dropdownParentActive =
     location.pathname.startsWith("/product") ||
     location.pathname.startsWith("/fees") ||
