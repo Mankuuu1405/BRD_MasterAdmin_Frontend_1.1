@@ -11,19 +11,43 @@ const AddApproval = () => {
     type: "",
     product_type: "",
     product_name: "",
-    approver_name: "",
-    rate: "",
-    tenure: "",
+    approval_name: {
+      sanction: "",
+      rate_inc: "",
+      rate_dec: "",
+      fees_inc: "",
+      fees_dec: "",
+      tenure_inc: "",
+      tenure_dec: "",
+      range: "",
+      moratorium: {
+        interest: "",
+        period: "",
+      },
+    },
     status: "Active",
   });
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e, path = null) => {
+    if (!path) {
+      setForm({ ...form, [e.target.name]: e.target.value });
+      return;
+    }
+
+    const updated = { ...form };
+    let obj = updated;
+
+    for (let i = 0; i < path.length - 1; i++) {
+      obj = obj[path[i]];
+    }
+
+    obj[path[path.length - 1]] = e.target.value;
+    setForm(updated);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Add Approval:", form);
+    console.log("Approval Payload:", form);
     navigate("/approvals");
   };
 
@@ -31,100 +55,61 @@ const AddApproval = () => {
     <MainLayout>
       {/* HEADER */}
       <div className="flex items-center gap-3 mb-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 shadow-sm transition"
-        >
-          <FiArrowLeft className="text-gray-700 text-xl" />
+        <button onClick={() => navigate(-1)} className="p-2 rounded-xl bg-gray-50">
+          <FiArrowLeft />
         </button>
-
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">
-            Add Approval
-          </h1>
-          <p className="text-gray-500 text-sm">
-            Create a new approval configuration.
-          </p>
+          <h1 className="text-2xl font-bold">Add Approval</h1>
+          <p className="text-gray-500 text-sm">Create approval rule</p>
         </div>
       </div>
 
-      {/* FORM CARD */}
-      <div className="bg-white p-8 rounded-2xl shadow-md max-w-4xl">
+      <div className="bg-white p-8 rounded-2xl shadow-md max-w-5xl">
         <form onSubmit={handleSubmit} className="space-y-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <SelectField
-              label="Approval Level *"
-              name="level"
-              value={form.level}
-              onChange={handleChange}
-              options={["1", "2", "3", "Final"]}
-            />
+          {/* BASIC INFO */}
+          <Section title="Basic Details">
+            <Select label="Level" options={["1","2","3","4","Final"]}
+              onChange={(e)=>handleChange(e)} name="level" />
+            <Select label="Type" options={["Individual","Team"]}
+              onChange={(e)=>handleChange(e)} name="type" />
+            <Input label="Product Type" name="product_type"
+              onChange={(e)=>handleChange(e)} />
+            <Input label="Product Name" name="product_name"
+              onChange={(e)=>handleChange(e)} />
+            <Input label="Sanction Name"
+              onChange={(e)=>handleChange(e,["approval_name","sanction"])} />
+          </Section>
 
-            <SelectField
-              label="Approval Type *"
-              name="type"
-              value={form.type}
-              onChange={handleChange}
-              options={["Individual", "Team"]}
-            />
+          {/* RATE & FEES */}
+          <Section title="Rate & Fees">
+            <Input label="Rate Increase (%)"
+              onChange={(e)=>handleChange(e,["approval_name","rate_inc"])} />
+            <Input label="Rate Decrease (%)"
+              onChange={(e)=>handleChange(e,["approval_name","rate_dec"])} />
+            <Input label="Fees Increase"
+              onChange={(e)=>handleChange(e,["approval_name","fees_inc"])} />
+            <Input label="Fees Decrease"
+              onChange={(e)=>handleChange(e,["approval_name","fees_dec"])} />
+          </Section>
 
-            <InputField
-              label="Product Type *"
-              name="product_type"
-              placeholder="Loan"
-              value={form.product_type}
-              onChange={handleChange}
-            />
+          {/* TENURE & MORATORIUM */}
+          <Section title="Tenure & Moratorium">
+            <Input label="Tenure Increase (Months)"
+              onChange={(e)=>handleChange(e,["approval_name","tenure_inc"])} />
+            <Input label="Tenure Decrease (Months)"
+              onChange={(e)=>handleChange(e,["approval_name","tenure_dec"])} />
+            <Input label="Moratorium Interest (%)"
+              onChange={(e)=>handleChange(e,["approval_name","moratorium","interest"])} />
+            <Input label="Moratorium Period (Months)"
+              onChange={(e)=>handleChange(e,["approval_name","moratorium","period"])} />
+            <Input label="Approval Range"
+              onChange={(e)=>handleChange(e,["approval_name","range"])} />
+            <Select label="Status" options={["Active","Inactive"]}
+              onChange={(e)=>handleChange(e)} name="status" />
+          </Section>
 
-            <InputField
-              label="Product Name *"
-              name="product_name"
-              placeholder="Home Loan"
-              value={form.product_name}
-              onChange={handleChange}
-            />
-
-            <InputField
-              label="Approver Name *"
-              name="approver_name"
-              placeholder="John Doe"
-              value={form.approver_name}
-              onChange={handleChange}
-            />
-
-            <InputField
-              label="Rate (%)"
-              name="rate"
-              type="number"
-              placeholder="12"
-              value={form.rate}
-              onChange={handleChange}
-            />
-
-            <InputField
-              label="Tenure (Months)"
-              name="tenure"
-              type="number"
-              placeholder="24"
-              value={form.tenure}
-              onChange={handleChange}
-            />
-
-            <SelectField
-              label="Status *"
-              name="status"
-              value={form.status}
-              onChange={handleChange}
-              options={["Active", "Inactive"]}
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-700 transition text-sm"
-          >
-            <FiSave className="text-lg" />
-            Save Approval
+          <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-xl">
+            <FiSave /> Save Approval
           </button>
         </form>
       </div>
@@ -134,35 +119,28 @@ const AddApproval = () => {
 
 export default AddApproval;
 
-/* ---------- INPUT ---------- */
-function InputField({ label, ...props }) {
-  return (
-    <div>
-      <label className="text-gray-700 text-sm font-medium">{label}</label>
-      <input
-        {...props}
-        className="w-full mt-2 p-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:bg-white text-sm"
-      />
-    </div>
-  );
-}
+/* ---------- REUSABLE ---------- */
 
-/* ---------- SELECT ---------- */
-function SelectField({ label, options, ...props }) {
-  return (
-    <div>
-      <label className="text-gray-700 text-sm font-medium">{label}</label>
-      <select
-        {...props}
-        className="w-full mt-2 p-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:bg-white text-sm"
-      >
-        <option value="">Select</option>
-        {options.map((op) => (
-          <option key={op} value={op}>
-            {op}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-}
+const Section = ({ title, children }) => (
+  <div>
+    <h3 className="font-semibold text-gray-700 mb-4">{title}</h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{children}</div>
+  </div>
+);
+
+const Input = ({ label, ...props }) => (
+  <div>
+    <label className="text-sm font-medium">{label}</label>
+    <input {...props} className="w-full mt-2 p-3 bg-gray-50 rounded-xl" />
+  </div>
+);
+
+const Select = ({ label, options, ...props }) => (
+  <div>
+    <label className="text-sm font-medium">{label}</label>
+    <select {...props} className="w-full mt-2 p-3 bg-gray-50 rounded-xl">
+      <option value="">Select</option>
+      {options.map(o => <option key={o}>{o}</option>)}
+    </select>
+  </div>
+);

@@ -109,6 +109,26 @@ import ChargeList from "./pages/productManagement/chargeManagement/ChargeList";
 import AddCharge from "./pages/productManagement/chargeManagement/AddCharge";
 import ChargeDetail from "./pages/productManagement/chargeManagement/ChargeDetail";
 import EditCharge from "./pages/productManagement/chargeManagement/EditCharge";
+import ApprovalView from "./pages/approvalMaster/ApprovalView";
+import EligibilityList from "./pages/Eligibilty&ScoreManagement/EligibilityManagement/EligibilityList";
+import EligibilityView from "./pages/Eligibilty&ScoreManagement/EligibilityManagement/EligibilityView";
+import EligibilityForm from "./pages/Eligibilty&ScoreManagement/EligibilityManagement/EligibilityForm";
+import BankingList from "./pages/Eligibilty&ScoreManagement/BankingManagement/BankingList";
+import BankingView from "./pages/Eligibilty&ScoreManagement/BankingManagement/BankingView";
+import BankingForm from "./pages/Eligibilty&ScoreManagement/BankingManagement/BankingForm";
+import ExistingObligationList from "./pages/Eligibilty&ScoreManagement/ExistingObligationManagement/ExistingObligationList";
+import ExistingObligationView from "./pages/Eligibilty&ScoreManagement/ExistingObligationManagement/ExistingObligationView";
+import ExistingObligationForm from "./pages/Eligibilty&ScoreManagement/ExistingObligationManagement/ExistingObligationForm";
+import ScoreCardList from "./pages/Eligibilty&ScoreManagement/ScoreCardManagement/ScoreCardList";
+import ScoreCardView from "./pages/Eligibilty&ScoreManagement/ScoreCardManagement/ScoreCardView";
+import ScoreCardForm from "./pages/Eligibilty&ScoreManagement/ScoreCardManagement/ScoreCardForm";
+import AddTemplate from "./pages/templateManagement/predefineTemplate/AddTemplate";
+import ViewTemplate from "./pages/templateManagement/predefineTemplate/ViewTemplate";
+import EditTemplate from "./pages/templateManagement/predefineTemplate/EditTemplate";
+import PredefinedTemplateList from "./pages/templateManagement/predefineTemplate/PredefinedTemplateList";
+import CustomizeTemplateList from "./pages/templateManagement/customizeTemplate/CustomizeTemplateList";
+import CustomizeTemplateView from "./pages/templateManagement/customizeTemplate/CustomizeTemplateView";
+import CustomizeTemplateEdit from "./pages/templateManagement/customizeTemplate/CustomizeTemplateEdit";
 
 function App() {
   return (
@@ -146,6 +166,38 @@ function App() {
         <Route path="/approvals" element={<ApprovalPage />} />
         <Route path="/approvals/add" element={<AddApproval />} />
         <Route path="/approvals/edit/:id" element={<EditApproval />} />
+        <Route path="/approvals/view/:id" element={<ApprovalView/>} />
+
+        <Route path="/eligibility" element={<EligibilityList />} />
+        <Route path="/eligibility/view/:id" element={<EligibilityView />} />
+        <Route path="/eligibility/add" element={<EligibilityForm />} />
+        <Route path="/eligibility/edit/:id" element={<EligibilityForm/>} />
+
+        <Route path="/banking" element={<BankingList />} />
+        <Route path="/banking/view/:id" element={<BankingView />} />
+        <Route path="/banking/add" element={<BankingForm />} />
+        <Route path="/banking/edit/:id" element={<BankingForm/>} />
+
+        <Route path="/obligation" element={<ExistingObligationList />} />
+        <Route path="/obligation/view/:id" element={<ExistingObligationView />} />
+        <Route path="/obligation/add" element={<ExistingObligationForm />} />
+        <Route path="/obligation/edit/:id" element={<ExistingObligationForm/>} />
+
+
+        <Route path="/score-card" element={<ScoreCardList/>} />
+        <Route path="/score-card/view/:id" element={<ScoreCardView />} />
+        <Route path="/score-card/add" element={<ScoreCardForm />} />
+        <Route path="/score-card/edit/:id" element={<ScoreCardForm/>} />
+
+        <Route path="/predefine-template" element={<PredefinedTemplateList/>} />
+        <Route path="/predefine-template/view/:id" element={<ViewTemplate />} />
+        <Route path="/predefine-template/add" element={<AddTemplate />} />
+        <Route path="/predefine-template/edit/:id" element={<EditTemplate/>} />
+
+        <Route path="/customize-template" element={<CustomizeTemplateList/>} />
+        <Route path="/customize-template/view/:id" element={<CustomizeTemplateView />} />
+        <Route path="/customize-template/edit/:id" element={<CustomizeTemplateEdit/>} />
+
         <Route path="/manage-approvals" element={<ManageApprovalPage />} />
         <Route path="/escalation" element={<EscalationPage />} />
 

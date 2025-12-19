@@ -6,9 +6,14 @@ import { useNavigate } from "react-router-dom";
 export function EscalationPage() {
   const navigate = useNavigate();
 
+  // MOCK USERS – replace with API
+  const users = ["john.doe", "risk.manager", "admin.user"];
+
   const [form, setForm] = useState({
-    level: "",
-    manager: "",
+    ascalation_level: "",
+    ascalation_time: "",
+    ascalation_manage: "",
+    ascalation_to: "",
     status: "Active",
   });
 
@@ -18,7 +23,16 @@ export function EscalationPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Escalation:", form);
+
+    const payload = {
+      ascalation_level: form.ascalation_level,
+      ascalation_time: form.ascalation_time,
+      ascalation_manage: form.ascalation_manage,
+      ascalation_to: form.ascalation_to,
+      status: form.status,
+    };
+
+    console.log("Escalation Payload:", payload);
     navigate(-1);
   };
 
@@ -28,40 +42,52 @@ export function EscalationPage() {
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={() => navigate(-1)}
-          className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 transition border border-gray-200"
+          className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 border border-gray-200"
         >
-          <FiArrowLeft className="text-gray-700 text-lg" />
+          <FiArrowLeft className="text-lg text-gray-700" />
         </button>
 
-        <div>
-          <h1 className="text-[22px] font-semibold text-gray-900">
-            Escalation
-          </h1>
-          <p className="text-gray-500 text-sm">
-            Configure escalation levels and managers.
-          </p>
-        </div>
+        <_toggleHeader
+          title="Escalation Configuration"
+          subtitle="Define escalation levels, timing and responsibility"
+        />
       </div>
 
       {/* FORM CARD */}
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 max-w-3xl">
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 max-w-4xl">
         <form onSubmit={handleSubmit} className="space-y-10">
-          {/* FIELDS */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* ESCALATION DETAILS */}
+          <Section title="Escalation Details">
             <SelectField
               label="Escalation Level *"
-              name="level"
-              value={form.level}
+              name="ascalation_level"
+              value={form.ascalation_level}
               onChange={handleChange}
-              options={["1", "2", "3"]}
+              options={["1", "2", "3", "4"]}
             />
 
             <InputField
-              label="Escalation Manager *"
-              name="manager"
-              placeholder="Manager Name"
-              value={form.manager}
+              label="Escalation Time *"
+              name="ascalation_time"
+              type="datetime-local"
+              value={form.ascalation_time}
               onChange={handleChange}
+            />
+
+            <SelectField
+              label="Escalation Manager *"
+              name="ascalation_manage"
+              value={form.ascalation_manage}
+              onChange={handleChange}
+              options={users}
+            />
+
+            <SelectField
+              label="Escalation To *"
+              name="ascalation_to"
+              value={form.ascalation_to}
+              onChange={handleChange}
+              options={users}
             />
 
             <SelectField
@@ -71,12 +97,12 @@ export function EscalationPage() {
               onChange={handleChange}
               options={["Active", "Inactive"]}
             />
-          </div>
+          </Section>
 
-          {/* SAVE BUTTON */}
+          {/* SAVE */}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-700 transition text-sm"
+            className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-700 transition"
           >
             <FiSave className="text-lg" />
             Save Escalation
@@ -87,7 +113,17 @@ export function EscalationPage() {
   );
 }
 
-/* ---------- INPUT FIELD ---------- */
+/* ================= UI HELPERS ================= */
+
+const Section = ({ title, children }) => (
+  <div>
+    <h3 className="text-gray-900 font-semibold mb-4">{title}</h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {children}
+    </div>
+  </div>
+);
+
 function InputField({ label, ...props }) {
   return (
     <div>
@@ -100,7 +136,6 @@ function InputField({ label, ...props }) {
   );
 }
 
-/* ---------- SELECT FIELD ---------- */
 function SelectField({ label, options, ...props }) {
   return (
     <div>
@@ -116,6 +151,18 @@ function SelectField({ label, options, ...props }) {
           </option>
         ))}
       </select>
+    </div>
+  );
+}
+
+/* ---------- HEADER COMPONENT ---------- */
+function _toggleHeader({ title, subtitle }) {
+  return (
+    <div>
+      <h1 className="text-[22px] font-semibold text-gray-900">
+        {title}
+      </h1>
+      <p className="text-gray-500 text-sm">{subtitle}</p>
     </div>
   );
 }

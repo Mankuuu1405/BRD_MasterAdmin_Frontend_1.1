@@ -15,10 +15,21 @@ import {
   FiChevronUp,
   FiLogOut,
   FiBox,
+  FiCheckCircle,
+  FiThumbsUp,
+  FiLayers,
+  FiClipboard,
 } from "react-icons/fi";
 
 const Sidebar = () => {
   const location = useLocation();
+
+  /* ---------------- STATE ---------------- */
+  const [openApprovalMaster, setOpenApprovalMaster] = useState(
+    location.pathname.startsWith("/approvals") ||
+      location.pathname.startsWith("/manage-approvals") ||
+      location.pathname.startsWith("/escalation")
+  );
 
   const [openProductRevenue, setOpenProductRevenue] = useState(
     location.pathname.startsWith("/product") ||
@@ -27,6 +38,20 @@ const Sidebar = () => {
       location.pathname.startsWith("/interest")
   );
 
+
+  const [openEligibilityAndScore, setEligibilityAndScore] = useState(
+    location.pathname.startsWith("/eligibility") ||
+    location.pathname.startsWith("/banking") ||
+    location.pathname.startsWith("/obligation") ||
+    location.pathname.startsWith("/score-card")
+  );
+
+  const [openTemplateManagement, setTemplateManagement] = useState(
+    location.pathname.startsWith("/predefined-template") ||
+    location.pathname.startsWith("/customized-template")
+  );
+
+  /* ---------------- HELPERS ---------------- */
   const handleLogout = () => {
     localStorage.clear();
     sessionStorage.clear();
@@ -36,72 +61,27 @@ const Sidebar = () => {
   const isActive = (path) =>
     location.pathname === path || location.pathname.startsWith(path);
 
-  const menuItemStyle = (path) =>
-    `flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all
-     ${
-       isActive(path)
-         ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
-         : "text-gray-700 hover:bg-gray-100"
-     }`;
+  const menuItemStyle = (path) => `
+    flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all
+    ${
+      isActive(path)
+        ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+        : "text-gray-700 hover:bg-gray-100"
+    }
+  `;
 
-  // -------------------------
-  // MENU CONFIG (FIXED)
-  // -------------------------
-  const menuItems = [
-    { name: "Home", path: "/dashboard", icon: <FiHome size={18} /> },
-    { name: "Organizations", path: "/organizations", icon: <FiGrid size={18} /> },
-    { name: "Users", path: "/users", icon: <FiUsers size={18} /> },
-    { name: "Roles", path: "/roles", icon: <FiKey size={18} /> },
-    { name: "Subscription", path: "/subscriptions", icon: <FiCreditCard size={18} /> },
-    { name: "Approval Master", path: "/approvals", icon: <FiCreditCard size={18} /> },
-    { name: "Manage Approvals", path: "/manage-approvals", icon: <FiCreditCard size={18} /> },
-    { name: "Escalation", path: "/escalation", icon: <FiCreditCard size={18} /> },
-
-    // ===== SECTION =====
-    { section: "Master Data & Governance" },
-
-    { name: "Master Data Config", path: "/master-data", icon: <FiShield size={18} /> },
-
-    {
-      name: "Integration & API",
-      path: "/integrations",
-      icon: <FiLink size={18} />,
-    },
-    {
-      name: "Audit & Security",
-      path: "/audits",
-      icon: <FiShield size={18} />,
-    },
-    {
-      name: "Reports & Analytics",
-      path: "/reports",
-      icon: <FiBarChart2 size={18} />,
-    },
-
-    // ===== SECTION =====
-    { section: "User Master" },
-
-    {
-      name: "Employment Types",
-      path: "/employment-types",
-      icon: <FiUserCheck size={18} />,
-    },
-    {
-      name: "Occupation Types",
-      path: "/occupation-types",
-      icon: <FiBriefcase size={18} />,
-    },
-  ];
   const dropdownParentActive =
     location.pathname.startsWith("/product") ||
     location.pathname.startsWith("/fees") ||
     location.pathname.startsWith("/charges") ||
     location.pathname.startsWith("/interest");
 
+  /* ---------------- RENDER ---------------- */
   return (
-    <div className="w-64 h-screen bg-white fixed left-0 top-0 flex flex-col justify-between border-r">
+    <div className="fixed left-0 top-0 h-screen w-64 bg-white border-r flex flex-col justify-between overflow-y-scroll">
+      {/* TOP */}
       <div>
-        {/* Title */}
+        {/* TITLE */}
         <div className="p-6">
           <span className="text-xl font-semibold text-gray-900">
             Master Admin
@@ -110,7 +90,7 @@ const Sidebar = () => {
 
         {/* MENU */}
         <nav className="px-3 space-y-1">
-          {/* MAIN ITEMS */}
+          {/* MAIN */}
           <Link to="/dashboard" className={menuItemStyle("/dashboard")}>
             <FiHome size={18} /> Home
           </Link>
@@ -135,7 +115,7 @@ const Sidebar = () => {
           </Link>
 
           {/* SECTION */}
-          <p className="text-xs text-gray-500 uppercase font-semibold mt-4 mb-2 px-3">
+          <p className="mt-4 mb-2 px-3 text-xs font-semibold uppercase text-gray-500">
             Master Data & Governance
           </p>
 
@@ -143,15 +123,55 @@ const Sidebar = () => {
             <FiShield size={18} /> Master Data Config
           </Link>
 
-          {/* ===== PRODUCT & REVENUE DROPDOWN ===== */}
+          {/* APPROVAL MASTER */}
+          <button
+            onClick={() => setOpenApprovalMaster((p) => !p)}
+            className={`
+              flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all
+              ${
+                openApprovalMaster
+                  ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+                  : "text-gray-700 hover:bg-gray-100"
+              }
+            `}
+          >
+            <span className="flex items-center gap-3">
+              <FiThumbsUp size={18} />
+              Approval Master
+            </span>
+            {openApprovalMaster ? <FiChevronUp /> : <FiChevronDown />}
+          </button>
+
+          {openApprovalMaster && (
+            <div className="ml-6 mt-1 space-y-1">
+              <Link to="/approvals" className={menuItemStyle("/approvals")}>
+                Approvals
+              </Link>
+
+              <Link
+                to="/manage-approvals"
+                className={menuItemStyle("/manage-approvals")}
+              >
+                Manage Approvals
+              </Link>
+
+              <Link to="/escalation" className={menuItemStyle("/escalation")}>
+                Escalation
+              </Link>
+            </div>
+          )}
+
+          {/* PRODUCT & REVENUE */}
           <button
             onClick={() => setOpenProductRevenue((p) => !p)}
-            className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all
+            className={`
+              flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all
               ${
                 dropdownParentActive
                   ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
                   : "text-gray-700 hover:bg-gray-100"
-              }`}
+              }
+            `}
           >
             <span className="flex items-center gap-3">
               <FiBox size={18} />
@@ -184,14 +204,89 @@ const Sidebar = () => {
                 Charges Management
               </Link>
 
-              <Link
-                to="/interest/list"
-                className={menuItemStyle("/interest")}
-              >
+              <Link to="/interest/list" className={menuItemStyle("/interest")}>
                 Interest Management
               </Link>
             </div>
           )}
+
+          {/* Eligibility & Score Management */}
+          <button
+            onClick={() => setEligibilityAndScore((p) => !p)}
+            className={`
+              flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all
+              ${
+                openEligibilityAndScore
+                  ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+                  : "text-gray-700 hover:bg-gray-100"
+              }
+            `}
+          >
+            <span className="flex items-center gap-3">
+              <FiClipboard size={18} />
+              Eligibility & Score
+            </span>
+            {openEligibilityAndScore ? <FiChevronUp /> : <FiChevronDown />}
+          </button>
+
+          {openEligibilityAndScore && (
+            <div className="ml-6 mt-1 space-y-1">
+              <Link to="/eligibility" className={menuItemStyle("/eligibility")}>
+                Eligibility Management
+              </Link>
+
+              <Link
+                to="/banking"
+                className={menuItemStyle("/banking")}
+              >
+                Banking Management
+              </Link>
+
+              <Link to="/obligation" className={menuItemStyle("/obligation")}>
+                Obligation Management
+              </Link>
+
+              <Link to="/score-card" className={menuItemStyle("/score-card")}>
+                Score Card Management
+              </Link>
+            </div>
+          )}
+
+          {/* Template Management */}
+          <button
+            onClick={() => setTemplateManagement((p) => !p)}
+            className={`
+              flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all
+              ${
+                openTemplateManagement
+                  ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+                  : "text-gray-700 hover:bg-gray-100"
+              }
+            `}
+          >
+            <span className="flex items-center gap-3">
+              <FiClipboard size={18} />
+              Template Management
+            </span>
+            {openTemplateManagement ? <FiChevronUp /> : <FiChevronDown />}
+          </button>
+
+          {openTemplateManagement && (
+            <div className="ml-6 mt-1 space-y-1">
+              <Link to="/predefine-template" className={menuItemStyle("/predefine-template")}>
+                Predefine Template
+              </Link>
+
+              <Link
+                to="/customize-template"
+                className={menuItemStyle("/customize")}
+              >
+                Customize Template
+              </Link>
+
+            </div>
+          )}
+
 
           <Link to="/audits" className={menuItemStyle("/audits")}>
             <FiShield size={18} /> Audit & Security
@@ -201,8 +296,8 @@ const Sidebar = () => {
             <FiBarChart2 size={18} /> Reports & Analytics
           </Link>
 
-          {/* SECTION */}
-          <p className="text-xs text-gray-500 uppercase font-semibold mt-4 mb-2 px-3">
+          {/* USER MASTER */}
+          <p className="mt-4 mb-2 px-3 text-xs font-semibold uppercase text-gray-500">
             User Master
           </p>
 
@@ -223,7 +318,7 @@ const Sidebar = () => {
       </div>
 
       {/* LOGOUT */}
-      <div className="p-4 border-t">
+      <div className="border-t p-4">
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-red-600 hover:bg-red-50 transition"

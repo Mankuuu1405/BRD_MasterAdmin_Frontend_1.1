@@ -12,9 +12,20 @@ const EditApproval = () => {
     type: "",
     product_type: "",
     product_name: "",
-    approver_name: "",
-    rate: "",
-    tenure: "",
+    approval_name: {
+      sanction: "",
+      rate_inc: "",
+      rate_dec: "",
+      fees_inc: "",
+      fees_dec: "",
+      tenure_inc: "",
+      tenure_dec: "",
+      range: "",
+      moratorium: {
+        interest: "",
+        period: "",
+      },
+    },
     status: "Active",
   });
 
@@ -25,21 +36,46 @@ const EditApproval = () => {
       type: "Individual",
       product_type: "Loan",
       product_name: "Home Loan",
-      approver_name: "John Doe",
-      rate: "12",
-      tenure: "24",
+      approval_name: {
+        sanction: "Branch Sanction",
+        rate_inc: 2,
+        rate_dec: 1,
+        fees_inc: 5000,
+        fees_dec: 2000,
+        tenure_inc: 12,
+        tenure_dec: 6,
+        range: "0 – 25L",
+        moratorium: {
+          interest: 1.5,
+          period: 6,
+        },
+      },
       status: "Active",
     };
     setForm(mockData);
   }, [id]);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  /* NESTED CHANGE HANDLER */
+  const handleChange = (e, path = null) => {
+    if (!path) {
+      setForm({ ...form, [e.target.name]: e.target.value });
+      return;
+    }
+
+    const updated = { ...form };
+    let obj = updated;
+
+    for (let i = 0; i < path.length - 1; i++) {
+      obj = obj[path[i]];
+    }
+
+    obj[path[path.length - 1]] = e.target.value;
+    setForm(updated);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Edit Approval:", id, form);
+    console.log("Updated Approval:", id, form);
     navigate("/approvals");
   };
 
@@ -49,90 +85,119 @@ const EditApproval = () => {
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 shadow-sm transition"
+          className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200"
         >
-          <FiArrowLeft className="text-gray-700 text-xl" />
+          <FiArrowLeft />
         </button>
 
         <div>
           <h1 className="text-2xl font-bold text-gray-800">
             Edit Approval
           </h1>
-          <p className="text-gray-500 text-sm">
-            Update approval configuration.
+          <p className="text-sm text-gray-500">
+            Modify approval configuration
           </p>
         </div>
       </div>
 
       {/* FORM */}
-      <div className="bg-white p-8 rounded-2xl shadow-md max-w-4xl">
+      <div className="bg-white p-8 rounded-2xl shadow-md max-w-5xl">
         <form onSubmit={handleSubmit} className="space-y-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <SelectField
-              label="Approval Level *"
-              name="level"
+
+          {/* BASIC DETAILS */}
+          <Section title="Basic Details">
+            <Select
+              label="Approval Level"
+              options={["1","2","3","4","Final"]}
               value={form.level}
-              onChange={handleChange}
-              options={["1", "2", "3", "Final"]}
+              onChange={(e)=>handleChange(e)}
+              name="level"
             />
 
-            <SelectField
-              label="Approval Type *"
-              name="type"
+            <Select
+              label="Approval Type"
+              options={["Individual","Team"]}
               value={form.type}
-              onChange={handleChange}
-              options={["Individual", "Team"]}
+              onChange={(e)=>handleChange(e)}
+              name="type"
             />
 
-            <InputField
-              label="Product Type *"
-              name="product_type"
+            <Input
+              label="Product Type"
               value={form.product_type}
-              onChange={handleChange}
+              onChange={(e)=>handleChange(e)}
+              name="product_type"
             />
 
-            <InputField
-              label="Product Name *"
-              name="product_name"
+            <Input
+              label="Product Name"
               value={form.product_name}
-              onChange={handleChange}
+              onChange={(e)=>handleChange(e)}
+              name="product_name"
             />
 
-            <InputField
-              label="Approver Name *"
-              name="approver_name"
-              value={form.approver_name}
-              onChange={handleChange}
+            <Input
+              label="Sanction Name"
+              value={form.approval_name.sanction}
+              onChange={(e)=>handleChange(e,["approval_name","sanction"])}
             />
 
-            <InputField
-              label="Rate (%)"
-              name="rate"
-              type="number"
-              value={form.rate}
-              onChange={handleChange}
+            <Input
+              label="Approval Range"
+              value={form.approval_name.range}
+              onChange={(e)=>handleChange(e,["approval_name","range"])}
             />
+          </Section>
 
-            <InputField
-              label="Tenure (Months)"
-              name="tenure"
-              type="number"
-              value={form.tenure}
-              onChange={handleChange}
-            />
+          {/* RATE & FEES */}
+          <Section title="Rate & Fees">
+            <Input label="Rate Increase (%)"
+              value={form.approval_name.rate_inc}
+              onChange={(e)=>handleChange(e,["approval_name","rate_inc"])} />
 
-            <SelectField
-              label="Status *"
-              name="status"
+            <Input label="Rate Decrease (%)"
+              value={form.approval_name.rate_dec}
+              onChange={(e)=>handleChange(e,["approval_name","rate_dec"])} />
+
+            <Input label="Fees Increase"
+              value={form.approval_name.fees_inc}
+              onChange={(e)=>handleChange(e,["approval_name","fees_inc"])} />
+
+            <Input label="Fees Decrease"
+              value={form.approval_name.fees_dec}
+              onChange={(e)=>handleChange(e,["approval_name","fees_dec"])} />
+          </Section>
+
+          {/* TENURE & MORATORIUM */}
+          <Section title="Tenure & Moratorium">
+            <Input label="Tenure Increase (Months)"
+              value={form.approval_name.tenure_inc}
+              onChange={(e)=>handleChange(e,["approval_name","tenure_inc"])} />
+
+            <Input label="Tenure Decrease (Months)"
+              value={form.approval_name.tenure_dec}
+              onChange={(e)=>handleChange(e,["approval_name","tenure_dec"])} />
+
+            <Input label="Moratorium Interest (%)"
+              value={form.approval_name.moratorium.interest}
+              onChange={(e)=>handleChange(e,["approval_name","moratorium","interest"])} />
+
+            <Input label="Moratorium Period (Months)"
+              value={form.approval_name.moratorium.period}
+              onChange={(e)=>handleChange(e,["approval_name","moratorium","period"])} />
+
+            <Select
+              label="Status"
+              options={["Active","Inactive"]}
               value={form.status}
-              onChange={handleChange}
-              options={["Active", "Inactive"]}
+              onChange={(e)=>handleChange(e)}
+              name="status"
             />
-          </div>
+          </Section>
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-700 transition text-sm"
+            className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-700"
           >
             <FiSave />
             Update Approval
@@ -145,35 +210,38 @@ const EditApproval = () => {
 
 export default EditApproval;
 
-/* ---------- INPUT FIELD ---------- */
-function InputField({ label, ...props }) {
-  return (
-    <div>
-      <label className="text-gray-700 text-sm font-medium">{label}</label>
-      <input
-        {...props}
-        className="w-full mt-2 p-3 rounded-xl bg-gray-50 border border-gray-200 focus:bg-white outline-none text-sm"
-      />
-    </div>
-  );
-}
+/* ---------------- UI HELPERS ---------------- */
 
-/* ---------- SELECT FIELD ---------- */
-function SelectField({ label, options, ...props }) {
-  return (
-    <div>
-      <label className="text-gray-700 text-sm font-medium">{label}</label>
-      <select
-        {...props}
-        className="w-full mt-2 p-3 rounded-xl bg-gray-50 border border-gray-200 focus:bg-white outline-none text-sm"
-      >
-        <option value="">Select</option>
-        {options.map((op) => (
-          <option key={op} value={op}>
-            {op}
-          </option>
-        ))}
-      </select>
+const Section = ({ title, children }) => (
+  <div>
+    <h3 className="font-semibold text-gray-700 mb-4">{title}</h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {children}
     </div>
-  );
-}
+  </div>
+);
+
+const Input = ({ label, ...props }) => (
+  <div>
+    <label className="text-sm font-medium text-gray-700">{label}</label>
+    <input
+      {...props}
+      className="w-full mt-2 p-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:bg-white text-sm"
+    />
+  </div>
+);
+
+const Select = ({ label, options, ...props }) => (
+  <div>
+    <label className="text-sm font-medium text-gray-700">{label}</label>
+    <select
+      {...props}
+      className="w-full mt-2 p-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:bg-white text-sm"
+    >
+      <option value="">Select</option>
+      {options.map((op) => (
+        <option key={op} value={op}>{op}</option>
+      ))}
+    </select>
+  </div>
+);
