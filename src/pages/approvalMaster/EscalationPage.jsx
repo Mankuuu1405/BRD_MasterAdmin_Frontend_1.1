@@ -10,10 +10,10 @@ export function EscalationPage() {
   const users = ["john.doe", "risk.manager", "admin.user"];
 
   const [form, setForm] = useState({
-    ascalation_level: "",
-    ascalation_time: "",
-    ascalation_manage: "",
-    ascalation_to: "",
+    escalation_level: "",
+    escalation_time: "",
+    escalation_manage: "",
+    escalation_to: "",
     status: "Active",
   });
 
@@ -25,10 +25,10 @@ export function EscalationPage() {
     e.preventDefault();
 
     const payload = {
-      ascalation_level: form.ascalation_level,
-      ascalation_time: form.ascalation_time,
-      ascalation_manage: form.ascalation_manage,
-      ascalation_to: form.ascalation_to,
+      escalation_level: form.escalation_level,
+      escalation_time: form.escalation_time,
+      escalation_manage: form.escalation_manage,
+      escalation_to: form.escalation_to,
       status: form.status,
     };
 
@@ -41,55 +41,60 @@ export function EscalationPage() {
       {/* HEADER */}
       <div className="flex items-center gap-3 mb-8">
         <button
+          type="button"
           onClick={() => navigate(-1)}
           className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 border border-gray-200"
         >
           <FiArrowLeft className="text-lg text-gray-700" />
         </button>
 
-        <_toggleHeader
-          title="Escalation Configuration"
-          subtitle="Define escalation levels, timing and responsibility"
+        <Header
+          title="Escalation Master"
+          subtitle="Manage delayed approval escalation rules"
         />
       </div>
 
       {/* FORM CARD */}
       <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 max-w-4xl">
         <form onSubmit={handleSubmit} className="space-y-10">
-          {/* ESCALATION DETAILS */}
           <Section title="Escalation Details">
+            {/* ESCALATION LEVEL */}
             <SelectField
               label="Escalation Level *"
-              name="ascalation_level"
-              value={form.ascalation_level}
+              name="escalation_level"
+              value={form.escalation_level}
               onChange={handleChange}
               options={["1", "2", "3", "4"]}
             />
 
+            {/* ESCALATION TIME */}
             <InputField
               label="Escalation Time *"
-              name="ascalation_time"
+              name="escalation_time"
               type="datetime-local"
-              value={form.ascalation_time}
+              value={form.escalation_time}
               onChange={handleChange}
             />
 
+            {/* ESCALATION MANAGER */}
             <SelectField
               label="Escalation Manager *"
-              name="ascalation_manage"
-              value={form.ascalation_manage}
+              name="escalation_manage"
+              value={form.escalation_manage}
               onChange={handleChange}
               options={users}
             />
 
+            {/* ESCALATION TO */}
             <SelectField
               label="Escalation To *"
-              name="ascalation_to"
-              value={form.ascalation_to}
+              name="escalation_to"
+              value={form.escalation_to}
               onChange={handleChange}
               options={users}
             />
 
+            {/* STATUS */}
             <SelectField
               label="Status *"
               name="status"
@@ -105,7 +110,7 @@ export function EscalationPage() {
             className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-700 transition"
           >
             <FiSave className="text-lg" />
-            Save Escalation
+            Save Escalation Rule
           </button>
         </form>
       </div>
@@ -156,7 +161,7 @@ function SelectField({ label, options, ...props }) {
 }
 
 /* ---------- HEADER COMPONENT ---------- */
-function _toggleHeader({ title, subtitle }) {
+function Header({ title, subtitle }) {
   return (
     <div>
       <h1 className="text-[22px] font-semibold text-gray-900">

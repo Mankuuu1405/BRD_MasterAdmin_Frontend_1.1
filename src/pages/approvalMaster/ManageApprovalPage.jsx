@@ -7,27 +7,13 @@ export function ManageApprovalPage() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    tenant_id: "",
+    tenant_id: "TENANT_001", // auto-filled from context/session
     user_id: "",
     status: "Active",
-    checklist: {
-      id_proof: false,
-      address_proof: false,
-    },
   });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleChecklistChange = (e) => {
-    setForm({
-      ...form,
-      checklist: {
-        ...form.checklist,
-        [e.target.name]: e.target.checked,
-      },
-    });
   };
 
   const handleSubmit = (e) => {
@@ -37,8 +23,6 @@ export function ManageApprovalPage() {
       tenant_id: form.tenant_id,
       user_id: form.user_id,
       status: form.status,
-      checklist:
-        form.user_id === "Group" ? form.checklist : null,
     };
 
     console.log("Manage Approval Payload:", payload);
@@ -50,6 +34,7 @@ export function ManageApprovalPage() {
       {/* HEADER */}
       <div className="flex items-center gap-3 mb-8">
         <button
+          type="button"
           onClick={() => navigate(-1)}
           className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 border border-gray-200"
         >
@@ -61,7 +46,7 @@ export function ManageApprovalPage() {
             Manage Approval
           </h1>
           <p className="text-sm text-gray-500">
-            Configure approval user rules
+            Assign approval roles to users or groups
           </p>
         </div>
       </div>
@@ -69,24 +54,28 @@ export function ManageApprovalPage() {
       {/* FORM CARD */}
       <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 max-w-3xl">
         <form onSubmit={handleSubmit} className="space-y-10">
-          {/* BASIC DETAILS */}
-          <Section title="Basic Details">
+          <Section title="Assignment Details">
+            {/* TENANT */}
             <InputField
-              label="Tenant ID *"
+              label="Tenant ID"
               name="tenant_id"
               value={form.tenant_id}
-              onChange={handleChange}
-              placeholder="Enter tenant identifier"
+              readOnly
             />
 
+            {/* ASSIGNED APPROVER */}
             <SelectField
-              label="User Type *"
+              label="Assigned Approver *"
               name="user_id"
               value={form.user_id}
               onChange={handleChange}
-              options={["Individual", "Group"]}
+              options={[
+                "Individual",
+                "Group",
+              ]}
             />
 
+            {/* STATUS */}
             <SelectField
               label="Status *"
               name="status"
@@ -96,34 +85,13 @@ export function ManageApprovalPage() {
             />
           </Section>
 
-          {/* GROUP CHECKLIST */}
-          {form.user_id === "Group" && (
-            <Section title="Group Checklist">
-              <div className="space-y-4">
-                <Checkbox
-                  label="ID Proof Required"
-                  name="id_proof"
-                  checked={form.checklist.id_proof}
-                  onChange={handleChecklistChange}
-                />
-
-                <Checkbox
-                  label="Address Proof Required"
-                  name="address_proof"
-                  checked={form.checklist.address_proof}
-                  onChange={handleChecklistChange}
-                />
-              </div>
-            </Section>
-          )}
-
           {/* SAVE */}
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-700 transition"
           >
             <FiSave className="text-lg" />
-            Save Configuration
+            Save Assignment
           </button>
         </form>
       </div>
@@ -148,7 +116,7 @@ function InputField({ label, ...props }) {
       <label className="text-gray-700 text-sm font-medium">{label}</label>
       <input
         {...props}
-        className="w-full mt-2 p-3 rounded-xl bg-gray-50 border border-gray-200 focus:bg-white outline-none text-sm"
+        className="w-full mt-2 p-3 rounded-xl bg-gray-50 border border-gray-200 outline-none text-sm"
       />
     </div>
   );
@@ -160,7 +128,7 @@ function SelectField({ label, options, ...props }) {
       <label className="text-gray-700 text-sm font-medium">{label}</label>
       <select
         {...props}
-        className="w-full mt-2 p-3 rounded-xl bg-gray-50 border border-gray-200 focus:bg-white outline-none text-sm"
+        className="w-full mt-2 p-3 rounded-xl bg-gray-50 border border-gray-200 outline-none text-sm"
       >
         <option value="">Select</option>
         {options.map((op) => (
@@ -170,18 +138,5 @@ function SelectField({ label, options, ...props }) {
         ))}
       </select>
     </div>
-  );
-}
-
-function Checkbox({ label, ...props }) {
-  return (
-    <label className="flex items-center gap-3 text-sm text-gray-700">
-      <input
-        type="checkbox"
-        {...props}
-        className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-      />
-      {label}
-    </label>
   );
 }
