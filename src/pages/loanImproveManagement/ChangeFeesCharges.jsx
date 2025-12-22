@@ -3,10 +3,6 @@ import MainLayout from "../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 
-// import { loanService } from "../../../../services/loanService";
-// import { feesService } from "../../../../services/feesService";
-// import { loanImprovementService } from "../../../../services/loanImprovementService";
-
 const ChangeFeesCharges = () => {
   const navigate = useNavigate();
   const { loanId } = useParams();
@@ -30,20 +26,18 @@ const ChangeFeesCharges = () => {
   useEffect(() => {
     (async () => {
       try {
-        /*
-        const loanData = await loanService.getLoanById(loanId);
-        const feeList = await feesService.getFees();
-
-        setLoan(loanData);
-        setFees(feeList || []);
-        */
-
-        // TEMP MOCK DATA
+        // MOCK DATA – BACKEND READY
         setLoan({
           loan_no: "LN-0001",
           customer: "Rahul Sharma",
           product: "Personal Loan",
           emi: 8500,
+
+          current_fees: [
+            { id: 1, name: "Processing Fee", amount: 5000 },
+            { id: 2, name: "Legal Fee", amount: 2500 },
+            { id: 3, name: "Late Payment Fee", amount: 300 },
+          ],
         });
 
         setFees([
@@ -57,24 +51,21 @@ const ChangeFeesCharges = () => {
     })();
   }, [loanId]);
 
+  /* ---------------- DERIVED DATA ---------------- */
+  const selectedFee = loan?.current_fees?.find(
+    (f) => String(f.id) === String(form.fee_type)
+  );
+
   /* ---------------- VALIDATION ---------------- */
   const validate = (v) => {
     const e = {};
-
-    if (!v.fee_type) {
-      e.fee_type = "Please select a fee type";
-    }
-
-    if (v.revised_fee_amount === "") {
+    if (!v.fee_type) e.fee_type = "Please select a fee type";
+    if (v.revised_fee_amount === "")
       e.revised_fee_amount = "Revised fee amount is required";
-    } else if (+v.revised_fee_amount <= 0) {
+    else if (+v.revised_fee_amount <= 0)
       e.revised_fee_amount = "Fee amount must be greater than 0";
-    }
-
-    if (!v.effective_date) {
+    if (!v.effective_date)
       e.effective_date = "Effective date is required";
-    }
-
     return e;
   };
 
@@ -88,10 +79,7 @@ const ChangeFeesCharges = () => {
     const { name, value } = e.target;
     const updated = { ...form, [name]: value };
     setForm(updated);
-
-    if (touched[name]) {
-      setErrors(validate(updated));
-    }
+    if (touched[name]) setErrors(validate(updated));
   };
 
   const handleBlur = (e) => {
@@ -101,7 +89,6 @@ const ChangeFeesCharges = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const validationErrors = validate(form);
     setErrors(validationErrors);
     setTouched({
@@ -109,23 +96,11 @@ const ChangeFeesCharges = () => {
       revised_fee_amount: true,
       effective_date: true,
     });
-
     if (Object.keys(validationErrors).length) return;
 
     setSubmitting(true);
     try {
-      /*
-      const payload = {
-        loan_id: loanId,
-        change_type: "FEES_UPDATE",
-        fee_type: form.fee_type,
-        new_value: Number(form.revised_fee_amount),
-        effective_date: form.effective_date,
-      };
-
-      await loanImprovementService.createChange(payload);
-      */
-
+      // submit API
       navigate(`/loan-improvement/${loanId}`);
     } finally {
       setSubmitting(false);
@@ -140,52 +115,69 @@ const ChangeFeesCharges = () => {
     );
   }
 
-  if (!loan) {
-    return (
-      <MainLayout>
-        <p className="text-gray-500">Loan not found.</p>
-      </MainLayout>
-    );
-  }
-
   return (
     <MainLayout>
       {/* HEADER */}
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition shadow-sm"
+          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 shadow-sm"
         >
           <FiArrowLeft className="text-gray-700 text-xl" />
         </button>
-
         <div>
-          <h1 className="text-xl font-semibold">
-            Change Fees & Charges
-          </h1>
+          <h1 className="text-xl font-semibold">Change Fees & Charges</h1>
           <p className="text-sm text-gray-500">
-            Update fees applied to the selected loan
+            Current fees before modification
           </p>
         </div>
       </div>
 
-      {/* LOAN SNAPSHOT */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm mb-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
-        <Info label="Loan No" value={loan.loan_no} />
-        <Info label="Customer" value={loan.customer} />
-        <Info label="Product" value={loan.product} />
-        <Info label="Current EMI" value={`₹${loan.emi}`} />
+      {/* ================= LOAN SNAPSHOT ================= */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm mb-8 space-y-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
+          <Info label="Loan No" value={loan.loan_no} />
+          <Info label="Customer" value={loan.customer} />
+          <Info label="Product" value={loan.product} />
+          <Info label="Current EMI" value={`₹${loan.emi}`} />
+        </div>
+
+        <hr className="border-gray-100" />
+
+        {/* CURRENT FEES */}
+        <div>
+          <p className="text-xs font-semibold text-gray-500 mb-3">
+            Current Fees & Charges
+          </p>
+          <table className="w-full text-sm border rounded-xl overflow-hidden">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="text-left px-4 py-2">Fee Type</th>
+                <th className="text-right px-4 py-2">Current Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loan.current_fees.map((f) => (
+                <tr key={f.id} className="border-t">
+                  <td className="px-4 py-2">{f.name}</td>
+                  <td className="px-4 py-2 text-right font-medium">
+                    ₹{f.amount}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* FORM */}
+      {/* ================= FORM ================= */}
       <div className="bg-white p-8 rounded-2xl shadow-md max-w-2xl">
         <form
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-2 gap-6"
         >
-          {/* FEE TYPE */}
           <SelectField
-            label="Revised Fee Type"
+            label="Fee Type to Revise"
             name="fee_type"
             value={form.fee_type}
             onChange={handleChange}
@@ -194,7 +186,14 @@ const ChangeFeesCharges = () => {
             error={errors.fee_type}
           />
 
-          {/* REVISED FEE AMOUNT */}
+          {/* CURRENT AMOUNT (AUTO) */}
+          <InfoBox
+            label="Current Amount"
+            value={
+              selectedFee ? `₹${selectedFee.amount}` : "Select fee type"
+            }
+          />
+
           <InputField
             label="Revised Fee Amount"
             type="number"
@@ -205,7 +204,6 @@ const ChangeFeesCharges = () => {
             error={errors.revised_fee_amount}
           />
 
-          {/* EFFECTIVE DATE */}
           <InputField
             label="Effective Date"
             type="date"
@@ -216,19 +214,18 @@ const ChangeFeesCharges = () => {
             error={errors.effective_date}
           />
 
-          {/* SUBMIT */}
           <div className="md:col-span-2 mt-4">
             <button
               type="submit"
               disabled={hasErrors || submitting}
-              className={`w-full py-3 rounded-xl flex items-center justify-center gap-2 text-white shadow-md transition ${
+              className={`w-full py-3 rounded-xl flex items-center justify-center gap-2 text-white shadow-md ${
                 hasErrors || submitting
-                  ? "bg-gray-400 cursor-not-allowed"
+                  ? "bg-gray-400"
                   : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
               <FiSave />
-              {submitting ? "Submitting..." : "Submit Change Request"}
+              Submit Change Request
             </button>
           </div>
         </form>
@@ -239,7 +236,7 @@ const ChangeFeesCharges = () => {
 
 export default ChangeFeesCharges;
 
-/* ---------------- SMALL UI HELPERS ---------------- */
+/* ---------------- HELPERS ---------------- */
 
 const Info = ({ label, value }) => (
   <div>
@@ -248,9 +245,18 @@ const Info = ({ label, value }) => (
   </div>
 );
 
+const InfoBox = ({ label, value }) => (
+  <div className="flex flex-col">
+    <label className="text-gray-700 text-sm font-medium">{label}</label>
+    <div className="mt-2 p-3 rounded-xl bg-gray-100 text-gray-800">
+      {value}
+    </div>
+  </div>
+);
+
 const InputField = ({
   label,
-  type = "text",
+  type,
   name,
   value,
   onChange,
@@ -265,7 +271,7 @@ const InputField = ({
       value={value}
       onChange={onChange}
       onBlur={onBlur}
-      className="mt-2 p-3 rounded-xl bg-gray-50 focus:bg-white shadow-sm outline-none"
+      className="mt-2 p-3 rounded-xl bg-gray-50 shadow-sm outline-none"
     />
     {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
   </div>

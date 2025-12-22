@@ -3,9 +3,6 @@ import MainLayout from "../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 
-// import { loanService } from "../../../../services/loanService";
-// import { loanImprovementService } from "../../../../services/loanImprovementService";
-
 const VINTAGE_UNITS = ["Months", "Years"];
 
 const TopUpManagement = () => {
@@ -30,44 +27,53 @@ const TopUpManagement = () => {
   useEffect(() => {
     (async () => {
       try {
-        /*
-        const data = await loanService.getLoanById(loanId);
-        setLoan(data);
-        */
-
-        // TEMP MOCK DATA
+        // MOCK DATA – BACKEND READY
         setLoan({
           loan_no: "LN-0001",
           customer: "Rahul Sharma",
           product: "Personal Loan",
           disbursed_amount: 300000,
           tenure: "36 Months",
+
+          topup: {
+            allowed: true,
+            current_limit: 50000,
+            min_vintage: "12 Months",
+          },
+
+          loan_vintage: {
+            value: 14,
+            unit: "Months",
+          },
         });
       } finally {
         setLoading(false);
       }
     })();
   }, [loanId]);
+  
+const isEligible = useMemo(() => {
+  if (!loan?.loan_vintage || !loan?.topup) return false;
+
+  const requiredVintage = Number(
+    loan.topup.min_vintage.split(" ")[0]
+  );
+
+  return loan.loan_vintage.value >= requiredVintage;
+}, [loan]);
+
 
   /* ---------------- VALIDATION ---------------- */
   const validate = (v) => {
     const e = {};
-
-    if (v.topup_limit === "") {
-      e.topup_limit = "Top-up limit is required";
-    } else if (+v.topup_limit <= 0) {
+    if (v.topup_limit === "") e.topup_limit = "Top-up limit is required";
+    else if (+v.topup_limit <= 0)
       e.topup_limit = "Top-up amount must be greater than 0";
-    }
 
-    if (v.loan_vintage_value === "") {
+    if (v.loan_vintage_value === "")
       e.loan_vintage_value = "Loan vintage is required";
-    } else if (+v.loan_vintage_value <= 0) {
+    else if (+v.loan_vintage_value <= 0)
       e.loan_vintage_value = "Loan vintage must be greater than 0";
-    }
-
-    if (!v.loan_vintage_unit) {
-      e.loan_vintage_unit = "Loan vintage unit is required";
-    }
 
     return e;
   };
@@ -82,10 +88,7 @@ const TopUpManagement = () => {
     const { name, value } = e.target;
     const updated = { ...form, [name]: value };
     setForm(updated);
-
-    if (touched[name]) {
-      setErrors(validate(updated));
-    }
+    if (touched[name]) setErrors(validate(updated));
   };
 
   const handleBlur = (e) => {
@@ -95,30 +98,18 @@ const TopUpManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const validationErrors = validate(form);
     setErrors(validationErrors);
     setTouched({
       topup_limit: true,
       loan_vintage_value: true,
-      loan_vintage_unit: true,
     });
 
     if (Object.keys(validationErrors).length) return;
 
     setSubmitting(true);
     try {
-      /*
-      const payload = {
-        loan_id: loanId,
-        change_type: "TOP_UP",
-        topup_limit: Number(form.topup_limit),
-        loan_vintage: `${form.loan_vintage_value} ${form.loan_vintage_unit}`,
-      };
-
-      await loanImprovementService.createChange(payload);
-      */
-
+      // API CALL
       navigate(`/loan-improvement/${loanId}`);
     } finally {
       setSubmitting(false);
@@ -133,54 +124,78 @@ const TopUpManagement = () => {
     );
   }
 
-  if (!loan) {
-    return (
-      <MainLayout>
-        <p className="text-gray-500">Loan not found.</p>
-      </MainLayout>
-    );
-  }
-
   return (
     <MainLayout>
       {/* HEADER */}
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition shadow-sm"
+          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 shadow-sm"
         >
           <FiArrowLeft className="text-gray-700 text-xl" />
         </button>
-
         <div>
           <h1 className="text-xl font-semibold">Top-Up Management</h1>
           <p className="text-sm text-gray-500">
-            Configure additional funding for the selected loan
+            Current top-up status before modification
           </p>
         </div>
       </div>
 
-      {/* LOAN SNAPSHOT */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm mb-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
-        <Info label="Loan No" value={loan.loan_no} />
-       
-        <Info label="Product" value={loan.product} />
-        <Info
-          label="Disbursed Amount"
-          value={`₹${loan.disbursed_amount}`}
-        />
-        <Info label="Tenure" value={loan.tenure} />
+      {/* ================= TOP CARD ================= */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm mb-8 space-y-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
+          <Info label="Loan No" value={loan.loan_no} />
+          <Info label="Product" value={loan.product} />
+          <Info
+            label="Disbursed Amount"
+            value={`₹${loan.disbursed_amount}`}
+          />
+          <Info label="Tenure" value={loan.tenure} />
+        </div>
+
+        <hr className="border-gray-100" />
+
+        {/* TOP-UP CONTEXT */}
+        <div>
+          <p className="text-xs font-semibold text-gray-500 mb-3">
+            Current Top-Up Configuration
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
+            <Info
+              label="Top-Up Allowed"
+              value={loan.topup.allowed ? "Yes" : "No"}
+            />
+            <Info
+              label="Current Top-Up Limit"
+              value={`₹${loan.topup.current_limit}`}
+            />
+            <Info
+              label="Minimum Vintage Required"
+              value={loan.topup.min_vintage}
+            />
+            <Info
+              label="Current Loan Vintage"
+              value={`${loan.loan_vintage.value} ${loan.loan_vintage.unit}`}
+            />
+          </div>
+
+          {!isEligible && (
+            <p className="mt-3 text-xs text-red-600">
+              Loan is currently not eligible for top-up based on vintage.
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* FORM */}
+      {/* ================= FORM ================= */}
       <div className="bg-white p-8 rounded-2xl shadow-md max-w-2xl">
         <form
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-2 gap-6"
         >
-          {/* TOP-UP LIMIT */}
           <InputField
-            label="Top-Up Limit"
+            label="Revised Top-Up Limit"
             type="number"
             name="topup_limit"
             value={form.topup_limit}
@@ -189,9 +204,8 @@ const TopUpManagement = () => {
             error={errors.topup_limit}
           />
 
-          {/* LOAN VINTAGE */}
           <InputField
-            label="Loan Vintage"
+            label="Required Loan Vintage"
             type="number"
             name="loan_vintage_value"
             value={form.loan_vintage_value}
@@ -205,24 +219,21 @@ const TopUpManagement = () => {
             name="loan_vintage_unit"
             value={form.loan_vintage_unit}
             onChange={handleChange}
-            onBlur={handleBlur}
             options={VINTAGE_UNITS}
-            error={errors.loan_vintage_unit}
           />
 
-          {/* SUBMIT */}
           <div className="md:col-span-2 mt-4">
             <button
               type="submit"
               disabled={hasErrors || submitting}
-              className={`w-full py-3 rounded-xl flex items-center justify-center gap-2 text-white shadow-md transition ${
+              className={`w-full py-3 rounded-xl flex items-center justify-center gap-2 text-white shadow-md ${
                 hasErrors || submitting
-                  ? "bg-gray-400 cursor-not-allowed"
+                  ? "bg-gray-400"
                   : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
               <FiSave />
-              {submitting ? "Submitting..." : "Submit Change Request"}
+              Submit Change Request
             </button>
           </div>
         </form>
@@ -233,7 +244,7 @@ const TopUpManagement = () => {
 
 export default TopUpManagement;
 
-/* ---------------- SMALL UI HELPERS ---------------- */
+/* ---------------- HELPERS ---------------- */
 
 const Info = ({ label, value }) => (
   <div>
@@ -244,7 +255,7 @@ const Info = ({ label, value }) => (
 
 const InputField = ({
   label,
-  type = "text",
+  type,
   name,
   value,
   onChange,
@@ -259,7 +270,7 @@ const InputField = ({
       value={value}
       onChange={onChange}
       onBlur={onBlur}
-      className="mt-2 p-3 rounded-xl bg-gray-50 focus:bg-white shadow-sm outline-none"
+      className="mt-2 p-3 rounded-xl bg-gray-50 shadow-sm outline-none"
     />
     {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
   </div>
@@ -270,9 +281,7 @@ const SelectField = ({
   name,
   value,
   onChange,
-  onBlur,
   options,
-  error,
 }) => (
   <div className="flex flex-col">
     <label className="text-gray-700 text-sm font-medium">{label}</label>
@@ -280,16 +289,13 @@ const SelectField = ({
       name={name}
       value={value}
       onChange={onChange}
-      onBlur={onBlur}
       className="mt-2 p-3 rounded-xl bg-gray-50 shadow-sm outline-none"
     >
-      <option value="">Select</option>
       {options.map((op) => (
         <option key={op} value={op}>
           {op}
         </option>
       ))}
     </select>
-    {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
   </div>
 );

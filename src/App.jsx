@@ -154,6 +154,8 @@ import AddCollateralDocument from "./pages/documentManagement/collateralDocument
 import EditCollateralDocument from "./pages/documentManagement/collateralDocuments/EditCollateralDocument";
 import ViewCollateralDocument from "./pages/documentManagement/collateralDocuments/ViewCollateralDocument";
 import CollateralDocumentList from "./pages/documentManagement/collateralDocuments/CollateralDocumentList";
+import NewLayout from "./pages/productManagement/newlayout";
+import RiskList from "./pages/risk-Management/risk-master/RiskList";
 
 function App() {
   return (
@@ -502,7 +504,14 @@ function App() {
           path="/documents/collateral/:id"
           element={<ViewCollateralDocument />}
         />
+
+         <Route
+          path="/risk-management/risks"
+          element={<RiskList />}
+        />
       </Routes>
+         
+
     </Router>
   );
 }

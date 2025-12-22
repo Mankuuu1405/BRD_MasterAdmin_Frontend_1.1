@@ -332,6 +332,9 @@ const Sidebar = () => {
               </Link>
             </div>
           )}
+            <Link to="/risk-management/risks" className={menuItemStyle("/risk-management/risks")}>
+            <FiShield size={18} /> Risk Management
+          </Link>
 
           <Link to="/audits" className={menuItemStyle("/audits")}>
             <FiShield size={18} /> Audit & Security
