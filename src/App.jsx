@@ -153,8 +153,56 @@ import AddCollateralDocument from "./pages/documentManagement/collateralDocument
 import EditCollateralDocument from "./pages/documentManagement/collateralDocuments/EditCollateralDocument";
 import ViewCollateralDocument from "./pages/documentManagement/collateralDocuments/ViewCollateralDocument";
 import CollateralDocumentList from "./pages/documentManagement/collateralDocuments/CollateralDocumentList";
-import NewLayout from "./pages/productManagement/newlayout";
 import RiskList from "./pages/risk-Management/risk-master/RiskList";
+import BankManagement from "./pages/bank-funds/BankManagement";
+import FundManagement from "./pages/bank-funds/FundManagement";
+import PortfolioManagement from "./pages/bank-funds/PortfolioManagement";
+import ModeOfBank from "./pages/bank-funds/ModeOfBank";
+import TaxationManagement from "./pages/bank-funds/TaxationManagement";
+import BusinessModel from "./pages/bank-funds/BusinessModel";
+import EditBank from "./pages/bank-funds/EditBank";
+import AddFund from "./pages/bank-funds/AddFund";
+import EditFund from "./pages/bank-funds/EditFund";
+import ViewFund from "./pages/bank-funds/ViewFund";
+import FundAllocationRules from "./pages/bank-funds/FundAllocationRule";
+import AddPortfolio from "./pages/bank-funds/AddPortfolio";
+import EditPortfolio from "./pages/bank-funds/EditPortfolio";
+import ViewPortfolio from "./pages/bank-funds/ViewPortfolio";
+import PortfolioBankMatrix from "./pages/bank-funds/PortfolioBankMatrix";
+import PortfolioAllocationRules from "./pages/bank-funds/PortfolioAllocationRule";
+import ModeFormPage from "./pages/bank-funds/ModeFormPage";
+import ModeViewPage from "./pages/bank-funds/ModeViewPage";
+import TaxFormPage from "./pages/bank-funds/TaxFormPage";
+import TaxViewPage from "./pages/bank-funds/TaxViewPage";
+import BusinessModelFormPage from "./pages/bank-funds/BusinessModelFormPage";
+import BusinessModelViewPage from "./pages/bank-funds/BusinessModelViewPage";
+import VendorList from "./pages/profile-management/vendor/VendorList";
+import VendorView from "./pages/profile-management/vendor/VendorView";
+import VendorMasterEdit from "./pages/profile-management/vendor/VendorMasterEdit";
+import AgentList from "./pages/profile-management/agent/AgentList";
+import AgentView from "./pages/profile-management/agent/AgentView";
+import AgentMasterEdit from "./pages/profile-management/agent/AgentMasterEdit";
+import ClientList from "./pages/profile-management/client/ClientList";
+import ClientView from "./pages/profile-management/client/ClientView";
+import ClientMasterEdit from "./pages/profile-management/client/ClientMasterEdit";
+import VendorAdd from "./pages/profile-management/vendor/VendorAdd";
+import AgentAdd from "./pages/profile-management/agent/AgentAdd";
+import ClientAdd from "./pages/profile-management/client/ClientAdd";
+import ChannelPartnerList from "./pages/agent-management/ChannelPartner/ChannelPartnerList";
+import ChannelPartnerView from "./pages/agent-management/ChannelPartner/ChannelPartnerView";
+import AddEditAgent from "./pages/agent-management/ChannelPartner/AddEditAgent";
+import UpdatePayout from "./pages/agent-management/ChannelPartner/UpdatePayout";
+import UpdateRecovery from "./pages/agent-management/ChannelPartner/UpdateRecovery";
+import AgentPerformance from "./pages/agent-management/ChannelPartner/AgentPerformance";
+import ManageTenants from "./pages/agent-management/ChannelPartner/ManageTenants";
+import PromotionalOffers from "./pages/agent-management/ChannelPartner/PromotionalOffers";
+import PerformanceTemplate from "./pages/agent-management/ChannelPartner/PerformanceTemplate";
+import CollectionAgentList from "./pages/agent-management/CollectionAgent/CollectionAgentList";
+import CollectionAgentView from "./pages/agent-management/CollectionAgent/CollectionAgentView";
+import CollectionAgentForm from "./pages/agent-management/CollectionAgent/CollectionAgentForm";
+import LegalAgentForm from "./pages/agent-management/CollectionAgent/LegalAgentForm";
+import UpdateAgent from "./pages/agent-management/CollectionAgent/UpdateAgent";
+import ManageFees from "./pages/agent-management/CollectionAgent/ManageFees";
 import AddRisk from "./pages/risk-Management/risk-master/AddRisk";
 import EditRisk from "./pages/risk-Management/risk-master/EditRisk";
 import ViewRisk from "./pages/risk-Management/risk-master/ViewRisk";
@@ -361,7 +409,10 @@ function App() {
           path="/occupation-types/view/:uuid"
           element={<ViewOccupationTypePage />}
         />
-        {/* <Route path="/integrations/payment-gateway" element={<IntegrationManagament />} />
+
+           
+
+           {/* <Route path="/integrations/payment-gateway" element={<IntegrationManagament />} />
            <Route path="/integrations/credit-bureau" element={<ManageCreditBureau />} />
            <Route path="/integrations/sms-email-api" element={<ManageSmsEmailApi />} />
            <Route path="/integrations/accounting-erp" element={<ManageCrm />} />
@@ -550,89 +601,14 @@ function App() {
           path="/documents/collateral/:id"
           element={<ViewCollateralDocument />}
         />
-        <Route path="/risk-management/risks" element={<RiskList />} />
-        <Route path="/risk-management/risks/add" element={<AddRisk />} />
-        <Route path="/risk-management/risks/:id/view" element={<ViewRisk />} />
-        <Route path="/risk-management/risks/:id/edit" element={<EditRisk />} />
-        <Route path="/risk-management/mitigation">
-          <Route index element={<MitigationList />} />
-          <Route path="add" element={<AddMitigation />} />
-          <Route path=":id/view" element={<ViewMitigation />} />
-          <Route path=":id/edit" element={<EditMitigation />} />
-        </Route>
-        <Route path="/risk-management/deviations">
-          <Route index element={<DeviationList />} />
-          <Route path="add" element={<AddDeviation />} />
-          <Route path=":id/view" element={<ViewDeviation />} />
-          <Route path=":id/edit" element={<EditDeviation />} />
-        </Route>
-        <Route path="/risk-management/rcu">
-          <Route index element={<RCUList />} />
-          <Route path="add" element={<AddRCU />} />
-          <Route path=":id/view" element={<ViewRCU />} />
-          <Route path=":id/edit" element={<EditRCU />} />
-        </Route>
-        <Route path="/risk-management/fraud">
-          <Route index element={<FraudList />} />
-          <Route path="add" element={<AddFraud />} />
-          <Route path=":id/view" element={<ViewFraud />} />
-          <Route path=":id/edit" element={<EditFraud />} />
-        </Route>
-        <Route path="/risk-management/portfolio-limits">
-          <Route index element={<PortfolioLimitList />} />
-          <Route path="add" element={<AddPortfolioLimit />} />
-          <Route path=":id/view" element={<ViewPortfolioLimit />} />
-          <Route path=":id/edit" element={<EditPortfolioLimit />} />
-        </Route>
-        <Route path="/risk-management/default-limits">
-          <Route index element={<DefaultLimitList />} />
-          <Route path="add" element={<AddDefaultLimit />} />
-          <Route path=":id/view" element={<ViewDefaultLimit />} />
-          <Route path=":id/edit" element={<EditDefaultLimit />} />
-        </Route>
 
-        <Route path="/risk-management/others">
-  <Route index element={<OtherList />} />
-  <Route path="add" element={<AddOther />} />
-  <Route path=":id/view" element={<ViewOther />} />
-  <Route path=":id/edit" element={<EditOther />} />
-</Route>
-
-
-<Route path="/collection-management">
-  {/* Landing Page */}
-  <Route index element={<CollectionManagement />} />
-
-  {/* ---------------- PAYMENT GATEWAY MANAGEMENT ---------------- */}
-  <Route path="payment-gateways">
-    <Route index element={<PaymentGatewayList />} />
-    <Route path="add" element={<AddPaymentGateway />} />
-    <Route path=":id/edit" element={<EditPaymentGateway />} />
-  </Route>
-
-  {/* ---------------- COLLECTION CONTROL ---------------- */}
-  <Route path="controls" element={<CollectionControl />} />
-
-  {/* ---------------- CLIENT – TEAM MAPPING ---------------- */}
-
-    <Route path="client-team-mapping" element={<MapClientTeam />} />
-
-
-  {/* ---------------- CLIENT – AGENT MAPPING ---------------- */}
-  
-    <Route path="client-agent-mapping" element={<MapClientAgent />} />
-  
-
-  {/* ---------------- PAYOUT MANAGEMENT ---------------- */}
- 
-    <Route path="payouts" element={<PayoutManagement />} />
- 
-</Route>
-
-
-
-
+         <Route
+          path="/risk-management/risks"
+          element={<RiskList />}
+        />
       </Routes>
+         
+
     </Router>
   );
 }
