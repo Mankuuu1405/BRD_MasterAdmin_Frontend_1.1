@@ -1,15 +1,29 @@
 import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
-import { FiPlus, FiEdit } from "react-icons/fi";
-import RiskFormModal from "./RiskFormModal";
+import {
+  FiPlus,
+  FiEdit,
+  FiTrash2,
+  FiSearch,
+  FiEye,
+} from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import DeleteConfirmButton from "../../../components/DeleteConfirmButton";
 
-const RiskList = () => {
+/* ---------------- RISK LIST ---------------- */
+export default function RiskList() {
+  const navigate = useNavigate();
+
   const [risks, setRisks] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [editingRisk, setEditingRisk] = useState(null);
+  const [search, setSearch] = useState("");
 
+  // DELETE STATE
+  const [showDelete, setShowDelete] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+
+  /* ---------------- LOAD RISKS ---------------- */
   useEffect(() => {
-    // MOCK DATA
+    // MOCK DATA (replace with API later)
     setRisks([
       {
         id: 1,
@@ -17,7 +31,7 @@ const RiskList = () => {
         parameter: "Unstable income source",
         severity: "High",
         trigger: "Income mismatch",
-        is_active: true,
+        status: "Active",
       },
       {
         id: 2,
@@ -25,27 +39,31 @@ const RiskList = () => {
         parameter: "Document mismatch",
         severity: "Medium",
         trigger: "KYC inconsistency",
-        is_active: false,
+        status: "Inactive",
       },
     ]);
   }, []);
 
-  const openAdd = () => {
-    setEditingRisk(null);
-    setShowModal(true);
-  };
+  /* ---------------- SEARCH ---------------- */
+  const filteredRisks = risks.filter(
+    (r) =>
+      r.category.toLowerCase().includes(search.toLowerCase()) ||
+      r.parameter.toLowerCase().includes(search.toLowerCase())
+  );
 
-  const openEdit = (risk) => {
-    setEditingRisk(risk);
-    setShowModal(true);
-  };
+  /* ---------------- DELETE HANDLER ---------------- */
+  const handleDelete = () => {
+    console.log("Delete risk id:", deleteId);
 
-  const toggleStatus = (id) => {
+    // Later → API
+    // await riskService.delete(deleteId);
+
     setRisks((prev) =>
-      prev.map((r) =>
-        r.id === id ? { ...r, is_active: !r.is_active } : r
-      )
+      prev.filter((risk) => risk.id !== deleteId)
     );
+
+    setShowDelete(false);
+    setDeleteId(null);
   };
 
   return (
@@ -60,72 +78,133 @@ const RiskList = () => {
         </div>
 
         <button
-          onClick={openAdd}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl"
+          onClick={() => navigate("/risk-management/risks/add")}
+          className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm flex items-center gap-2 hover:bg-blue-700 transition"
         >
           <FiPlus /> Add Risk
         </button>
       </div>
 
-      {/* TABLE */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="text-left px-4 py-3">Category</th>
-              <th className="text-left px-4 py-3">Risk Parameter</th>
-              <th className="text-left px-4 py-3">Severity</th>
-              <th className="text-left px-4 py-3">Trigger Event</th>
-              <th className="text-left px-4 py-3">Status</th>
-              <th className="text-right px-4 py-3">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {risks.map((risk) => (
-              <tr key={risk.id} className="border-t">
-                <td className="px-4 py-3">{risk.category}</td>
-                <td className="px-4 py-3">{risk.parameter}</td>
-                <td className="px-4 py-3">
-                  <SeverityBadge value={risk.severity} />
-                </td>
-                <td className="px-4 py-3">{risk.trigger}</td>
-                <td className="px-4 py-3">
-                  <button
-                    onClick={() => toggleStatus(risk.id)}
-                    className={`px-3 py-1 rounded-full text-xs ${
-                      risk.is_active
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-200 text-gray-600"
-                    }`}
-                  >
-                    {risk.is_active ? "Active" : "Inactive"}
-                  </button>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <button
-                    onClick={() => openEdit(risk)}
-                    className="text-blue-600"
-                  >
-                    <FiEdit />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* SEARCH BAR */}
+      <div className="bg-white rounded-2xl p-4 mb-6 flex items-center gap-3 shadow-sm">
+        <FiSearch className="text-gray-400" />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search risk..."
+          className="w-full outline-none text-sm"
+        />
       </div>
 
-      {showModal && (
-        <RiskFormModal
-          risk={editingRisk}
-          onClose={() => setShowModal(false)}
+      {/* LIST */}
+      <div className="space-y-3">
+        {/* COLUMN HEADER */}
+        <div className="hidden md:grid grid-cols-6 bg-gray-100 rounded-xl px-5 py-3 text-xs font-semibold text-gray-600">
+          <div>Category</div>
+          <div>Risk Parameter</div>
+          <div>Severity</div>
+          <div>Trigger</div>
+          <div>Status</div>
+          <div className="text-right">Actions</div>
+        </div>
+
+        {/* ROWS */}
+        {filteredRisks.map((risk) => (
+          <div
+            key={risk.id}
+            className="bg-white rounded-2xl px-5 py-4 shadow-sm grid grid-cols-2 md:grid-cols-6 gap-y-2 items-center text-sm"
+          >
+            {/* Category */}
+            <div className="font-medium text-gray-900">
+              {risk.category}
+              <div className="text-xs text-gray-400 md:hidden">
+                {risk.severity} • {risk.status}
+              </div>
+            </div>
+
+            {/* Parameter */}
+            <div className="text-gray-600">
+              {risk.parameter}
+            </div>
+
+            {/* Severity */}
+            <div>
+              <SeverityBadge value={risk.severity} />
+            </div>
+
+            {/* Trigger */}
+            <div className="text-gray-600 hidden md:block">
+              {risk.trigger}
+            </div>
+
+            {/* Status */}
+            <div>
+              <span
+                className={`px-3 py-1 text-xs rounded-full ${
+                  risk.status === "Active"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-gray-200 text-gray-600"
+                }`}
+              >
+                {risk.status}
+              </span>
+            </div>
+
+            {/* Actions */}
+            <div className="flex justify-end gap-2 col-span-2 md:col-span-1">
+              <button
+                onClick={() =>
+                  navigate(`/risk-management/risks/${risk.id}/view`)
+                }
+                className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200"
+              >
+                <FiEye />
+              </button>
+
+              <button
+                onClick={() =>
+                  navigate(`/risk-management/risks/${risk.id}/edit`)
+                }
+                className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200"
+              >
+                <FiEdit />
+              </button>
+
+              <button
+                onClick={() => {
+                  setDeleteId(risk.id);
+                  setShowDelete(true);
+                }}
+                className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200"
+              >
+                <FiTrash2 />
+              </button>
+            </div>
+          </div>
+        ))}
+
+        {filteredRisks.length === 0 && (
+          <p className="text-gray-500 text-sm">
+            No risks found.
+          </p>
+        )}
+      </div>
+
+      {/* DELETE CONFIRM MODAL */}
+      {showDelete && (
+        <DeleteConfirmButton
+          title="Delete Risk"
+          message="Are you sure you want to delete this risk? This action cannot be undone."
+          onCancel={() => {
+            setShowDelete(false);
+            setDeleteId(null);
+          }}
+          onConfirm={handleDelete}
         />
       )}
     </MainLayout>
   );
-};
-
-export default RiskList;
+}
 
 /* ---------------- HELPERS ---------------- */
 
@@ -138,9 +217,7 @@ const SeverityBadge = ({ value }) => {
 
   return (
     <span
-      className={`px-3 py-1 rounded-full text-xs font-medium ${
-        colors[value]
-      }`}
+      className={`px-3 py-1 rounded-full text-xs font-medium ${colors[value]}`}
     >
       {value}
     </span>

@@ -30,7 +30,6 @@ import CreateRole from "./pages/roles/CreateRole";
 import SetPermissions from "./pages/roles/SetPermissions";
 import AssignPermissions from "./pages/roles/AssignPermissions";
 
-
 // import IntegrationManagament from "./pages/integration/IntegrationManagement";
 
 import Notification from "./pages/notifications/Notifications";
@@ -156,6 +155,57 @@ import ViewCollateralDocument from "./pages/documentManagement/collateralDocumen
 import CollateralDocumentList from "./pages/documentManagement/collateralDocuments/CollateralDocumentList";
 import NewLayout from "./pages/productManagement/newlayout";
 import RiskList from "./pages/risk-Management/risk-master/RiskList";
+import AddRisk from "./pages/risk-Management/risk-master/AddRisk";
+import EditRisk from "./pages/risk-Management/risk-master/EditRisk";
+import ViewRisk from "./pages/risk-Management/risk-master/ViewRisk";
+import MitigationList from "./pages/risk-Management/mitigation/MitigationList";
+import AddMitigation from "./pages/risk-Management/mitigation/AddMitigation";
+import ViewMitigation from "./pages/risk-Management/mitigation/ViewMitigation";
+import EditMitigation from "./pages/risk-Management/mitigation/EditMitigation";
+
+import DeviationList from "./pages/risk-Management/deviation/DeviationList";
+import AddDeviation from "./pages/risk-Management/deviation/AddDeviation";
+import ViewDeviation from "./pages/risk-Management/deviation/ViewDeviation";
+import EditDeviation from "./pages/risk-Management/deviation/EditDeviation";
+
+import RCUList from "./pages/risk-Management/rcu/RCUList";
+import ViewRCU from "./pages/risk-Management/rcu/ViewRCU";
+import EditRCU from "./pages/risk-Management/rcu/EditRCU";
+import AddRCU from "./pages/risk-Management/rcu/AddRCU";
+
+import FraudList from "./pages/risk-Management/fraud/FraudList";
+import AddFraud from "./pages/risk-Management/fraud/AddFraud";
+import ViewFraud from "./pages/risk-Management/fraud/ViewFraud";
+import EditFraud from "./pages/risk-Management/fraud/EditFraud";
+
+import PortfolioLimitList from "./pages/risk-Management/portfolio-limits/PortfolioLimitList";
+import AddPortfolioLimit from "./pages/risk-Management/portfolio-limits/AddPortfolioLimit";
+import EditPortfolioLimit from "./pages/risk-Management/portfolio-limits/EditPortfolioLimit";
+import ViewPortfolioLimit from "./pages/risk-Management/portfolio-limits/ViewPortfolioLimit";
+
+import DefaultLimitList from "./pages/risk-Management/default-limits/DefaultLimitList";
+import AddDefaultLimit from "./pages/risk-Management/default-limits/AddDefaultLimit";
+import EditDefaultLimit from "./pages/risk-Management/default-limits/EditDefaultLimit";
+import ViewDefaultLimit from "./pages/risk-Management/default-limits/ViewDefaultLimit";
+
+import OtherList from "./pages/risk-Management/others/OtherList";
+import AddOther from "./pages/risk-Management/others/AddOther";
+import EditOther from "./pages/risk-Management/others/EditOther";
+import ViewOther from "./pages/risk-Management/others/ViewOther";
+
+import CollectionManagement from "./pages/collection-management/CollectionManagement";
+import PaymentGatewayList from "./pages/collection-management/payment-gateways/PaymentGatewayList";
+import EditPaymentGateway from "./pages/collection-management/payment-gateways/EditPaymentGateway";
+import AddPaymentGateway from "./pages/collection-management/payment-gateways/AddPaymentGateway";
+import CollectionControl from "./pages/collection-management/CollectionControl";
+import MapClientTeam from "./pages/collection-management/MapClientTeam";
+import MapClientAgent from "./pages/collection-management/MapClientAgent";
+import PayoutManagement from "./pages/collection-management/PayoutManagement";
+
+
+
+
+
 
 function App() {
   return (
@@ -311,10 +361,7 @@ function App() {
           path="/occupation-types/view/:uuid"
           element={<ViewOccupationTypePage />}
         />
-
-           
-
-           {/* <Route path="/integrations/payment-gateway" element={<IntegrationManagament />} />
+        {/* <Route path="/integrations/payment-gateway" element={<IntegrationManagament />} />
            <Route path="/integrations/credit-bureau" element={<ManageCreditBureau />} />
            <Route path="/integrations/sms-email-api" element={<ManageSmsEmailApi />} />
            <Route path="/integrations/accounting-erp" element={<ManageCrm />} />
@@ -391,7 +438,6 @@ function App() {
           path="/occupation-types/view/:uuid"
           element={<ViewOccupationTypePage />}
         />
-
         <Route path="/document" element={<Notification />} />
         <Route path="/product-management/list" element={<ProductList />} />
         <Route path="/product-management/add" element={<AddProduct />} />
@@ -504,14 +550,89 @@ function App() {
           path="/documents/collateral/:id"
           element={<ViewCollateralDocument />}
         />
+        <Route path="/risk-management/risks" element={<RiskList />} />
+        <Route path="/risk-management/risks/add" element={<AddRisk />} />
+        <Route path="/risk-management/risks/:id/view" element={<ViewRisk />} />
+        <Route path="/risk-management/risks/:id/edit" element={<EditRisk />} />
+        <Route path="/risk-management/mitigation">
+          <Route index element={<MitigationList />} />
+          <Route path="add" element={<AddMitigation />} />
+          <Route path=":id/view" element={<ViewMitigation />} />
+          <Route path=":id/edit" element={<EditMitigation />} />
+        </Route>
+        <Route path="/risk-management/deviations">
+          <Route index element={<DeviationList />} />
+          <Route path="add" element={<AddDeviation />} />
+          <Route path=":id/view" element={<ViewDeviation />} />
+          <Route path=":id/edit" element={<EditDeviation />} />
+        </Route>
+        <Route path="/risk-management/rcu">
+          <Route index element={<RCUList />} />
+          <Route path="add" element={<AddRCU />} />
+          <Route path=":id/view" element={<ViewRCU />} />
+          <Route path=":id/edit" element={<EditRCU />} />
+        </Route>
+        <Route path="/risk-management/fraud">
+          <Route index element={<FraudList />} />
+          <Route path="add" element={<AddFraud />} />
+          <Route path=":id/view" element={<ViewFraud />} />
+          <Route path=":id/edit" element={<EditFraud />} />
+        </Route>
+        <Route path="/risk-management/portfolio-limits">
+          <Route index element={<PortfolioLimitList />} />
+          <Route path="add" element={<AddPortfolioLimit />} />
+          <Route path=":id/view" element={<ViewPortfolioLimit />} />
+          <Route path=":id/edit" element={<EditPortfolioLimit />} />
+        </Route>
+        <Route path="/risk-management/default-limits">
+          <Route index element={<DefaultLimitList />} />
+          <Route path="add" element={<AddDefaultLimit />} />
+          <Route path=":id/view" element={<ViewDefaultLimit />} />
+          <Route path=":id/edit" element={<EditDefaultLimit />} />
+        </Route>
 
-         <Route
-          path="/risk-management/risks"
-          element={<RiskList />}
-        />
+        <Route path="/risk-management/others">
+  <Route index element={<OtherList />} />
+  <Route path="add" element={<AddOther />} />
+  <Route path=":id/view" element={<ViewOther />} />
+  <Route path=":id/edit" element={<EditOther />} />
+</Route>
+
+
+<Route path="/collection-management">
+  {/* Landing Page */}
+  <Route index element={<CollectionManagement />} />
+
+  {/* ---------------- PAYMENT GATEWAY MANAGEMENT ---------------- */}
+  <Route path="payment-gateways">
+    <Route index element={<PaymentGatewayList />} />
+    <Route path="add" element={<AddPaymentGateway />} />
+    <Route path=":id/edit" element={<EditPaymentGateway />} />
+  </Route>
+
+  {/* ---------------- COLLECTION CONTROL ---------------- */}
+  <Route path="controls" element={<CollectionControl />} />
+
+  {/* ---------------- CLIENT – TEAM MAPPING ---------------- */}
+
+    <Route path="client-team-mapping" element={<MapClientTeam />} />
+
+
+  {/* ---------------- CLIENT – AGENT MAPPING ---------------- */}
+  
+    <Route path="client-agent-mapping" element={<MapClientAgent />} />
+  
+
+  {/* ---------------- PAYOUT MANAGEMENT ---------------- */}
+ 
+    <Route path="payouts" element={<PayoutManagement />} />
+ 
+</Route>
+
+
+
+
       </Routes>
-         
-
     </Router>
   );
 }

@@ -19,6 +19,7 @@ import {
   FiClipboard,
   FiRefreshCcw,
   FiFolder,
+  FiDollarSign,
 } from "react-icons/fi";
 
 const Sidebar = () => {
@@ -89,6 +90,11 @@ const Sidebar = () => {
   const [openDocumentManagement, setOpenDocumentManagement] = useState(
     location.pathname.startsWith("/documents")
   );
+
+  const [openRiskMitigation, setOpenRiskMitigation] = useState(
+  location.pathname.startsWith("/risk-management")
+);
+
 
   /* ---------------- RENDER ---------------- */
   return (
@@ -332,8 +338,82 @@ const Sidebar = () => {
               </Link>
             </div>
           )}
-            <Link to="/risk-management/risks" className={menuItemStyle("/risk-management/risks")}>
-            <FiShield size={18} /> Risk Management
+         {/* RISK & MITIGATION */}
+<button
+  onClick={() => setOpenRiskMitigation((p) => !p)}
+  className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${
+    location.pathname.startsWith("/risk-management")
+      ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+      : "text-gray-700 hover:bg-gray-100"
+  }`}
+>
+  <span className="flex items-center gap-3">
+    <FiShield size={18} /> Risk & Mitigation
+  </span>
+  {openRiskMitigation ? <FiChevronUp /> : <FiChevronDown />}
+</button>
+
+{openRiskMitigation && (
+  <div className="ml-6 space-y-1">
+    <Link
+      to="/risk-management/risks"
+      className={menuItemStyle("/risk-management/risks")}
+    >
+      Risk Management
+    </Link>
+
+    <Link
+      to="/risk-management/mitigation"
+      className={menuItemStyle("/risk-management/mitigation")}
+    >
+      Risk Mitigation
+    </Link>
+
+    <Link
+      to="/risk-management/deviations"
+      className={menuItemStyle("/risk-management/deviations")}
+    >
+      Deviation Management
+    </Link>
+
+    <Link
+      to="/risk-management/rcu"
+      className={menuItemStyle("/risk-management/rcu")}
+    >
+      Risk Containment Unit (RCU)
+    </Link>
+
+    <Link
+      to="/risk-management/fraud"
+      className={menuItemStyle("/risk-management/fraud")}
+    >
+      Fraud Management
+    </Link>
+
+    <Link
+      to="/risk-management/portfolio-limits"
+      className={menuItemStyle("/risk-management/portfolio-limits")}
+    >
+      Portfolio Limits
+    </Link>
+
+    <Link
+      to="/risk-management/default-limits"
+      className={menuItemStyle("/risk-management/default-limits")}
+    >
+      Default Limits
+    </Link>
+
+    <Link
+      to="/risk-management/others"
+      className={menuItemStyle("/risk-management/others")}
+    >
+      Others (Custom Rules)
+    </Link>
+  </div>
+)}
+           <Link to="/collection-management" className={menuItemStyle("/audits")}>
+            <FiDollarSign size={18} /> Collection Management
           </Link>
 
           <Link to="/audits" className={menuItemStyle("/audits")}>
