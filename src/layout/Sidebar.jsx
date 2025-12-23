@@ -19,6 +19,9 @@ import {
   FiClipboard,
   FiRefreshCcw,
   FiFolder,
+  FiFileText,
+  FiUser,
+  FiUserX,
 } from "react-icons/fi";
 
 const Sidebar = () => {
@@ -27,18 +30,18 @@ const Sidebar = () => {
   /* ---------------- STATE ---------------- */
   const [openApprovalMaster, setOpenApprovalMaster] = useState(
     location.pathname.startsWith("/approvals") ||
-      location.pathname.startsWith("/manage-approvals") ||
-      location.pathname.startsWith("/escalation")
+    location.pathname.startsWith("/manage-approvals") ||
+    location.pathname.startsWith("/escalation")
   );
 
   const [openProductRevenue, setOpenProductRevenue] = useState(
     location.pathname.startsWith("/product") ||
-      location.pathname.startsWith("/fees") ||
-      location.pathname.startsWith("/charges") ||
-      location.pathname.startsWith("/interest") ||
-      location.pathname.startsWith("/repayment") ||
-      location.pathname.startsWith("/penalties") ||
-      location.pathname.startsWith("/moratorium")
+    location.pathname.startsWith("/fees") ||
+    location.pathname.startsWith("/charges") ||
+    location.pathname.startsWith("/interest") ||
+    location.pathname.startsWith("/repayment") ||
+    location.pathname.startsWith("/penalties") ||
+    location.pathname.startsWith("/moratorium")
   );
 
   const [openLoanImprovement, setOpenLoanImprovement] = useState(
@@ -47,15 +50,45 @@ const Sidebar = () => {
 
   const [openEligibilityAndScore, setEligibilityAndScore] = useState(
     location.pathname.startsWith("/eligibility") ||
-      location.pathname.startsWith("/banking") ||
-      location.pathname.startsWith("/obligation") ||
-      location.pathname.startsWith("/score-card")
+    location.pathname.startsWith("/banking") ||
+    location.pathname.startsWith("/obligation") ||
+    location.pathname.startsWith("/score-card")
   );
 
   const [openTemplateManagement, setTemplateManagement] = useState(
     location.pathname.startsWith("/predefined-template") ||
-      location.pathname.startsWith("/customized-template")
+    location.pathname.startsWith("/customized-template")
   );
+
+  const [openBankAndFundManagemnet, setBankAndFundManagement] = useState(
+    location.pathname.startsWith("/bank-management") ||
+    location.pathname.startsWith("/fund-management") ||
+    location.pathname.startsWith("/portfolio-management") ||
+    location.pathname.startsWith("/mode-of-bank") ||
+    location.pathname.startsWith("/taxation-management") ||
+    location.pathname.startsWith("/business-model")
+  );
+  const [openAgentManagement, setAgentManagement] = useState(
+    location.pathname.startsWith("/channel-partners") ||
+    location.pathname.startsWith("/verification-agency") ||
+    location.pathname.startsWith("/collection-agent")
+  );
+
+  const PROFILE_MANAGEMENT_ROUTES = [
+    "/profile-management",
+    "/fund-management",
+    "/portfolio-management",
+    "/mode-of-bank",
+    "/taxation-management",
+    "/business-model",
+  ];
+
+  const [openProfileManagement, setProfileManagement] = useState(
+    PROFILE_MANAGEMENT_ROUTES.some((route) =>
+      location.pathname.startsWith(route)
+    )
+  );
+
 
   /* ---------------- HELPERS ---------------- */
   const handleLogout = () => {
@@ -68,10 +101,9 @@ const Sidebar = () => {
     location.pathname === path || location.pathname.startsWith(path);
 
   const menuItemStyle = (path) =>
-    `flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all ${
-      isActive(path)
-        ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
-        : "text-gray-700 hover:bg-gray-100"
+    `flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all ${isActive(path)
+      ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+      : "text-gray-700 hover:bg-gray-100"
     }`;
 
   const productRevenueActive =
@@ -130,16 +162,15 @@ const Sidebar = () => {
             Master Data & Governance
           </p>
 
-         
+
 
           {/* APPROVAL MASTER */}
           <button
             onClick={() => setOpenApprovalMaster((p) => !p)}
-            className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${
-              openApprovalMaster
-                ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
-                : "text-gray-700 hover:bg-gray-100"
-            }`}
+            className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${openApprovalMaster
+              ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+              : "text-gray-700 hover:bg-gray-100"
+              }`}
           >
             <span className="flex items-center gap-3">
               <FiThumbsUp size={18} /> Approval Master
@@ -167,11 +198,10 @@ const Sidebar = () => {
           {/* PRODUCT & REVENUE */}
           <button
             onClick={() => setOpenProductRevenue((p) => !p)}
-            className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${
-              productRevenueActive
-                ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
-                : "text-gray-700 hover:bg-gray-100"
-            }`}
+            className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${productRevenueActive
+              ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+              : "text-gray-700 hover:bg-gray-100"
+              }`}
           >
             <span className="flex items-center gap-3">
               <FiBox size={18} /> Product & Revenue
@@ -228,11 +258,10 @@ const Sidebar = () => {
           {/* ELIGIBILITY & SCORE */}
           <button
             onClick={() => setEligibilityAndScore((p) => !p)}
-            className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${
-              openEligibilityAndScore
-                ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
-                : "text-gray-700 hover:bg-gray-100"
-            }`}
+            className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${openEligibilityAndScore
+              ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+              : "text-gray-700 hover:bg-gray-100"
+              }`}
           >
             <span className="flex items-center gap-3">
               <FiClipboard size={18} /> Eligibility & Score
@@ -260,14 +289,13 @@ const Sidebar = () => {
           {/* TEMPLATE */}
           <button
             onClick={() => setTemplateManagement((p) => !p)}
-            className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${
-              openTemplateManagement
-                ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
-                : "text-gray-700 hover:bg-gray-100"
-            }`}
+            className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${openTemplateManagement
+              ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+              : "text-gray-700 hover:bg-gray-100"
+              }`}
           >
             <span className="flex items-center gap-3">
-              <FiClipboard size={18} /> Template Management
+              <FiFileText size={18} /> Template Management
             </span>
             {openTemplateManagement ? <FiChevronUp /> : <FiChevronDown />}
           </button>
@@ -289,21 +317,159 @@ const Sidebar = () => {
             </div>
           )}
 
+          {/* Bank&Fund */}
+          <button
+            onClick={() => setBankAndFundManagement((p) => !p)}
+            className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${openBankAndFundManagemnet
+              ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+              : "text-gray-700 hover:bg-gray-100"
+              }`}
+          >
+            <span className="flex items-center gap-3">
+              <FiBriefcase size={18} /> Bank & Fund
+            </span>
+            {openBankAndFundManagemnet ? <FiChevronUp /> : <FiChevronDown />}
+          </button>
+
+          {openBankAndFundManagemnet && (
+            <div className="ml-6 space-y-1">
+              <Link
+                to="/bank-management"
+                className={menuItemStyle("/bank-management")}
+              >
+                Bank Management
+              </Link>
+              <Link
+                to="/fund-management"
+                className={menuItemStyle("/fund-management")}
+              >
+                Fund Management
+              </Link>
+              <Link
+                to="/portfolio-management"
+                className={menuItemStyle("/portfolio-management")}
+              >
+                Portfolio Management
+              </Link>
+              <Link
+                to="/mode-of-bank"
+                className={menuItemStyle("/mode-of-bank")}
+              >
+                Mode Of Bank
+              </Link>
+              <Link
+                to="/taxation-management"
+                className={menuItemStyle("/taxation-management")}
+              >
+                Taxation Management
+              </Link>
+              <Link
+                to="/business-model"
+                className={menuItemStyle("/business-model")}
+              >
+                Business Model
+              </Link>
+            </div>
+          )}
+
+          {/* Profile Management */}
+          <button
+            onClick={() => setProfileManagement((p) => !p)}
+            className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${openProfileManagement
+                ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+                : "text-gray-700 hover:bg-gray-100"
+              }`}
+          >
+            <span className="flex items-center gap-3">
+              <FiUser size={18} /> Profile Management
+            </span>
+            {openProfileManagement ? <FiChevronUp /> : <FiChevronDown />}
+          </button>
+
+          {openProfileManagement && (
+            <div className="ml-6 space-y-1">
+              {/* Vendor / Agent / Client */}
+              <Link
+                to="/profile-management/vendor"
+                className={menuItemStyle("/profile-management/vendor")}
+              >
+                Vendor Profile
+              </Link>
+
+              <Link
+                to="/profile-management/agent"
+                className={menuItemStyle("/profile-management/agent")}
+              >
+                Agent Profile
+              </Link>
+
+              <Link
+                to="/profile-management/client"
+                className={menuItemStyle("/profile-management/client")}
+              >
+                Client Profile
+              </Link>
+
+            </div>
+          )}
+
+
+          {/* Agent Management */}
+          <button
+            onClick={() => setAgentManagement((p) => !p)}
+            className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${openAgentManagement
+                ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+                : "text-gray-700 hover:bg-gray-100"
+              }`}
+          >
+            <span className="flex items-center gap-3">
+              <FiUsers size={18} /> Agent Management
+            </span>
+            {openAgentManagement ? <FiChevronUp /> : <FiChevronDown />}
+          </button>
+
+          {openAgentManagement && (
+            <div className="ml-6 space-y-1">
+              {/* Vendor / Agent / Client */}
+              <Link
+                to="/channel-partners"
+                className={menuItemStyle("/channel-partners")}
+              >
+                Channel Partners
+              </Link>
+
+              <Link
+                to="/verification-agency"
+                className={menuItemStyle("/verification-agency")}
+              >
+                Verification Agency
+              </Link>
+
+              <Link
+                to="/collection-agent"
+                className={menuItemStyle("/collection-agent")}
+              >
+                Collection Agent
+              </Link>
+
+            </div>
+          )}
+
+
           {/* DOCUMENT MANAGEMENT */}
           <button
             onClick={() => setOpenDocumentManagement((p) => !p)}
             className={`
     flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all
-    ${
-      location.pathname.startsWith("/documents")
-        ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
-        : "text-gray-700 hover:bg-gray-100"
-    }
+    ${location.pathname.startsWith("/documents")
+                ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+                : "text-gray-700 hover:bg-gray-100"
+              }
   `}
           >
             <span className="flex items-center gap-3">
               <FiFolder size={18} />
-              Document 
+              Document
             </span>
             {openDocumentManagement ? <FiChevronUp /> : <FiChevronDown />}
           </button>
@@ -332,7 +498,7 @@ const Sidebar = () => {
               </Link>
             </div>
           )}
-            <Link to="/risk-management/risks" className={menuItemStyle("/risk-management/risks")}>
+          <Link to="/risk-management/risks" className={menuItemStyle("/risk-management/risks")}>
             <FiShield size={18} /> Risk Management
           </Link>
 

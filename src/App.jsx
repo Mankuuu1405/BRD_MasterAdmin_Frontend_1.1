@@ -154,8 +154,56 @@ import AddCollateralDocument from "./pages/documentManagement/collateralDocument
 import EditCollateralDocument from "./pages/documentManagement/collateralDocuments/EditCollateralDocument";
 import ViewCollateralDocument from "./pages/documentManagement/collateralDocuments/ViewCollateralDocument";
 import CollateralDocumentList from "./pages/documentManagement/collateralDocuments/CollateralDocumentList";
-import NewLayout from "./pages/productManagement/newlayout";
 import RiskList from "./pages/risk-Management/risk-master/RiskList";
+import BankManagement from "./pages/bank-funds/BankManagement";
+import FundManagement from "./pages/bank-funds/FundManagement";
+import PortfolioManagement from "./pages/bank-funds/PortfolioManagement";
+import ModeOfBank from "./pages/bank-funds/ModeOfBank";
+import TaxationManagement from "./pages/bank-funds/TaxationManagement";
+import BusinessModel from "./pages/bank-funds/BusinessModel";
+import EditBank from "./pages/bank-funds/EditBank";
+import AddFund from "./pages/bank-funds/AddFund";
+import EditFund from "./pages/bank-funds/EditFund";
+import ViewFund from "./pages/bank-funds/ViewFund";
+import FundAllocationRules from "./pages/bank-funds/FundAllocationRule";
+import AddPortfolio from "./pages/bank-funds/AddPortfolio";
+import EditPortfolio from "./pages/bank-funds/EditPortfolio";
+import ViewPortfolio from "./pages/bank-funds/ViewPortfolio";
+import PortfolioBankMatrix from "./pages/bank-funds/PortfolioBankMatrix";
+import PortfolioAllocationRules from "./pages/bank-funds/PortfolioAllocationRule";
+import ModeFormPage from "./pages/bank-funds/ModeFormPage";
+import ModeViewPage from "./pages/bank-funds/ModeViewPage";
+import TaxFormPage from "./pages/bank-funds/TaxFormPage";
+import TaxViewPage from "./pages/bank-funds/TaxViewPage";
+import BusinessModelFormPage from "./pages/bank-funds/BusinessModelFormPage";
+import BusinessModelViewPage from "./pages/bank-funds/BusinessModelViewPage";
+import VendorList from "./pages/profile-management/vendor/VendorList";
+import VendorView from "./pages/profile-management/vendor/VendorView";
+import VendorMasterEdit from "./pages/profile-management/vendor/VendorMasterEdit";
+import AgentList from "./pages/profile-management/agent/AgentList";
+import AgentView from "./pages/profile-management/agent/AgentView";
+import AgentMasterEdit from "./pages/profile-management/agent/AgentMasterEdit";
+import ClientList from "./pages/profile-management/client/ClientList";
+import ClientView from "./pages/profile-management/client/ClientView";
+import ClientMasterEdit from "./pages/profile-management/client/ClientMasterEdit";
+import VendorAdd from "./pages/profile-management/vendor/VendorAdd";
+import AgentAdd from "./pages/profile-management/agent/AgentAdd";
+import ClientAdd from "./pages/profile-management/client/ClientAdd";
+import ChannelPartnerList from "./pages/agent-management/ChannelPartner/ChannelPartnerList";
+import ChannelPartnerView from "./pages/agent-management/ChannelPartner/ChannelPartnerView";
+import AddEditAgent from "./pages/agent-management/ChannelPartner/AddEditAgent";
+import UpdatePayout from "./pages/agent-management/ChannelPartner/UpdatePayout";
+import UpdateRecovery from "./pages/agent-management/ChannelPartner/UpdateRecovery";
+import AgentPerformance from "./pages/agent-management/ChannelPartner/AgentPerformance";
+import ManageTenants from "./pages/agent-management/ChannelPartner/ManageTenants";
+import PromotionalOffers from "./pages/agent-management/ChannelPartner/PromotionalOffers";
+import PerformanceTemplate from "./pages/agent-management/ChannelPartner/PerformanceTemplate";
+import CollectionAgentList from "./pages/agent-management/CollectionAgent/CollectionAgentList";
+import CollectionAgentView from "./pages/agent-management/CollectionAgent/CollectionAgentView";
+import CollectionAgentForm from "./pages/agent-management/CollectionAgent/CollectionAgentForm";
+import LegalAgentForm from "./pages/agent-management/CollectionAgent/LegalAgentForm";
+import UpdateAgent from "./pages/agent-management/CollectionAgent/UpdateAgent";
+import ManageFees from "./pages/agent-management/CollectionAgent/ManageFees";
 
 function App() {
   return (
@@ -312,9 +360,9 @@ function App() {
           element={<ViewOccupationTypePage />}
         />
 
-           
 
-           {/* <Route path="/integrations/payment-gateway" element={<IntegrationManagament />} />
+
+        {/* <Route path="/integrations/payment-gateway" element={<IntegrationManagament />} />
            <Route path="/integrations/credit-bureau" element={<ManageCreditBureau />} />
            <Route path="/integrations/sms-email-api" element={<ManageSmsEmailApi />} />
            <Route path="/integrations/accounting-erp" element={<ManageCrm />} />
@@ -505,12 +553,85 @@ function App() {
           element={<ViewCollateralDocument />}
         />
 
-         <Route
+        <Route
           path="/risk-management/risks"
           element={<RiskList />}
         />
+
+
+        <Route path="/bank-management" element={<BankManagement />} />
+        <Route path="/bank-management/edit/:id" element={<EditBank />} />
+        <Route path="/fund-management" element={<FundManagement />} />
+        <Route path="/fund-management/add" element={<AddFund />} />
+        <Route path="/fund-management/edit/:id" element={<EditFund />} />
+        <Route path="/fund-management/view/:id" element={<ViewFund />} />
+        <Route path="/fund-management/allocation-rules" element={<FundAllocationRules />} />
+
+
+        <Route path="/portfolio-management" element={<PortfolioManagement />} />
+        <Route path="/portfolio-management/add" element={<AddPortfolio />} />
+        <Route path="/portfolio-management/edit/:id" element={<EditPortfolio />} />
+        <Route path="/portfolio-management/view/:id" element={<ViewPortfolio />} />
+        <Route path="/portfolio-management/bank-matrix" element={<PortfolioBankMatrix />} />
+        <Route path="/portfolio-management/allocation-rules" element={<PortfolioAllocationRules />} />
+
+        <Route path="/mode-of-bank" element={<ModeOfBank />} />
+        <Route path="/mode-of-bank/add" element={<ModeFormPage modeType="add" />} />
+        <Route path="/mode-of-bank/edit/:id" element={<ModeFormPage modeType="edit" />} />
+        <Route path="/mode-of-bank/view/:id" element={<ModeViewPage />} />
+
+        <Route path="/taxation-management" element={<TaxationManagement />} />
+        <Route path="/taxation-management/add" element={<TaxFormPage modeType="add" />} />
+        <Route path="/taxation-management/edit/:id" element={<TaxFormPage modeType="edit" />} />
+        <Route path="/taxation-management/view/:id" element={<TaxViewPage />} />
+
+
+        <Route path="/business-model" element={<BusinessModel />} />
+        <Route path="/business-model/add" element={<BusinessModelFormPage modeType="add" />} />
+        <Route path="/business-model/edit/:id" element={<BusinessModelFormPage modeType="edit" />} />
+        <Route path="/business-model/view/:id" element={<BusinessModelViewPage />} />
+
+        <Route path="/profile-management/vendor" element={<VendorList />} />
+        <Route path="/profile-management/vendor/add" element={<VendorAdd />} />
+        <Route path="/profile-management/vendor/view/:id" element={<VendorView />} />
+        <Route path="/profile-management/vendor/edit/:id" element={<VendorMasterEdit />} />
+
+
+        <Route path="/profile-management/agent" element={<AgentList />} />
+        <Route path="/profile-management/agent/add" element={<AgentAdd />} />
+        <Route path="/profile-management/agent/view/:id" element={<AgentView />} />
+        <Route path="/profile-management/agent/edit/:id" element={<AgentMasterEdit />} />
+
+        <Route path="/profile-management/client" element={<ClientList />} />
+        <Route path="/profile-management/client/add" element={<ClientAdd />} />
+        <Route path="/profile-management/client/view/:id" element={<ClientView />} />
+        <Route path="/profile-management/client/edit/:id" element={<ClientMasterEdit />} />
+
+        <Route path="/channel-partners" element={<ChannelPartnerList />} />
+        <Route path="/channel-partners/view/:id" element={<ChannelPartnerView />} />
+        <Route path="/channel-partners/add" element={<AddEditAgent />} />
+        <Route path="/channel-partners/edit/:id" element={<AddEditAgent />} />
+        <Route path="/channel-partners/payout/:id" element={<UpdatePayout />} />
+        <Route path="/channel-partners/recovery/:id" element={<UpdateRecovery />} />
+        <Route path="/channel-partners/performance/:id" element={<AgentPerformance />} />
+        <Route path="/channel-partners/tenants/:id" element={<ManageTenants />} />
+        <Route path="/channel-partners/offers" element={<PromotionalOffers />} />
+        <Route path="/channel-partners/performance-template" element={<PerformanceTemplate />} />
+
+
+        <Route path="/collection-agent" element={<CollectionAgentList />} />
+        <Route path="/collection-agent/view/:id" element={<CollectionAgentView />} />
+
+        <Route path="/collection-agent/add" element={<CollectionAgentForm />} />
+        <Route path="/collection-agent/edit/:id" element={<CollectionAgentForm />} />
+
+        <Route path="/collection-agent/legal/add" element={<LegalAgentForm />} />
+        <Route path="/collection-agent/legal/edit/:id" element={<LegalAgentForm />} />
+
+        <Route path="/collection-agent/update/:id" element={<UpdateAgent />} />
+        <Route path="/collection-agent/fees/:id" element={<ManageFees />} />
       </Routes>
-         
+
 
     </Router>
   );
