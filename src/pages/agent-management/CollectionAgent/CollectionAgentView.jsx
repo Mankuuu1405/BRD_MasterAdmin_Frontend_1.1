@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import MainLayout from "../../../layout/MainLayout";
+import { FiArrowLeft } from "react-icons/fi";
 
 export default function CollectionAgentView() {
     const navigate = useNavigate();
@@ -24,11 +25,23 @@ export default function CollectionAgentView() {
     return (
         <MainLayout>
             {/* HEADER */}
-            <div className="mb-6">
-                <h2 className="text-xl font-semibold">Collection Agent Details</h2>
-                <p className="text-sm text-gray-500">
-                    View agent information, assigned tenants, and recovery model
-                </p>
+           
+
+            <div className="flex justify-between items-center mb-6">
+                {/* LEFT SIDE */}
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition"
+                    >
+                        <FiArrowLeft />
+                    </button>
+
+                    <div>
+                        <h1 className="text-xl font-semibold">Collection Agent Details</h1>
+                        <p className="text-sm text-gray-500">View agent information, assigned tenants, and recovery model</p>
+                    </div>
+                </div>
             </div>
 
             {/* DETAILS CARD */}

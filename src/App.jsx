@@ -249,6 +249,8 @@ import CollectionControl from "./pages/collection-management/CollectionControl";
 import MapClientTeam from "./pages/collection-management/MapClientTeam";
 import MapClientAgent from "./pages/collection-management/MapClientAgent";
 import PayoutManagement from "./pages/collection-management/PayoutManagement";
+import LegalAgentList from "./pages/agent-management/CollectionAgent/LegalAgentList";
+import LegalAgentView from "./pages/agent-management/CollectionAgent/LegalAgentView";
 
 
 
@@ -410,9 +412,9 @@ function App() {
           element={<ViewOccupationTypePage />}
         />
 
-           
 
-           {/* <Route path="/integrations/payment-gateway" element={<IntegrationManagament />} />
+
+        {/* <Route path="/integrations/payment-gateway" element={<IntegrationManagament />} />
            <Route path="/integrations/credit-bureau" element={<ManageCreditBureau />} />
            <Route path="/integrations/sms-email-api" element={<ManageSmsEmailApi />} />
            <Route path="/integrations/accounting-erp" element={<ManageCrm />} />
@@ -602,12 +604,35 @@ function App() {
           element={<ViewCollateralDocument />}
         />
 
-         <Route
+        <Route
           path="/risk-management/risks"
           element={<RiskList />}
         />
+
+        {/* Agent Management -> Channel Partners */}
+        <Route path="/channel-partners" element={<ChannelPartnerList />} />
+        <Route path="/channel-partners/add" element={<AddEditAgent />} />
+        <Route path="/channel-partners/edit/:id" element={<AddEditAgent />} />
+        <Route path="/channel-partners/view/:id" element={<ChannelPartnerView />} />
+        <Route path="/channel-partners/payout/:id" element={<UpdatePayout />} />
+        <Route path="/channel-partners/recovery/:id" element={<UpdateRecovery />} />
+        <Route path="/channel-partners/performance/:id" element={<AgentPerformance />} />
+        <Route path="/channel-partners/tenants/:id" element={<ManageTenants />} />
+
+        {/* Agent Management -> Collection Agent Management */}
+        <Route path="/collection-agent" element={<CollectionAgentList />} />
+        <Route path="/collection-agent/add" element={<CollectionAgentForm />} />
+        <Route path="/collection-agent/edit/:id" element={<CollectionAgentForm />} />
+        <Route path="/collection-agent/view/:id" element={<CollectionAgentView />} />
+        <Route path="/collection-agent/update/:id" element={<UpdateAgent />} />
+        <Route path="/collection-agent/fees/:id" element={<ManageFees />} />
+        <Route path="/legal-agent" element={<LegalAgentList />} />
+        <Route path="/legal-agents/edit/:id" element={<LegalAgentForm />} />
+        <Route path="/legal-agents/view/:id" element={<LegalAgentView />} />
+        <Route path="/legal-agents/add" element={<LegalAgentForm />} />
+
       </Routes>
-         
+
 
     </Router>
   );

@@ -72,7 +72,8 @@ const Sidebar = () => {
   const [openAgentManagement, setAgentManagement] = useState(
     location.pathname.startsWith("/channel-partners") ||
     location.pathname.startsWith("/verification-agency") ||
-    location.pathname.startsWith("/collection-agent")
+    location.pathname.startsWith("/collection-agent") ||
+    location.pathname.startsWith("/legal-agent")
   );
 
   const PROFILE_MANAGEMENT_ROUTES = [
@@ -456,6 +457,13 @@ const Sidebar = () => {
                 className={menuItemStyle("/collection-agent")}
               >
                 Collection Agent
+              </Link>
+
+              <Link
+                to="/legal-agent"
+                className={menuItemStyle("/legal-agent")}
+              >
+                Legal Agent
               </Link>
 
             </div>
