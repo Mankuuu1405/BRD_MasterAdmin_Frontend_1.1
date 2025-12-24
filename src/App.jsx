@@ -251,6 +251,51 @@ import MapClientAgent from "./pages/collection-management/MapClientAgent";
 import PayoutManagement from "./pages/collection-management/PayoutManagement";
 import LegalAgentList from "./pages/agent-management/CollectionAgent/LegalAgentList";
 import LegalAgentView from "./pages/agent-management/CollectionAgent/LegalAgentView";
+import DisbursementList from "./pages/disbursment-management/disbursement/DisbursementList";
+import DisbursementForm from "./pages/disbursment-management/disbursement/DisbursementForm";
+import DisbursementDetail from "./pages/disbursment-management/disbursement/DisbursementDetail";
+import AgencyList from "./pages/disbursment-management/agency/AgencyList";
+import AgencyDetail from "./pages/disbursment-management/agency/AgencyDetail";
+import AgencyForm from "./pages/disbursment-management/agency/AgencyForm";  
+import DocumentDetail from "./pages/disbursment-management/document/DocumentDetail";
+import DocumentList from "./pages/disbursment-management/document/DocumentList";
+import DocumentForm from "./pages/disbursment-management/document/DocumentForm";
+import DownPaymentDetail from "./pages/disbursment-management/downPayment/DownPaymentDetail";
+import DownPaymentList from "./pages/disbursment-management/downPayment/DownPaymentList";
+import DownPaymentForm from "./pages/disbursment-management/downPayment/DownPaymentForm";
+import FrequencyForm from "./pages/disbursment-management/frequency/FrequencyForm";
+import FrequencyList from "./pages/disbursment-management/frequency/FrequencyList";
+import FrequencyDetail from "./pages/disbursment-management/frequency/FrequencyDetail";
+import ThirdPartyDetail from "./pages/disbursment-management/third-party/ThirdPartyDetail";
+import ThirdPartyList from "./pages/disbursment-management/third-party/ThirdPartyList";
+import ThirdPartyForm from "./pages/disbursment-management/third-party/ThirdPartyForm";
+import StageMasterDetail from "./pages/disbursment-management/stage/StageMasterDetail";
+import StageMasterList from "./pages/disbursment-management/stage/StageMasterList";
+import StageMasterForm from "./pages/disbursment-management/stage/StageMasterForm";
+
+import ClassificationForm from "./pages/provisioning-classification/loan-classification/ClassificationForm";
+import ClassificationList from "./pages/provisioning-classification/loan-classification/ClassificationList";
+import ClassificationManage from "./pages/provisioning-classification/loan-classification/ClassificationManage";
+import ClassificationUpdate from "./pages/provisioning-classification/loan-classification/ClassificationUpdate";
+
+import ProvisioningRuleList from "./pages/provisioning-classification/provisioning-npa/ProvisioningRuleList";
+import ProvisioningRuleForm from "./pages/provisioning-classification/provisioning-npa/ProvisioningRuleForm";
+import ProvisioningManagerForm from "./pages/provisioning-classification/provisioning-npa/ProvisioningManagerForm";
+
+import SettlementManage from "./pages/provisioning-classification/settlement/SettlementManage";
+import SettlementUpdate from "./pages/provisioning-classification/settlement/SettlementUpdate";
+import SettlementRuleForm from "./pages/provisioning-classification/settlement/SettlementRuleForm";
+import SettlementRuleList from "./pages/provisioning-classification/settlement/SettlementRuleList";
+
+import WriteoffManage from "./pages/provisioning-classification/writeoff-settlement/WriteoffManage";
+import WriteoffUpdate from "./pages/provisioning-classification/writeoff-settlement/WriteoffUpdate";
+import WriteoffRuleForm from "./pages/provisioning-classification/writeoff-settlement/WriteoffRuleForm";
+import WriteoffRuleList from "./pages/provisioning-classification/writeoff-settlement/WriteoffRuleList";
+
+import IncentiveRuleForm from "./pages/provisioning-classification/incentive-management/IncentiveRuleForm";
+import IncentiveRuleList from "./pages/provisioning-classification/incentive-management/IncentiveRuleList";
+
+
 
 
 
@@ -411,9 +456,6 @@ function App() {
           path="/occupation-types/view/:uuid"
           element={<ViewOccupationTypePage />}
         />
-
-
-
         {/* <Route path="/integrations/payment-gateway" element={<IntegrationManagament />} />
            <Route path="/integrations/credit-bureau" element={<ManageCreditBureau />} />
            <Route path="/integrations/sms-email-api" element={<ManageSmsEmailApi />} />
@@ -603,27 +645,130 @@ function App() {
           path="/documents/collateral/:id"
           element={<ViewCollateralDocument />}
         />
-
+        {/* ================= RISK MANAGEMENT ================= */}
+        /* ---------- Risk Master ---------- */
+        <Route path="/risk-management/risks" element={<RiskList />} />
+        <Route path="/risk-management/risks/add" element={<AddRisk />} />
+        <Route path="/risk-management/risks/:id/view" element={<ViewRisk />} />
+        <Route path="/risk-management/risks/:id/edit" element={<EditRisk />} />
+        /* ---------- Risk Mitigation ---------- */
         <Route
-          path="/risk-management/risks"
-          element={<RiskList />}
+          path="/risk-management/mitigation"
+          element={<MitigationList />}
         />
-
+        <Route
+          path="/risk-management/mitigation/add"
+          element={<AddMitigation />}
+        />
+        <Route
+          path="/risk-management/mitigation/:id/view"
+          element={<ViewMitigation />}
+        />
+        <Route
+          path="/risk-management/mitigation/:id/edit"
+          element={<EditMitigation />}
+        />
+        /* ---------- Deviation Management ---------- */
+        <Route path="/risk-management/deviations" element={<DeviationList />} />
+        <Route
+          path="/risk-management/deviations/add"
+          element={<AddDeviation />}
+        />
+        <Route
+          path="/risk-management/deviations/:id/view"
+          element={<ViewDeviation />}
+        />
+        <Route
+          path="/risk-management/deviations/:id/edit"
+          element={<EditDeviation />}
+        />
+        /* ---------- RCU ---------- */
+        <Route path="/risk-management/rcu" element={<RCUList />} />
+        <Route path="/risk-management/rcu/add" element={<AddRCU />} />
+        <Route path="/risk-management/rcu/:id/view" element={<ViewRCU />} />
+        <Route path="/risk-management/rcu/:id/edit" element={<EditRCU />} />
+        /* ---------- Fraud Management ---------- */
+        <Route path="/risk-management/fraud" element={<FraudList />} />
+        <Route path="/risk-management/fraud/add" element={<AddFraud />} />
+        <Route path="/risk-management/fraud/:id/view" element={<ViewFraud />} />
+        <Route path="/risk-management/fraud/:id/edit" element={<EditFraud />} />
+        /* ---------- Portfolio Limits ---------- */
+        <Route
+          path="/risk-management/portfolio-limits"
+          element={<PortfolioLimitList />}
+        />
+        <Route
+          path="/risk-management/portfolio-limits/add"
+          element={<AddPortfolioLimit />}
+        />
+        <Route
+          path="/risk-management/portfolio-limits/:id/view"
+          element={<ViewPortfolioLimit />}
+        />
+        <Route
+          path="/risk-management/portfolio-limits/:id/edit"
+          element={<EditPortfolioLimit />}
+        />
+        /* ---------- Default Limits ---------- */
+        <Route
+          path="/risk-management/default-limits"
+          element={<DefaultLimitList />}
+        />
+        <Route
+          path="/risk-management/default-limits/add"
+          element={<AddDefaultLimit />}
+        />
+        <Route
+          path="/risk-management/default-limits/:id/view"
+          element={<ViewDefaultLimit />}
+        />
+        <Route
+          path="/risk-management/default-limits/:id/edit"
+          element={<EditDefaultLimit />}
+        />
+        /* ---------- Other Parameters ---------- */
+        <Route path="/risk-management/others" element={<OtherList />} />
+        <Route path="/risk-management/others/add" element={<AddOther />} />
+        <Route
+          path="/risk-management/others/:id/view"
+          element={<ViewOther />}
+        />
+        <Route
+          path="/risk-management/others/:id/edit"
+          element={<EditOther />}
+        />
         {/* Agent Management -> Channel Partners */}
         <Route path="/channel-partners" element={<ChannelPartnerList />} />
         <Route path="/channel-partners/add" element={<AddEditAgent />} />
         <Route path="/channel-partners/edit/:id" element={<AddEditAgent />} />
-        <Route path="/channel-partners/view/:id" element={<ChannelPartnerView />} />
+        <Route
+          path="/channel-partners/view/:id"
+          element={<ChannelPartnerView />}
+        />
         <Route path="/channel-partners/payout/:id" element={<UpdatePayout />} />
-        <Route path="/channel-partners/recovery/:id" element={<UpdateRecovery />} />
-        <Route path="/channel-partners/performance/:id" element={<AgentPerformance />} />
-        <Route path="/channel-partners/tenants/:id" element={<ManageTenants />} />
-
+        <Route
+          path="/channel-partners/recovery/:id"
+          element={<UpdateRecovery />}
+        />
+        <Route
+          path="/channel-partners/performance/:id"
+          element={<AgentPerformance />}
+        />
+        <Route
+          path="/channel-partners/tenants/:id"
+          element={<ManageTenants />}
+        />
         {/* Agent Management -> Collection Agent Management */}
         <Route path="/collection-agent" element={<CollectionAgentList />} />
         <Route path="/collection-agent/add" element={<CollectionAgentForm />} />
-        <Route path="/collection-agent/edit/:id" element={<CollectionAgentForm />} />
-        <Route path="/collection-agent/view/:id" element={<CollectionAgentView />} />
+        <Route
+          path="/collection-agent/edit/:id"
+          element={<CollectionAgentForm />}
+        />
+        <Route
+          path="/collection-agent/view/:id"
+          element={<CollectionAgentView />}
+        />
         <Route path="/collection-agent/update/:id" element={<UpdateAgent />} />
         <Route path="/collection-agent/fees/:id" element={<ManageFees />} />
         <Route path="/legal-agent" element={<LegalAgentList />} />
@@ -631,9 +776,124 @@ function App() {
         <Route path="/legal-agents/view/:id" element={<LegalAgentView />} />
         <Route path="/legal-agents/add" element={<LegalAgentForm />} />
 
+<Route path="/collection-management">
+  <Route index element={<CollectionManagement />} />
+
+  <Route path="payment-gateways">
+    <Route index element={<PaymentGatewayList />} />
+    <Route path="add" element={<AddPaymentGateway />} />
+    <Route path=":id/edit" element={<EditPaymentGateway />} />
+  </Route>
+
+  <Route path="controls" element={<CollectionControl />} />
+
+  <Route path="client-team-mapping/add" element={<MapClientTeam />} />
+  <Route path="client-agent-mapping/add" element={<MapClientAgent />} />
+
+  <Route path="payouts/add" element={<PayoutManagement />} />
+</Route>
+
+
+
+<Route path="/disbursement-management">
+  <Route index element={<DisbursementList />} />
+
+  <Route path="disbursement">
+    <Route index element={<DisbursementList />} />
+    <Route path="add" element={<DisbursementForm />} />
+    <Route path=":id/edit" element={<DisbursementForm />} />
+    <Route path=":id/view" element={<DisbursementDetail />} />
+  </Route>
+
+  <Route path="agency">
+    <Route index element={<AgencyList />} />
+    <Route path="add" element={<AgencyForm />} />
+    <Route path=":id/edit" element={<AgencyForm />} />
+    <Route path=":id/view" element={<AgencyDetail />} />
+  </Route>
+
+  <Route path="document">
+    <Route index element={<DocumentList />} />
+    <Route path="add" element={<DocumentForm />} />
+    <Route path=":id/edit" element={<DocumentForm />} />
+    <Route path=":id/view" element={<DocumentDetail />} />
+  </Route>
+
+  <Route path="frequency">
+    <Route index element={<FrequencyList />} />
+    <Route path="add" element={<FrequencyForm />} />
+    <Route path=":id/edit" element={<FrequencyForm />} />
+    <Route path=":id/view" element={<FrequencyDetail />} />
+  </Route>
+
+  <Route path="down-payment">
+    <Route index element={<DownPaymentList />} />
+    <Route path="add" element={<DownPaymentForm />} />
+    <Route path=":id/edit" element={<DownPaymentForm />} />
+    <Route path=":id/view" element={<DownPaymentDetail />} />
+  </Route>
+
+  <Route path="stage">
+    <Route index element={<StageMasterList />} />
+    <Route path="add" element={<StageMasterForm />} />
+    <Route path=":id/edit" element={<StageMasterForm />} />
+    <Route path=":id/view" element={<StageMasterDetail />} />
+  </Route>
+
+  <Route path="third-party">
+    <Route index element={<ThirdPartyList />} />
+    <Route path="add" element={<ThirdPartyForm />} />
+    <Route path=":id/edit" element={<ThirdPartyForm />} />
+    <Route path=":id/view" element={<ThirdPartyDetail />} />
+  </Route>
+</Route>
+
+
+<Route path="/provisioning-classification">
+
+  <Route path="loan-classification">
+    <Route index element={<ClassificationList />} />
+    <Route path="add" element={<ClassificationForm />} />
+    <Route path=":id/edit" element={<ClassificationForm />} />
+    <Route path=":id/update" element={<ClassificationUpdate />} />
+    <Route path=":id/manage" element={<ClassificationManage />} />
+  </Route>
+
+  <Route path="writeoff">
+    <Route index element={<WriteoffRuleList />} />
+    <Route path="add" element={<WriteoffRuleForm />} />
+    <Route path=":id/edit" element={<WriteoffRuleForm />} />
+    <Route path=":id/update" element={<WriteoffUpdate />} />
+    <Route path=":id/manage" element={<WriteoffManage />} />
+  </Route>
+
+  <Route path="settlement">
+    <Route index element={<SettlementRuleList />} />
+    <Route path="add" element={<SettlementRuleForm />} />
+    <Route path=":id/edit" element={<SettlementRuleForm />} />
+    <Route path=":id/update" element={<SettlementUpdate />} />
+    <Route path=":id/manage" element={<SettlementManage />} />
+  </Route>
+
+  <Route path="provisioning-npa">
+    <Route index element={<ProvisioningRuleList />} />
+    <Route path="add" element={<ProvisioningRuleForm />} />
+    <Route path=":id/edit" element={<ProvisioningRuleForm />} />
+    <Route path=":id/manage" element={<ProvisioningManagerForm />} />
+  </Route>
+
+  <Route path="incentive-management">
+    <Route index element={<IncentiveRuleList />} />
+    <Route path="add" element={<IncentiveRuleForm />} />
+    <Route path=":id/edit" element={<IncentiveRuleForm />} />
+  </Route>
+
+</Route>
+
+
+
+
       </Routes>
-
-
     </Router>
   );
 }
