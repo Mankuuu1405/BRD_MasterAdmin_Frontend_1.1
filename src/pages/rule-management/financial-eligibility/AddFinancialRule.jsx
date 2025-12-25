@@ -1,42 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const COLLATERAL_TYPES = ["Property", "Vehicle", "Gold", "FD", "Insurance"];
-const OWNERSHIP_TYPES = ["Self", "Family", "Company"];
-const RISK_LEVELS = ["Low", "Medium", "High"];
+const INCOME_TYPES = ["Salaried", "Business", "Professional"];
 const STATUS = ["Active", "Inactive"];
 
-export default function EditCollateralRule() {
+export default function AddFinancialRule() {
   const navigate = useNavigate();
-  const { id } = useParams();
 
   const [form, setForm] = useState({
-    collateral_type: "",
-    ownership: "",
-    min_value: "",
-    max_value: "",
-    ltv: "",
-    risk: "",
-    remarks: "",
+    income_type: "",
+    min_income: "",
+    max_emi_ratio: "",
+    min_bank_balance: "",
+    max_existing_obligation: "",
     status: "Active",
+    remarks: "",
   });
-
-  useEffect(() => {
-    // Mock API load
-    const mock = {
-      collateral_type: "Property",
-      ownership: "Self",
-      min_value: 500000,
-      max_value: 5000000,
-      ltv: 70,
-      risk: "Low",
-      remarks: "Prime residential property",
-      status: "Active",
-    };
-    setForm(mock);
-  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,8 +26,8 @@ export default function EditCollateralRule() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Updated Collateral Rule:", id, form);
-    navigate("/rule-management/collateral-quality");
+    console.log("Financial Rule:", form);
+    navigate("/rule-management/financial-eligibility");
   };
 
   return (
@@ -55,30 +36,27 @@ export default function EditCollateralRule() {
         <button onClick={() => navigate(-1)} className="p-2 rounded-xl bg-gray-50">
           <FiArrowLeft />
         </button>
-        <h1 className="text-2xl font-bold">Edit Collateral Quality Rule</h1>
+        <h1 className="text-2xl font-bold">Add Financial Eligibility Rule</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-md max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Select label="Collateral Type" name="collateral_type" value={form.collateral_type} onChange={handleChange} options={COLLATERAL_TYPES} required />
-        <Select label="Ownership" name="ownership" value={form.ownership} onChange={handleChange} options={OWNERSHIP_TYPES} required />
-        <Input label="Minimum Market Value" name="min_value" type="number" value={form.min_value} onChange={handleChange} required />
-        <Input label="Maximum Market Value" name="max_value" type="number" value={form.max_value} onChange={handleChange} />
-        <Input label="Allowed LTV (%)" name="ltv" value={form.ltv} onChange={handleChange} required />
-        <Select label="Risk Level" name="risk" value={form.risk} onChange={handleChange} options={RISK_LEVELS} required />
+        <Select label="Income Type" name="income_type" value={form.income_type} onChange={handleChange} options={INCOME_TYPES} required />
+        <Input label="Minimum Monthly Income" name="min_income" type="number" value={form.min_income} onChange={handleChange} required />
+        <Input label="Maximum EMI Ratio (%)" name="max_emi_ratio" value={form.max_emi_ratio} onChange={handleChange} placeholder="e.g. 50, 60" required />
+        <Input label="Minimum Bank Balance" name="min_bank_balance" type="number" value={form.min_bank_balance} onChange={handleChange} required />
+        <Input label="Max Existing Obligation (₹)" name="max_existing_obligation" type="number" value={form.max_existing_obligation} onChange={handleChange} />
         <Select label="Status" name="status" value={form.status} onChange={handleChange} options={STATUS} />
         <Textarea label="Remarks" name="remarks" value={form.remarks} onChange={handleChange} className="md:col-span-2" />
 
         <div className="md:col-span-2 flex justify-end">
           <button className="px-5 py-3 bg-indigo-600 text-white rounded-xl flex items-center gap-2">
-            <FiSave /> Update Rule
+            <FiSave /> Save Rule
           </button>
         </div>
       </form>
     </MainLayout>
   );
 }
-
-/* UI helpers */
 
 const Input = ({ label, ...props }) => (
   <div>
@@ -92,9 +70,7 @@ const Select = ({ label, options, ...props }) => (
     <label className="text-sm font-medium">{label}</label>
     <select {...props} className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm">
       <option value="">Select</option>
-      {options.map((o) => (
-        <option key={o} value={o}>{o}</option>
-      ))}
+      {options.map((o) => <option key={o} value={o}>{o}</option>)}
     </select>
   </div>
 );

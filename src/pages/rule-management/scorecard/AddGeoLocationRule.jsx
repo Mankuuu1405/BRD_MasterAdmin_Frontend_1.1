@@ -3,13 +3,13 @@ import MainLayout from "../../../layout/MainLayout";
 import {FiArrowLeft,FiSave} from "react-icons/fi";
 import {useNavigate} from "react-router-dom";
 
-const SEVERITY=["Low","Medium","High"];
+const RISK=["Low","Medium","High"];
 const STATUS=["Active","Inactive"];
 
-export default function AddRiskMitigationRule(){
+export default function AddGeoLocationRule(){
   const navigate=useNavigate();
   const [form,setForm]=useState({
-    risk_parameter:"",mitigation_action:"",severity:"",status:"Active",remarks:""
+    state:"",city:"",pincode:"",risk:"",weight:"",status:"Active",remarks:""
   });
 
   const handleChange=e=>{
@@ -19,22 +19,24 @@ export default function AddRiskMitigationRule(){
 
   const handleSubmit=e=>{
     e.preventDefault();
-    console.log("Risk Mitigation Rule:",form);
-    navigate("/rule-management/risk-mitigation");
+    console.log("Geo Rule:",form);
+    navigate("/rule-management/scorecard/geo");
   };
 
   return(
     <MainLayout>
       <div className="flex items-center gap-3 mb-8">
         <button onClick={()=>navigate(-1)} className="p-2 rounded-xl bg-gray-50"><FiArrowLeft/></button>
-        <h1 className="text-2xl font-bold">Add Risk Mitigation Rule</h1>
+        <h1 className="text-2xl font-bold">Add Geo Location Rule</h1>
       </div>
 
       <form onSubmit={handleSubmit}
         className="bg-white p-8 rounded-2xl shadow-md max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Input label="Risk Parameter" name="risk_parameter" value={form.risk_parameter} onChange={handleChange} required/>
-        <Input label="Mitigation Action" name="mitigation_action" value={form.mitigation_action} onChange={handleChange} required/>
-        <Select label="Severity" name="severity" value={form.severity} onChange={handleChange} options={SEVERITY} required/>
+        <Input label="State" name="state" value={form.state} onChange={handleChange} required/>
+        <Input label="City" name="city" value={form.city} onChange={handleChange} required/>
+        <Input label="Pincode" name="pincode" value={form.pincode} onChange={handleChange} required/>
+        <Select label="Risk Level" name="risk" value={form.risk} onChange={handleChange} options={RISK} required/>
+        <Input label="Weight (%)" name="weight" type="number" value={form.weight} onChange={handleChange} required/>
         <Select label="Status" name="status" value={form.status} onChange={handleChange} options={STATUS}/>
         <Textarea label="Remarks" name="remarks" value={form.remarks} onChange={handleChange} className="md:col-span-2"/>
         <div className="md:col-span-2 flex justify-end">
