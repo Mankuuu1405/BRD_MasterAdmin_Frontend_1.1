@@ -386,12 +386,31 @@ import ViewAgencyVerificationRule from "./pages/rule-management/verification/Vie
 import VerificationDashboard from "./pages/rule-management/verification/VerificationRuleHome";
 import VerificationRuleHome from "./pages/rule-management/verification/VerificationRuleHome";
 
-
-
-
-
-
-
+import FinancialRuleList from "./pages/rule-management/financial-eligibility/FinancialRuleList";
+import AddFinancialRule from "./pages/rule-management/financial-eligibility/AddFinancialRule";
+import EditFinancialRule from "./pages/rule-management/financial-eligibility/EditFinancialRule";
+import ViewFinancialRule from "./pages/rule-management/financial-eligibility/ViewFinancialRule";
+import CollateralRuleList from "./pages/rule-management/collateral-quality/CollateralRuleList";
+import AddCollateralRule from "./pages/rule-management/collateral-quality/AddCollateralRule";
+import EditCollateralRule from "./pages/rule-management/collateral-quality/EditCollateralRule";
+import ViewCollateralRule from "./pages/rule-management/collateral-quality/ViewCollateralRule";
+import ViewRiskMitigationRule from "./pages/rule-management/risk-mitigation/ViewRiskMitigationRule";
+import EditRiskMitigationRule from "./pages/rule-management/risk-mitigation/EditRiskMitigationRule";
+import AddRiskMitigationRule from "./pages/rule-management/risk-mitigation/AddRiskMitigationRule";
+import RiskMitigationRuleList from "./pages/rule-management/risk-mitigation/RiskMitigationRuleList";
+import ViewGeoLocationRule from "./pages/rule-management/scorecard/ViewGeoLocationRule";
+import EditGeoLocationRule from "./pages/rule-management/scorecard/EditGeoLocationRule";
+import AddGeoLocationRule from "./pages/rule-management/scorecard/AddGeoLocationRule";
+import GeoLocationRuleList from "./pages/rule-management/scorecard/GeoLocationRuleList";
+import EditInternalScoreRule from "./pages/rule-management/scorecard/EditInternalScoreRule";
+import AddInternalScoreRule from "./pages/rule-management/scorecard/AddInternalScoreRule";
+import ViewInternalScoreRule from "./pages/rule-management/scorecard/ViewInternalScoreRule";
+import ViewCreditHistoryRule from "./pages/rule-management/scorecard/ViewCreditHistoryRule";
+import CreditHistoryRuleList from "./pages/rule-management/scorecard/CreditHistoryRuleList";
+import AddCreditHistoryRule from "./pages/rule-management/scorecard/AddCreditHistoryRule";
+import EditCreditHistoryRule from "./pages/rule-management/scorecard/EditCreditHistoryRule";
+import InternalScoreRuleList from "./pages/rule-management/scorecard/InternalScoreRuleList";
+import ScorecardHome from "./pages/rule-management/scorecard/ScorecardHome";
 
 function App() {
   return (
@@ -866,95 +885,191 @@ function App() {
         <Route path="/legal-agents/edit/:id" element={<LegalAgentForm />} />
         <Route path="/legal-agents/view/:id" element={<LegalAgentView />} />
         <Route path="/legal-agents/add" element={<LegalAgentForm />} />
-
-        <Route path="/verification-agency" element={<VerificationAgencyList />} />
-        <Route path="/verification-agency/edit/:id" element={<VerificationAgencyForm />} />
-        <Route path="/verification-agency/view/:id" element={<VerificationAgencyView />} />
-        <Route path="/verification-agency/add" element={<VerificationAgencyForm />} />
-        <Route path="/verification-agency/manage-fees/:id" element={<ManageVerificationFees />} />
-
+        <Route
+          path="/verification-agency"
+          element={<VerificationAgencyList />}
+        />
+        <Route
+          path="/verification-agency/edit/:id"
+          element={<VerificationAgencyForm />}
+        />
+        <Route
+          path="/verification-agency/view/:id"
+          element={<VerificationAgencyView />}
+        />
+        <Route
+          path="/verification-agency/add"
+          element={<VerificationAgencyForm />}
+        />
+        <Route
+          path="/verification-agency/manage-fees/:id"
+          element={<ManageVerificationFees />}
+        />
         <Route path="/controls/language" element={<LanguageList />} />
         <Route path="/controls/language/add" element={<LanguageAdd />} />
         <Route path="/controls/language/edit/:id" element={<LanguageEdit />} />
         <Route path="/controls/language/view/:id" element={<LanguageView />} />
-
         <Route path="/controls/geo/country" element={<CountryList />} />
         <Route path="/controls/geo/country/add" element={<AddCountry />} />
-        <Route path="/controls/geo/country/edit/:id" element={<EditCountry />} />
-
+        <Route
+          path="/controls/geo/country/edit/:id"
+          element={<EditCountry />}
+        />
         <Route path="/controls/geo/state" element={<StateList />} />
         <Route path="/controls/geo/state/add" element={<AddState />} />
         <Route path="/controls/geo/state/edit/:id" element={<EditState />} />
-
         <Route path="/controls/geo/city" element={<CityList />} />
         <Route path="/controls/geo/city/add" element={<AddCity />} />
         <Route path="/controls/geo/city/edit/:id" element={<EditCity />} />
-
         <Route path="/controls/geo/area" element={<AreaList />} />
         <Route path="/controls/geo/area/add" element={<AddArea />} />
         <Route path="/controls/geo/area/edit/:id" element={<EditArea />} />
-
         <Route path="/controls/login-auth" element={<LoginAuthList />} />
         <Route path="/controls/login-auth/add" element={<AddLoginAuth />} />
-        <Route path="/controls/login-auth/edit/:id" element={<EditLoginAuth />} />
-        <Route path="/controls/login-auth/view/:id" element={<ViewLoginAuth />} />
-
+        <Route
+          path="/controls/login-auth/edit/:id"
+          element={<EditLoginAuth />}
+        />
+        <Route
+          path="/controls/login-auth/view/:id"
+          element={<ViewLoginAuth />}
+        />
         <Route path="/controls/co-applicant" element={<CoApplicantList />} />
         <Route path="/controls/co-applicant/add" element={<AddCoApplicant />} />
-        <Route path="/controls/co-applicant/edit/:id" element={<EditCoApplicant />} />
-        <Route path="/controls/co-applicant/view/:id" element={<ViewCoApplicant />} />
-
+        <Route
+          path="/controls/co-applicant/edit/:id"
+          element={<EditCoApplicant />}
+        />
+        <Route
+          path="/controls/co-applicant/view/:id"
+          element={<ViewCoApplicant />}
+        />
         <Route path="/controls/login-fees" element={<LoginFeeList />} />
         <Route path="/controls/login-fees/add" element={<AddLoginFee />} />
-        <Route path="/controls/login-fees/edit/:id" element={<EditLoginFee />} />
-        <Route path="/controls/login-fees/view/:id" element={<ViewLoginFee />} />
-
-        <Route path="/controls/joint-applicant" element={<JointApplicantList />} />
-        <Route path="/controls/joint-applicant/add" element={<AddJointApplicant />} />
-        <Route path="/controls/joint-applicant/edit/:id" element={<EditJointApplicant />} />
-        <Route path="/controls/joint-applicant/view/:id" element={<ViewJointApplicant />} />
-
+        <Route
+          path="/controls/login-fees/edit/:id"
+          element={<EditLoginFee />}
+        />
+        <Route
+          path="/controls/login-fees/view/:id"
+          element={<ViewLoginFee />}
+        />
+        <Route
+          path="/controls/joint-applicant"
+          element={<JointApplicantList />}
+        />
+        <Route
+          path="/controls/joint-applicant/add"
+          element={<AddJointApplicant />}
+        />
+        <Route
+          path="/controls/joint-applicant/edit/:id"
+          element={<EditJointApplicant />}
+        />
+        <Route
+          path="/controls/joint-applicant/view/:id"
+          element={<ViewJointApplicant />}
+        />
         <Route path="/controls/references" element={<ReferenceList />} />
         <Route path="/controls/references/add" element={<AddReference />} />
-        <Route path="/controls/references/edit/:id" element={<EditReference />} />
-        <Route path="/controls/references/view/:id" element={<ViewReference />} />
-
-        <Route path="/controls/application-process" element={<ApplicationProcessList />} />
-        <Route path="/controls/application-process/processing-mode" element={<UpdateProcessingMode />} />
-        <Route path="/controls/application-process/update-application" element={<UpdateApplication />} />
-        <Route path="/controls/application-process/settings" element={<ApplicationSettings />} />
-        <Route path="/controls/application-process/action-type" element={<UpdateActionType />} />
-
         <Route
-          path="/controls/score-card"
-          element={<ScoreCardRatingHome />}
+          path="/controls/references/edit/:id"
+          element={<EditReference />}
         />
-
-        <Route path="/controls/score-card/reference-check" element={<ReferenceCheckList />} />
-        <Route path="/controls/score-card/reference-check/add" element={<AddReferenceCheck />} />
-        <Route path="/controls/score-card/reference-check/edit/:id" element={<EditReferenceCheck />} />
-
-        <Route path="/controls/score-card/credit-history" element={<CreditHistoryList />} />
-        <Route path="/controls/score-card/credit-history/add" element={<AddCreditHistory />} />
-        <Route path="/controls/score-card/credit-history/edit/:id" element={<EditCreditHistory />} />
-
-        <Route path="/controls/score-card/investigation-report" element={<InvestigationReportList />} />
-        <Route path="/controls/score-card/investigation-report/add" element={<AddInvestigationReport />} />
-        <Route path="/controls/score-card/investigation-report/edit/:id" element={<EditInvestigationReport />} />
-
+        <Route
+          path="/controls/references/view/:id"
+          element={<ViewReference />}
+        />
+        <Route
+          path="/controls/application-process"
+          element={<ApplicationProcessList />}
+        />
+        <Route
+          path="/controls/application-process/processing-mode"
+          element={<UpdateProcessingMode />}
+        />
+        <Route
+          path="/controls/application-process/update-application"
+          element={<UpdateApplication />}
+        />
+        <Route
+          path="/controls/application-process/settings"
+          element={<ApplicationSettings />}
+        />
+        <Route
+          path="/controls/application-process/action-type"
+          element={<UpdateActionType />}
+        />
+        <Route path="/controls/score-card" element={<ScoreCardRatingHome />} />
+        <Route
+          path="/controls/score-card/reference-check"
+          element={<ReferenceCheckList />}
+        />
+        <Route
+          path="/controls/score-card/reference-check/add"
+          element={<AddReferenceCheck />}
+        />
+        <Route
+          path="/controls/score-card/reference-check/edit/:id"
+          element={<EditReferenceCheck />}
+        />
+        <Route
+          path="/controls/score-card/credit-history"
+          element={<CreditHistoryList />}
+        />
+        <Route
+          path="/controls/score-card/credit-history/add"
+          element={<AddCreditHistory />}
+        />
+        <Route
+          path="/controls/score-card/credit-history/edit/:id"
+          element={<EditCreditHistory />}
+        />
+        <Route
+          path="/controls/score-card/investigation-report"
+          element={<InvestigationReportList />}
+        />
+        <Route
+          path="/controls/score-card/investigation-report/add"
+          element={<AddInvestigationReport />}
+        />
+        <Route
+          path="/controls/score-card/investigation-report/edit/:id"
+          element={<EditInvestigationReport />}
+        />
         <Route path="/controls/verification" element={<VerificationHome />} />
-
-        <Route path="/controls/verification/tele-verification" element={<TeleVerificationList />} />
-        <Route path="/controls/verification/tele-verification/add" element={<AddTeleVerification />} />
-        <Route path="/controls/verification/tele-verification/edit/:id" element={<EditTeleVerification />} />
-        <Route path="/controls/verification/tele-verification/view/:id" element={<ViewTeleVerification />} />
-
-        <Route path="/controls/verification/credit-personal-meetings" element={<MeetingList />} />
-        <Route path="/controls/verification/credit-personal-meetings/add" element={<AddMeeting />} />
-        <Route path="/controls/verification/credit-personal-meetings/edit/:id" element={<EditMeeting />} />
-        <Route path="/controls/verification/credit-personal-meetings/view/:id" element={<ViewMeeting />} />
-
-
+        <Route
+          path="/controls/verification/tele-verification"
+          element={<TeleVerificationList />}
+        />
+        <Route
+          path="/controls/verification/tele-verification/add"
+          element={<AddTeleVerification />}
+        />
+        <Route
+          path="/controls/verification/tele-verification/edit/:id"
+          element={<EditTeleVerification />}
+        />
+        <Route
+          path="/controls/verification/tele-verification/view/:id"
+          element={<ViewTeleVerification />}
+        />
+        <Route
+          path="/controls/verification/credit-personal-meetings"
+          element={<MeetingList />}
+        />
+        <Route
+          path="/controls/verification/credit-personal-meetings/add"
+          element={<AddMeeting />}
+        />
+        <Route
+          path="/controls/verification/credit-personal-meetings/edit/:id"
+          element={<EditMeeting />}
+        />
+        <Route
+          path="/controls/verification/credit-personal-meetings/view/:id"
+          element={<ViewMeeting />}
+        />
         <Route path="/collection-management">
           <Route index element={<CollectionManagement />} />
 
@@ -971,9 +1086,6 @@ function App() {
 
           <Route path="payouts/add" element={<PayoutManagement />} />
         </Route>
-
-
-
         <Route path="/disbursement-management">
           <Route index element={<DisbursementList />} />
 
@@ -1026,10 +1138,7 @@ function App() {
             <Route path=":id/view" element={<ThirdPartyDetail />} />
           </Route>
         </Route>
-
-
         <Route path="/provisioning-classification">
-
           <Route path="loan-classification">
             <Route index element={<ClassificationList />} />
             <Route path="add" element={<ClassificationForm />} />
@@ -1066,50 +1175,199 @@ function App() {
             <Route path="add" element={<IncentiveRuleForm />} />
             <Route path=":id/edit" element={<IncentiveRuleForm />} />
           </Route>
-
         </Route>
-
         <Route path="/currency-management" element={<CurrencyList />} />
         <Route path="/currency-management/add" element={<CurrencyForm />} />
-        <Route path="/currency-management/edit/:id" element={<CurrencyForm isEdit />} />
-        <Route path="/currency-management/view/:id" element={<CurrencyView />} />
-
+        <Route
+          path="/currency-management/edit/:id"
+          element={<CurrencyForm isEdit />}
+        />
+        <Route
+          path="/currency-management/view/:id"
+          element={<CurrencyView />}
+        />
         <Route path="/concession-management" element={<ConcessionList />} />
-        <Route path="/concession-management/view/:id" element={<ConcessionView />} />
-
-        <Route path="/concession-management/type/add" element={<ConcessionTypeForm />} />
-        <Route path="/concession-management/type/edit/:id" element={<ConcessionTypeForm />} />
-
-        <Route path="/concession-management/category/add" element={<ConcessionCategoryForm />} />
-        <Route path="/concession-management/category/edit/:id" element={<ConcessionCategoryForm />} />
-
+        <Route
+          path="/concession-management/view/:id"
+          element={<ConcessionView />}
+        />
+        <Route
+          path="/concession-management/type/add"
+          element={<ConcessionTypeForm />}
+        />
+        <Route
+          path="/concession-management/type/edit/:id"
+          element={<ConcessionTypeForm />}
+        />
+        <Route
+          path="/concession-management/category/add"
+          element={<ConcessionCategoryForm />}
+        />
+        <Route
+          path="/concession-management/category/edit/:id"
+          element={<ConcessionCategoryForm />}
+        />
         <Route path="rule-management/rule-master" element={<RuleNameList />} />
-        <Route path="/rule-management/rule-master/add" element={<AddRuleName />} />
-        <Route path="/rule-management/rule-master/edit/:id" element={<EditRuleName />} />
-        <Route path="/rule-management/rule-master/view/:id" element={<ViewRuleName />} />
+        <Route
+          path="/rule-management/rule-master/add"
+          element={<AddRuleName />}
+        />
+        <Route
+          path="/rule-management/rule-master/edit/:id"
+          element={<EditRuleName />}
+        />
+        <Route
+          path="/rule-management/rule-master/view/:id"
+          element={<ViewRuleName />}
+        />
+        <Route
+          path="/rule-management/impact-values"
+          element={<ImpactValueList />}
+        />
+        <Route
+          path="/rule-management/impact-values/add"
+          element={<AddImpactValue />}
+        />
+        <Route
+          path="/rule-management/impact-values/edit/:id"
+          element={<EditImpactValue />}
+        />
+        <Route
+          path="/rule-management/impact-values/view/:id"
+          element={<ViewImpactValue />}
+        />
+        <Route
+          path="/rule-management/client-profile"
+          element={<ClientProfileRuleList />}
+        />
+        <Route
+          path="/rule-management/client-profile/add"
+          element={<AddClientProfileRule />}
+        />
+        <Route
+          path="/rule-management/client-profile/edit/:id"
+          element={<EditClientProfileRule />}
+        />
+        <Route
+          path="/rule-management/client-profile/view/:id"
+          element={<ViewClientProfileRule />}
+        />
+        <Route
+          path="/rule-management/verification"
+          element={<VerificationRuleHome />}
+        />
+        <Route
+          path="/rule-management/verification/internal"
+          element={<InternalVerificationRule />}
+        />
+        <Route
+          path="/rule-management/verification/internal/edit/:id"
+          element={<EditInternalVerificationRule />}
+        />
+        <Route
+          path="/rule-management/verification/internal/view/:id"
+          element={<ViewInternalVerificationRule />}
+        />
+        <Route
+          path="/rule-management/verification/agency"
+          element={<AgencyVerificationRule />}
+        />
+        <Route
+          path="/rule-management/verification/agency/edit/:id"
+          element={<EditAgencyVerificationRule />}
+        />
+        <Route
+          path="/rule-management/verification/agency/view/:id"
+          element={<ViewAgencyVerificationRule />}
+        />
+        <Route
+          path="/rule-management/collateral-quality"
+          element={<CollateralRuleList />}
+        />
+        <Route
+          path="/rule-management/collateral-quality/add"
+          element={<AddCollateralRule />}
+        />
+        <Route
+          path="/rule-management/collateral-quality/edit/:id"
+          element={<EditCollateralRule />}
+        />
+        <Route
+          path="/rule-management/collateral-quality/view/:id"
+          element={<ViewCollateralRule />}
+        />
+        <Route
+          path="/rule-management/financial-eligibility"
+          element={<FinancialRuleList />}
+        />
+        <Route
+          path="/rule-management/financial-eligibility/add"
+          element={<AddFinancialRule />}
+        />
+        <Route
+          path="/rule-management/financial-eligibility/edit/:id"
+          element={<EditFinancialRule />}
+        />
+        <Route
+          path="/rule-management/financial-eligibility/view/:id"
+          element={<ViewFinancialRule />}
+        />
+  
+  <Route path="/rule-management/scorecard" element={<ScorecardHome />} />
 
-        <Route path="/rule-management/impact-values" element={<ImpactValueList />} />
-        <Route path="/rule-management/impact-values/add" element={<AddImpactValue />} />
-        <Route path="/rule-management/impact-values/edit/:id" element={<EditImpactValue />} />
-        <Route path="/rule-management/impact-values/view/:id" element={<ViewImpactValue />} />
-
-        <Route path="/rule-management/client-profile" element={<ClientProfileRuleList />} />
-        <Route path="/rule-management/client-profile/add" element={<AddClientProfileRule />} />
-        <Route path="/rule-management/client-profile/edit/:id" element={<EditClientProfileRule />} />
-        <Route path="/rule-management/client-profile/view/:id" element={<ViewClientProfileRule />} />
-
-        <Route path="/rule-management/verification" element={<VerificationRuleHome />} />
-
-        <Route path="/rule-management/verification/internal" element={<InternalVerificationRule />} />
-        <Route path="/rule-management/verification/internal/edit/:id" element={<EditInternalVerificationRule />} />
-        <Route path="/rule-management/verification/internal/view/:id" element={<ViewInternalVerificationRule />} />
-
-        <Route path="/rule-management/verification/agency" element={<AgencyVerificationRule />} />
-        <Route path="/rule-management/verification/agency/edit/:id" element={<EditAgencyVerificationRule />} />
-        <Route path="/rule-management/verification/agency/view/:id" element={<ViewAgencyVerificationRule />} />
-
+        <Route
+          path="/rule-management/scorecard/internal"
+          element={<InternalScoreRuleList />}
+        />
+        <Route
+          path="/rule-management/scorecard/internal/add"
+          element={<AddInternalScoreRule />}
+        />
+        <Route
+          path="/rule-management/scorecard/internal/edit/:id"
+          element={<EditInternalScoreRule />}
+        />
+        <Route
+          path="/rule-management/scorecard/internal/view/:id"
+          element={<ViewInternalScoreRule />}
+        />
+        <Route
+          path="/rule-management/scorecard/geo"
+          element={<GeoLocationRuleList />}
+        />
+        <Route
+          path="/rule-management/scorecard/geo/add"
+          element={<AddGeoLocationRule />}
+        />
+        <Route
+          path="/rule-management/scorecard/geo/edit/:id"
+          element={<EditGeoLocationRule />}
+        />
+        <Route
+          path="/rule-management/scorecard/geo/view/:id"
+          element={<ViewGeoLocationRule />}
+        />
+        <Route
+          path="/rule-management/risk-mitigation"
+          element={<RiskMitigationRuleList />}
+        />
+        <Route
+          path="/rule-management/risk-mitigation/add"
+          element={<AddRiskMitigationRule />}
+        />
+        <Route
+          path="/rule-management/risk-mitigation/edit/:id"
+          element={<EditRiskMitigationRule />}
+        />
+        <Route
+          path="/rule-management/risk-mitigation/view/:id"
+          element={<ViewRiskMitigationRule />}
+        />
+        <Route path="/rule-management/scorecard/credit-history" element={<CreditHistoryRuleList />} />
+<Route path="/rule-management/scorecard/credit-history/add" element={<AddCreditHistoryRule />} />
+<Route path="/rule-management/scorecard/credit-history/edit/:id" element={<EditCreditHistoryRule />} />
+<Route path="/rule-management/scorecard/credit-history/view/:id" element={<ViewCreditHistoryRule />} />
       </Routes>
-
     </Router>
   );
 }

@@ -3,21 +3,20 @@ import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiEdit3 } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 
-export default function ViewCollateralRule() {
+export default function ViewCreditHistoryRule() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [rule, setRule] = useState(null);
 
   useEffect(() => {
     const mock = {
-      collateral_type: "Property",
-      ownership: "Self",
-      min_value: 500000,
-      max_value: 5000000,
-      ltv: 70,
+      bureau: "CIBIL",
+      min_score: 650,
+      max_dpd: 30,
+      max_enquiries: 5,
       risk: "Low",
-      remarks: "Prime residential property",
       status: "Active",
+      remarks: "Standard CIBIL profile",
       created_at: "25 Dec 2025",
     };
     setRule(mock);
@@ -32,11 +31,11 @@ export default function ViewCollateralRule() {
           <button onClick={() => navigate(-1)} className="p-2 rounded-xl bg-gray-50">
             <FiArrowLeft />
           </button>
-          <h1 className="text-2xl font-bold">View Collateral Rule</h1>
+          <h1 className="text-2xl font-bold">View Credit History Rule</h1>
         </div>
 
         <button
-          onClick={() => navigate(`/rule-management/collateral-quality/edit/${id}`)}
+          onClick={() => navigate(`/rule-management/scorecard/credit-history/edit/${id}`)}
           className="px-4 py-2 bg-indigo-600 text-white rounded-xl flex items-center gap-2"
         >
           <FiEdit3 /> Edit
@@ -44,11 +43,10 @@ export default function ViewCollateralRule() {
       </div>
 
       <div className="bg-white rounded-2xl shadow-md p-8 max-w-4xl space-y-6">
-        <Info label="Collateral Type" value={rule.collateral_type} />
-        <Info label="Ownership" value={rule.ownership} />
-        <Info label="Minimum Value" value={`₹${rule.min_value}`} />
-        <Info label="Maximum Value" value={`₹${rule.max_value}`} />
-        <Info label="Allowed LTV (%)" value={rule.ltv} />
+        <Info label="Credit Bureau" value={rule.bureau} />
+        <Info label="Minimum Score" value={rule.min_score} />
+        <Info label="Maximum DPD" value={rule.max_dpd} />
+        <Info label="Max Enquiries" value={rule.max_enquiries} />
         <Info label="Risk Level" value={rule.risk} />
         <Info label="Remarks" value={rule.remarks} />
 
