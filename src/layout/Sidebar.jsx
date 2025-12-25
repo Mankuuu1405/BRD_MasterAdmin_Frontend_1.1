@@ -24,7 +24,10 @@ import {
   FiUserX,
   FiDollarSign,
   FiSettings,
+  FiTag,
+  FiGitBranch,
 } from "react-icons/fi";
+import { HiCurrencyRupee } from "react-icons/hi2";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -114,6 +117,25 @@ const Sidebar = () => {
     )
   );
 
+  const RULE_MANAGEMENT_ROUTES = [
+    "/rule-management",
+    "/rule-management/rule-master",
+    "/rule-management/impact-values",
+    "/rule-management/client-profile",
+    "/rule-management/collateral-quality",
+    "/rule-management/financial-eligibility",
+    "/rule-management/scorecard",
+    "/rule-management/risk-mitigation",
+    "/rule-management/verification",
+  ];
+
+  const [openRuleManagement, setOpenRuleManagement] = useState(
+    RULE_MANAGEMENT_ROUTES.some((route) =>
+      location.pathname.startsWith(route)
+    )
+  );
+
+
 
   /* ---------------- HELPERS ---------------- */
   const handleLogout = () => {
@@ -143,27 +165,33 @@ const Sidebar = () => {
   const loanImprovementActive =
     location.pathname.startsWith("/loan-improvement");
 
+  const currencyManagementActive =
+    location.pathname.startsWith("/currency-management");
+
+  const concessionManagementActive =
+    location.pathname.startsWith("/concession-management");
+
   const [openDocumentManagement, setOpenDocumentManagement] = useState(
     location.pathname.startsWith("/documents")
   );
 
   const [openRiskMitigation, setOpenRiskMitigation] = useState(
-  location.pathname.startsWith("/risk-management")
-);
+    location.pathname.startsWith("/risk-management")
+  );
 
-/* ---------------- DISBURSEMENT MANAGEMENT ---------------- */
-const [openDisbursementManagement, setOpenDisbursementManagement] = useState(
-  location.pathname.startsWith("/disbursement-management")
-);
-/* ---------------- COLLECTION MANAGEMENT ---------------- */
-const [openCollectionManagement, setOpenCollectionManagement] = useState(
-  location.pathname.startsWith("/collection-management")
-);
+  /* ---------------- DISBURSEMENT MANAGEMENT ---------------- */
+  const [openDisbursementManagement, setOpenDisbursementManagement] = useState(
+    location.pathname.startsWith("/disbursement-management")
+  );
+  /* ---------------- COLLECTION MANAGEMENT ---------------- */
+  const [openCollectionManagement, setOpenCollectionManagement] = useState(
+    location.pathname.startsWith("/collection-management")
+  );
 
-// /* ---------------- PROVISIONING & CLASSIFICATION ---------------- */
-const [openProvisioning, setOpenProvisioning] = useState(
-  location.pathname.startsWith("/provisioning-classification")
-);
+  // /* ---------------- PROVISIONING & CLASSIFICATION ---------------- */
+  const [openProvisioning, setOpenProvisioning] = useState(
+    location.pathname.startsWith("/provisioning-classification")
+  );
 
 
 
@@ -300,6 +328,22 @@ const [openProvisioning, setOpenProvisioning] = useState(
             <FiRefreshCcw size={18} /> Loan Improvement
           </Link>
 
+          {/* CURRENCY MANAGEMENT */}
+          <Link
+            to="/currency-management"
+            className={menuItemStyle("/currency-management")}
+          >
+            <HiCurrencyRupee size={18} /> Currency Management
+          </Link>
+
+          {/* CONCESSION MANAGEMENT */}
+          <Link
+            to="/concession-management"
+            className={menuItemStyle("/concession-management")}
+          >
+            <FiTag size={18} /> Concession Management
+          </Link>
+
           {/* ELIGIBILITY & SCORE */}
           <button
             onClick={() => setEligibilityAndScore((p) => !p)}
@@ -421,8 +465,8 @@ const [openProvisioning, setOpenProvisioning] = useState(
           <button
             onClick={() => setProfileManagement((p) => !p)}
             className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${openProfileManagement
-                ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
-                : "text-gray-700 hover:bg-gray-100"
+              ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+              : "text-gray-700 hover:bg-gray-100"
               }`}
           >
             <span className="flex items-center gap-3">
@@ -463,8 +507,8 @@ const [openProvisioning, setOpenProvisioning] = useState(
           <button
             onClick={() => setAgentManagement((p) => !p)}
             className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${openAgentManagement
-                ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
-                : "text-gray-700 hover:bg-gray-100"
+              ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+              : "text-gray-700 hover:bg-gray-100"
               }`}
           >
             <span className="flex items-center gap-3">
@@ -511,8 +555,8 @@ const [openProvisioning, setOpenProvisioning] = useState(
           <button
             onClick={() => setControlManagement((p) => !p)}
             className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${openControlManagement
-                ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
-                : "text-gray-700 hover:bg-gray-100"
+              ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+              : "text-gray-700 hover:bg-gray-100"
               }`}
           >
             <span className="flex items-center gap-3">
@@ -523,7 +567,7 @@ const [openProvisioning, setOpenProvisioning] = useState(
 
           {openControlManagement && (
             <div className="ml-6 space-y-1">
-              
+
               <Link
                 to="/controls/language"
                 className={menuItemStyle("/controls/language")}
@@ -598,6 +642,83 @@ const [openProvisioning, setOpenProvisioning] = useState(
             </div>
           )}
 
+          {/* Rule Management */}
+          <button
+            onClick={() => setOpenRuleManagement((p) => !p)}
+            className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${openRuleManagement
+              ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+              : "text-gray-700 hover:bg-gray-100"
+              }`}
+          >
+            <span className="flex items-center gap-3">
+              <FiGitBranch size={18} /> Rule Management
+            </span>
+            {openRuleManagement ? <FiChevronUp /> : <FiChevronDown />}
+          </button>
+
+          {openRuleManagement && (
+            <div className="ml-6 space-y-1">
+
+              <Link
+                to="/rule-management/rule-master"
+                className={menuItemStyle("/rule-management/rule-master")}
+              >
+                Rule Master
+              </Link>
+
+              <Link
+                to="/rule-management/impact-values"
+                className={menuItemStyle("/rule-management/impact-values")}
+              >
+                Impact Values
+              </Link>
+
+              <Link
+                to="/rule-management/client-profile"
+                className={menuItemStyle("/rule-management/client-profile")}
+              >
+                Client Profile Rules
+              </Link>
+
+              <Link
+                to="/rule-management/collateral-quality"
+                className={menuItemStyle("/rule-management/collateral-quality")}
+              >
+                Collateral Quality
+              </Link>
+
+              <Link
+                to="/rule-management/financial-eligibility"
+                className={menuItemStyle("/rule-management/financial-eligibility")}
+              >
+                Financial Eligibility
+              </Link>
+
+              <Link
+                to="/rule-management/scorecard"
+                className={menuItemStyle("/rule-management/scorecard")}
+              >
+                Score Card
+              </Link>
+
+              <Link
+                to="/rule-management/risk-mitigation"
+                className={menuItemStyle("/rule-management/risk-mitigation")}
+              >
+                Risk & Mitigation
+              </Link>
+
+              <Link
+                to="/rule-management/verification"
+                className={menuItemStyle("/rule-management/verification")}
+              >
+                Verification Rules
+              </Link>
+
+            </div>
+          )}
+
+
 
           {/* DOCUMENT MANAGEMENT */}
           <button
@@ -641,211 +762,207 @@ const [openProvisioning, setOpenProvisioning] = useState(
               </Link>
             </div>
           )}
-         {/* RISK & MITIGATION */}
-<button
-  onClick={() => setOpenRiskMitigation((p) => !p)}
-  className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${
-    location.pathname.startsWith("/risk-management")
-      ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
-      : "text-gray-700 hover:bg-gray-100"
-  }`}
->
-  <span className="flex items-center gap-3">
-    <FiShield size={18} /> Risk & Mitigation
-  </span>
-  {openRiskMitigation ? <FiChevronUp /> : <FiChevronDown />}
-</button>
+          {/* RISK & MITIGATION */}
+          <button
+            onClick={() => setOpenRiskMitigation((p) => !p)}
+            className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${location.pathname.startsWith("/risk-management")
+              ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+              : "text-gray-700 hover:bg-gray-100"
+              }`}
+          >
+            <span className="flex items-center gap-3">
+              <FiShield size={18} /> Risk & Mitigation
+            </span>
+            {openRiskMitigation ? <FiChevronUp /> : <FiChevronDown />}
+          </button>
 
-{openRiskMitigation && (
-  <div className="ml-6 space-y-1">
-    <Link
-      to="/risk-management/risks"
-      className={menuItemStyle("/risk-management/risks")}
-    >
-      Risk Management
-    </Link>
+          {openRiskMitigation && (
+            <div className="ml-6 space-y-1">
+              <Link
+                to="/risk-management/risks"
+                className={menuItemStyle("/risk-management/risks")}
+              >
+                Risk Management
+              </Link>
 
-    <Link
-      to="/risk-management/mitigation"
-      className={menuItemStyle("/risk-management/mitigation")}
-    >
-      Risk Mitigation
-    </Link>
+              <Link
+                to="/risk-management/mitigation"
+                className={menuItemStyle("/risk-management/mitigation")}
+              >
+                Risk Mitigation
+              </Link>
 
-    <Link
-      to="/risk-management/deviations"
-      className={menuItemStyle("/risk-management/deviations")}
-    >
-      Deviation Management
-    </Link>
+              <Link
+                to="/risk-management/deviations"
+                className={menuItemStyle("/risk-management/deviations")}
+              >
+                Deviation Management
+              </Link>
 
-    <Link
-      to="/risk-management/rcu"
-      className={menuItemStyle("/risk-management/rcu")}
-    >
-      Risk Containment Unit (RCU)
-    </Link>
+              <Link
+                to="/risk-management/rcu"
+                className={menuItemStyle("/risk-management/rcu")}
+              >
+                Risk Containment Unit (RCU)
+              </Link>
 
-    <Link
-      to="/risk-management/fraud"
-      className={menuItemStyle("/risk-management/fraud")}
-    >
-      Fraud Management
-    </Link>
+              <Link
+                to="/risk-management/fraud"
+                className={menuItemStyle("/risk-management/fraud")}
+              >
+                Fraud Management
+              </Link>
 
-    <Link
-      to="/risk-management/portfolio-limits"
-      className={menuItemStyle("/risk-management/portfolio-limits")}
-    >
-      Portfolio Limits
-    </Link>
+              <Link
+                to="/risk-management/portfolio-limits"
+                className={menuItemStyle("/risk-management/portfolio-limits")}
+              >
+                Portfolio Limits
+              </Link>
 
-    <Link
-      to="/risk-management/default-limits"
-      className={menuItemStyle("/risk-management/default-limits")}
-    >
-      Default Limits
-    </Link>
+              <Link
+                to="/risk-management/default-limits"
+                className={menuItemStyle("/risk-management/default-limits")}
+              >
+                Default Limits
+              </Link>
 
-    <Link
-      to="/risk-management/others"
-      className={menuItemStyle("/risk-management/others")}
-    >
-      Others (Custom Rules)
-    </Link>
-  </div>
-)}
+              <Link
+                to="/risk-management/others"
+                className={menuItemStyle("/risk-management/others")}
+              >
+                Others (Custom Rules)
+              </Link>
+            </div>
+          )}
 
-{/* DISBURSEMENT MANAGEMENT */}
-<button
-  onClick={() => setOpenDisbursementManagement(p => !p)}
-  className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${
-    location.pathname.startsWith("/disbursement-management")
-      ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
-      : "text-gray-700 hover:bg-gray-100"
-  }`}
->
-  <span className="flex items-center gap-3">
-    <FiDollarSign size={18} /> Disbursement 
-  </span>
-  {openDisbursementManagement ? <FiChevronUp /> : <FiChevronDown />}
-</button>
+          {/* DISBURSEMENT MANAGEMENT */}
+          <button
+            onClick={() => setOpenDisbursementManagement(p => !p)}
+            className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${location.pathname.startsWith("/disbursement-management")
+              ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+              : "text-gray-700 hover:bg-gray-100"
+              }`}
+          >
+            <span className="flex items-center gap-3">
+              <FiDollarSign size={18} /> Disbursement
+            </span>
+            {openDisbursementManagement ? <FiChevronUp /> : <FiChevronDown />}
+          </button>
 
-{openDisbursementManagement && (
-  <div className="ml-6 space-y-1">
-    <Link to="/disbursement-management/disbursement" className={menuItemStyle("/disbursement-management/disbursement")}>
-      Disbursement Master
-    </Link>
-    <Link to="/disbursement-management/agency" className={menuItemStyle("/disbursement-management/agency")}>
-      Agency Master
-    </Link>
-    <Link to="/disbursement-management/document" className={menuItemStyle("/disbursement-management/document")}>
-      Documents Master
-    </Link>
-    <Link to="/disbursement-management/frequency" className={menuItemStyle("/disbursement-management/frequency")}>
-      Frequency Master
-    </Link>
-    <Link to="/disbursement-management/down-payment" className={menuItemStyle("/disbursement-management/down-payment")}>
-      Down Payment Master
-    </Link>
-    <Link to="/disbursement-management/stage" className={menuItemStyle("/disbursement-management/stage")}>
-      Stage Master
-    </Link>
-    <Link to="/disbursement-management/third-party" className={menuItemStyle("/disbursement-management/third-party")}>
-      Third Party Master
-    </Link>
-  </div>
-)}
+          {openDisbursementManagement && (
+            <div className="ml-6 space-y-1">
+              <Link to="/disbursement-management/disbursement" className={menuItemStyle("/disbursement-management/disbursement")}>
+                Disbursement Master
+              </Link>
+              <Link to="/disbursement-management/agency" className={menuItemStyle("/disbursement-management/agency")}>
+                Agency Master
+              </Link>
+              <Link to="/disbursement-management/document" className={menuItemStyle("/disbursement-management/document")}>
+                Documents Master
+              </Link>
+              <Link to="/disbursement-management/frequency" className={menuItemStyle("/disbursement-management/frequency")}>
+                Frequency Master
+              </Link>
+              <Link to="/disbursement-management/down-payment" className={menuItemStyle("/disbursement-management/down-payment")}>
+                Down Payment Master
+              </Link>
+              <Link to="/disbursement-management/stage" className={menuItemStyle("/disbursement-management/stage")}>
+                Stage Master
+              </Link>
+              <Link to="/disbursement-management/third-party" className={menuItemStyle("/disbursement-management/third-party")}>
+                Third Party Master
+              </Link>
+            </div>
+          )}
 
-{/* COLLECTION MANAGEMENT */}
-<button
-  onClick={() => setOpenCollectionManagement(p => !p)}
-  className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${
-    location.pathname.startsWith("/collection-management")
-      ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
-      : "text-gray-700 hover:bg-gray-100"
-  }`}
->
-  <span className="flex items-center gap-3">
-    <FiLayers size={18} /> Collection Management
-  </span>
-  {openCollectionManagement ? <FiChevronUp /> : <FiChevronDown />}
-</button>
+          {/* COLLECTION MANAGEMENT */}
+          <button
+            onClick={() => setOpenCollectionManagement(p => !p)}
+            className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${location.pathname.startsWith("/collection-management")
+              ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+              : "text-gray-700 hover:bg-gray-100"
+              }`}
+          >
+            <span className="flex items-center gap-3">
+              <FiLayers size={18} /> Collection Management
+            </span>
+            {openCollectionManagement ? <FiChevronUp /> : <FiChevronDown />}
+          </button>
 
-{openCollectionManagement && (
-  <div className="ml-6 space-y-1">
-    <Link to="/collection-management/payment-gateways" className={menuItemStyle("/collection-management/payment-gateways")}>
-      Payment Gateways
-    </Link>
-    <Link to="/collection-management/controls" className={menuItemStyle("/collection-management/controls")}>
-      Collection Controls
-    </Link>
-    <Link to="/collection-management/client-team-mapping/add" className={menuItemStyle("/collection-management/client-team-mapping")}>
-      Client–Team Mapping
-    </Link>
-    <Link to="/collection-management/client-agent-mapping/add" className={menuItemStyle("/collection-management/client-agent-mapping")}>
-      Client–Agent Mapping
-    </Link>
-    <Link to="/collection-management/payouts/add" className={menuItemStyle("/collection-management/payouts")}>
-      Payout Management
-    </Link>
-  </div>
-)}
+          {openCollectionManagement && (
+            <div className="ml-6 space-y-1">
+              <Link to="/collection-management/payment-gateways" className={menuItemStyle("/collection-management/payment-gateways")}>
+                Payment Gateways
+              </Link>
+              <Link to="/collection-management/controls" className={menuItemStyle("/collection-management/controls")}>
+                Collection Controls
+              </Link>
+              <Link to="/collection-management/client-team-mapping/add" className={menuItemStyle("/collection-management/client-team-mapping")}>
+                Client–Team Mapping
+              </Link>
+              <Link to="/collection-management/client-agent-mapping/add" className={menuItemStyle("/collection-management/client-agent-mapping")}>
+                Client–Agent Mapping
+              </Link>
+              <Link to="/collection-management/payouts/add" className={menuItemStyle("/collection-management/payouts")}>
+                Payout Management
+              </Link>
+            </div>
+          )}
 
-<button
-  onClick={() => setOpenProvisioning(p => !p)}
-  className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${
-    location.pathname.startsWith("/provisioning-classification")
-      ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
-      : "text-gray-700 hover:bg-gray-100"
-  }`}
->
-  <span className="flex items-center gap-3">
-    <FiLayers size={18} /> Provisioning & Classification
-  </span>
-  {openProvisioning ? <FiChevronUp /> : <FiChevronDown />}
-</button>
+          <button
+            onClick={() => setOpenProvisioning(p => !p)}
+            className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all ${location.pathname.startsWith("/provisioning-classification")
+              ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
+              : "text-gray-700 hover:bg-gray-100"
+              }`}
+          >
+            <span className="flex items-center gap-3">
+              <FiLayers size={18} /> Provisioning & Classification
+            </span>
+            {openProvisioning ? <FiChevronUp /> : <FiChevronDown />}
+          </button>
 
-{openProvisioning && (
-  <div className="ml-6 mt-1 space-y-1">
+          {openProvisioning && (
+            <div className="ml-6 mt-1 space-y-1">
 
-    <Link
-      to="/provisioning-classification/loan-classification"
-      className={menuItemStyle("/provisioning-classification/loan-classification")}
-    >
-      Loan Classification
-    </Link>
+              <Link
+                to="/provisioning-classification/loan-classification"
+                className={menuItemStyle("/provisioning-classification/loan-classification")}
+              >
+                Loan Classification
+              </Link>
 
-    <Link
-      to="/provisioning-classification/writeoff"
-      className={menuItemStyle("/provisioning-classification/writeoff")}
-    >
-      Write-off Rules
-    </Link>
+              <Link
+                to="/provisioning-classification/writeoff"
+                className={menuItemStyle("/provisioning-classification/writeoff")}
+              >
+                Write-off Rules
+              </Link>
 
-    <Link
-      to="/provisioning-classification/settlement"
-      className={menuItemStyle("/provisioning-classification/settlement")}
-    >
-      Settlement Rules
-    </Link>
+              <Link
+                to="/provisioning-classification/settlement"
+                className={menuItemStyle("/provisioning-classification/settlement")}
+              >
+                Settlement Rules
+              </Link>
 
-    <Link
-      to="/provisioning-classification/provisioning-npa"
-      className={menuItemStyle("/provisioning-classification/provisioning-npa")}
-    >
-      Provisioning & NPA
-    </Link>
+              <Link
+                to="/provisioning-classification/provisioning-npa"
+                className={menuItemStyle("/provisioning-classification/provisioning-npa")}
+              >
+                Provisioning & NPA
+              </Link>
 
-    <Link
-      to="/provisioning-classification/incentive-management"
-      className={menuItemStyle("/provisioning-classification/incentive-management")}
-    >
-      Incentive Management
-    </Link>
+              <Link
+                to="/provisioning-classification/incentive-management"
+                className={menuItemStyle("/provisioning-classification/incentive-management")}
+              >
+                Incentive Management
+              </Link>
 
-  </div>
-)}
+            </div>
+          )}
 
 
 
