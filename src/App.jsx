@@ -320,7 +320,7 @@ import DisbursementForm from "./pages/disbursment-management/disbursement/Disbur
 import DisbursementDetail from "./pages/disbursment-management/disbursement/DisbursementDetail";
 import AgencyList from "./pages/disbursment-management/agency/AgencyList";
 import AgencyDetail from "./pages/disbursment-management/agency/AgencyDetail";
-import AgencyForm from "./pages/disbursment-management/agency/AgencyForm";  
+import AgencyForm from "./pages/disbursment-management/agency/AgencyForm";
 import DocumentDetail from "./pages/disbursment-management/document/DocumentDetail";
 import DocumentList from "./pages/disbursment-management/document/DocumentList";
 import DocumentForm from "./pages/disbursment-management/document/DocumentForm";
@@ -358,6 +358,13 @@ import WriteoffRuleList from "./pages/provisioning-classification/writeoff-settl
 
 import IncentiveRuleForm from "./pages/provisioning-classification/incentive-management/IncentiveRuleForm";
 import IncentiveRuleList from "./pages/provisioning-classification/incentive-management/IncentiveRuleList";
+import CurrencyList from "./pages/currency-management/CurrencyList";
+import CurrencyForm from "./pages/currency-management/CurrencyForm";
+import CurrencyView from "./pages/currency-management/CurrencyView";
+import ConcessionList from "./pages/concession-management/ConcessionList";
+import ConcessionView from "./pages/concession-management/ConcessionView";
+import ConcessionTypeForm from "./pages/concession-management/ConcessionTypeForm";
+import ConcessionCategoryForm from "./pages/concession-management/ConcessionCategoryForm";
 
 
 
@@ -903,9 +910,9 @@ function App() {
           element={<ScoreCardRatingHome />}
         />
 
-        <Route path="/controls/score-card/reference-check" element={<ReferenceCheckList />}/>
-        <Route path="/controls/score-card/reference-check/add" element={<AddReferenceCheck />}/>
-        <Route path="/controls/score-card/reference-check/edit/:id" element={<EditReferenceCheck />}/>
+        <Route path="/controls/score-card/reference-check" element={<ReferenceCheckList />} />
+        <Route path="/controls/score-card/reference-check/add" element={<AddReferenceCheck />} />
+        <Route path="/controls/score-card/reference-check/edit/:id" element={<EditReferenceCheck />} />
 
         <Route path="/controls/score-card/credit-history" element={<CreditHistoryList />} />
         <Route path="/controls/score-card/credit-history/add" element={<AddCreditHistory />} />
@@ -927,125 +934,137 @@ function App() {
         <Route path="/controls/verification/credit-personal-meetings/edit/:id" element={<EditMeeting />} />
         <Route path="/controls/verification/credit-personal-meetings/view/:id" element={<ViewMeeting />} />
 
+
+        <Route path="/collection-management">
+          <Route index element={<CollectionManagement />} />
+
+          <Route path="payment-gateways">
+            <Route index element={<PaymentGatewayList />} />
+            <Route path="add" element={<AddPaymentGateway />} />
+            <Route path=":id/edit" element={<EditPaymentGateway />} />
+          </Route>
+
+          <Route path="controls" element={<CollectionControl />} />
+
+          <Route path="client-team-mapping/add" element={<MapClientTeam />} />
+          <Route path="client-agent-mapping/add" element={<MapClientAgent />} />
+
+          <Route path="payouts/add" element={<PayoutManagement />} />
+        </Route>
+
+
+
+        <Route path="/disbursement-management">
+          <Route index element={<DisbursementList />} />
+
+          <Route path="disbursement">
+            <Route index element={<DisbursementList />} />
+            <Route path="add" element={<DisbursementForm />} />
+            <Route path=":id/edit" element={<DisbursementForm />} />
+            <Route path=":id/view" element={<DisbursementDetail />} />
+          </Route>
+
+          <Route path="agency">
+            <Route index element={<AgencyList />} />
+            <Route path="add" element={<AgencyForm />} />
+            <Route path=":id/edit" element={<AgencyForm />} />
+            <Route path=":id/view" element={<AgencyDetail />} />
+          </Route>
+
+          <Route path="document">
+            <Route index element={<DocumentList />} />
+            <Route path="add" element={<DocumentForm />} />
+            <Route path=":id/edit" element={<DocumentForm />} />
+            <Route path=":id/view" element={<DocumentDetail />} />
+          </Route>
+
+          <Route path="frequency">
+            <Route index element={<FrequencyList />} />
+            <Route path="add" element={<FrequencyForm />} />
+            <Route path=":id/edit" element={<FrequencyForm />} />
+            <Route path=":id/view" element={<FrequencyDetail />} />
+          </Route>
+
+          <Route path="down-payment">
+            <Route index element={<DownPaymentList />} />
+            <Route path="add" element={<DownPaymentForm />} />
+            <Route path=":id/edit" element={<DownPaymentForm />} />
+            <Route path=":id/view" element={<DownPaymentDetail />} />
+          </Route>
+
+          <Route path="stage">
+            <Route index element={<StageMasterList />} />
+            <Route path="add" element={<StageMasterForm />} />
+            <Route path=":id/edit" element={<StageMasterForm />} />
+            <Route path=":id/view" element={<StageMasterDetail />} />
+          </Route>
+
+          <Route path="third-party">
+            <Route index element={<ThirdPartyList />} />
+            <Route path="add" element={<ThirdPartyForm />} />
+            <Route path=":id/edit" element={<ThirdPartyForm />} />
+            <Route path=":id/view" element={<ThirdPartyDetail />} />
+          </Route>
+        </Route>
+
+
+        <Route path="/provisioning-classification">
+
+          <Route path="loan-classification">
+            <Route index element={<ClassificationList />} />
+            <Route path="add" element={<ClassificationForm />} />
+            <Route path=":id/edit" element={<ClassificationForm />} />
+            <Route path=":id/update" element={<ClassificationUpdate />} />
+            <Route path=":id/manage" element={<ClassificationManage />} />
+          </Route>
+
+          <Route path="writeoff">
+            <Route index element={<WriteoffRuleList />} />
+            <Route path="add" element={<WriteoffRuleForm />} />
+            <Route path=":id/edit" element={<WriteoffRuleForm />} />
+            <Route path=":id/update" element={<WriteoffUpdate />} />
+            <Route path=":id/manage" element={<WriteoffManage />} />
+          </Route>
+
+          <Route path="settlement">
+            <Route index element={<SettlementRuleList />} />
+            <Route path="add" element={<SettlementRuleForm />} />
+            <Route path=":id/edit" element={<SettlementRuleForm />} />
+            <Route path=":id/update" element={<SettlementUpdate />} />
+            <Route path=":id/manage" element={<SettlementManage />} />
+          </Route>
+
+          <Route path="provisioning-npa">
+            <Route index element={<ProvisioningRuleList />} />
+            <Route path="add" element={<ProvisioningRuleForm />} />
+            <Route path=":id/edit" element={<ProvisioningRuleForm />} />
+            <Route path=":id/manage" element={<ProvisioningManagerForm />} />
+          </Route>
+
+          <Route path="incentive-management">
+            <Route index element={<IncentiveRuleList />} />
+            <Route path="add" element={<IncentiveRuleForm />} />
+            <Route path=":id/edit" element={<IncentiveRuleForm />} />
+          </Route>
+
+        </Route>
+
+        <Route path="/currency-management" element={<CurrencyList />} />
+        <Route path="/currency-management/add" element={<CurrencyForm />} />
+        <Route path="/currency-management/edit/:id" element={<CurrencyForm isEdit />} />
+        <Route path="/currency-management/view/:id" element={<CurrencyView />} />
+
+        <Route path="/concession-management" element={<ConcessionList />} />
+        <Route path="/concession-management/view/:id" element={<ConcessionView />} />
+
+        <Route path="/concession-management/type/add" element={<ConcessionTypeForm />} />
+        <Route path="/concession-management/type/edit/:id" element={<ConcessionTypeForm />} />
+
+        <Route path="/concession-management/category/add" element={<ConcessionCategoryForm />} />
+        <Route path="/concession-management/category/edit/:id" element={<ConcessionCategoryForm />} />
+
       </Routes>
-<Route path="/collection-management">
-  <Route index element={<CollectionManagement />} />
 
-  <Route path="payment-gateways">
-    <Route index element={<PaymentGatewayList />} />
-    <Route path="add" element={<AddPaymentGateway />} />
-    <Route path=":id/edit" element={<EditPaymentGateway />} />
-  </Route>
-
-  <Route path="controls" element={<CollectionControl />} />
-
-  <Route path="client-team-mapping/add" element={<MapClientTeam />} />
-  <Route path="client-agent-mapping/add" element={<MapClientAgent />} />
-
-  <Route path="payouts/add" element={<PayoutManagement />} />
-</Route>
-
-
-
-<Route path="/disbursement-management">
-  <Route index element={<DisbursementList />} />
-
-  <Route path="disbursement">
-    <Route index element={<DisbursementList />} />
-    <Route path="add" element={<DisbursementForm />} />
-    <Route path=":id/edit" element={<DisbursementForm />} />
-    <Route path=":id/view" element={<DisbursementDetail />} />
-  </Route>
-
-  <Route path="agency">
-    <Route index element={<AgencyList />} />
-    <Route path="add" element={<AgencyForm />} />
-    <Route path=":id/edit" element={<AgencyForm />} />
-    <Route path=":id/view" element={<AgencyDetail />} />
-  </Route>
-
-  <Route path="document">
-    <Route index element={<DocumentList />} />
-    <Route path="add" element={<DocumentForm />} />
-    <Route path=":id/edit" element={<DocumentForm />} />
-    <Route path=":id/view" element={<DocumentDetail />} />
-  </Route>
-
-  <Route path="frequency">
-    <Route index element={<FrequencyList />} />
-    <Route path="add" element={<FrequencyForm />} />
-    <Route path=":id/edit" element={<FrequencyForm />} />
-    <Route path=":id/view" element={<FrequencyDetail />} />
-  </Route>
-
-  <Route path="down-payment">
-    <Route index element={<DownPaymentList />} />
-    <Route path="add" element={<DownPaymentForm />} />
-    <Route path=":id/edit" element={<DownPaymentForm />} />
-    <Route path=":id/view" element={<DownPaymentDetail />} />
-  </Route>
-
-  <Route path="stage">
-    <Route index element={<StageMasterList />} />
-    <Route path="add" element={<StageMasterForm />} />
-    <Route path=":id/edit" element={<StageMasterForm />} />
-    <Route path=":id/view" element={<StageMasterDetail />} />
-  </Route>
-
-  <Route path="third-party">
-    <Route index element={<ThirdPartyList />} />
-    <Route path="add" element={<ThirdPartyForm />} />
-    <Route path=":id/edit" element={<ThirdPartyForm />} />
-    <Route path=":id/view" element={<ThirdPartyDetail />} />
-  </Route>
-</Route>
-
-
-<Route path="/provisioning-classification">
-
-  <Route path="loan-classification">
-    <Route index element={<ClassificationList />} />
-    <Route path="add" element={<ClassificationForm />} />
-    <Route path=":id/edit" element={<ClassificationForm />} />
-    <Route path=":id/update" element={<ClassificationUpdate />} />
-    <Route path=":id/manage" element={<ClassificationManage />} />
-  </Route>
-
-  <Route path="writeoff">
-    <Route index element={<WriteoffRuleList />} />
-    <Route path="add" element={<WriteoffRuleForm />} />
-    <Route path=":id/edit" element={<WriteoffRuleForm />} />
-    <Route path=":id/update" element={<WriteoffUpdate />} />
-    <Route path=":id/manage" element={<WriteoffManage />} />
-  </Route>
-
-  <Route path="settlement">
-    <Route index element={<SettlementRuleList />} />
-    <Route path="add" element={<SettlementRuleForm />} />
-    <Route path=":id/edit" element={<SettlementRuleForm />} />
-    <Route path=":id/update" element={<SettlementUpdate />} />
-    <Route path=":id/manage" element={<SettlementManage />} />
-  </Route>
-
-  <Route path="provisioning-npa">
-    <Route index element={<ProvisioningRuleList />} />
-    <Route path="add" element={<ProvisioningRuleForm />} />
-    <Route path=":id/edit" element={<ProvisioningRuleForm />} />
-    <Route path=":id/manage" element={<ProvisioningManagerForm />} />
-  </Route>
-
-  <Route path="incentive-management">
-    <Route index element={<IncentiveRuleList />} />
-    <Route path="add" element={<IncentiveRuleForm />} />
-    <Route path=":id/edit" element={<IncentiveRuleForm />} />
-  </Route>
-
-</Route>
-
-
-
-
-      </Routes>
     </Router>
   );
 }
