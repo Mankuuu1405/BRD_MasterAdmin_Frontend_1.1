@@ -1,28 +1,39 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 
-export default function EditRuleName() {
+const AGENCY_TYPES = [
+  "Field Verification Agency",
+  "Legal Agency",
+  "Technical Agency",
+];
+const VERIFICATION_STAGES = ["Pre Sanction", "Post Sanction", "Disbursement"];
+const STATUS = ["Active", "Inactive"];
+
+export default function EditAgencyVerificationRule() {
   const navigate = useNavigate();
   const { id } = useParams();
 
   const [form, setForm] = useState({
-    rule_name: "",
-    rule_code: "",
-    description: "",
+    agency_type: "",
+    verification_stage: "",
+    report_type: "",
+    turnaround_time: "",
+    remarks: "",
     status: "Active",
   });
 
-  // 🔹 Mock fetch (replace with API later)
   useEffect(() => {
-    const fetchedRule = {
-      rule_name: "Age Eligibility Rule",
-      rule_code: "AGE_ELIG_01",
-      description: "Applicant age should be between 21 and 60",
+    // mock load
+    setForm({
+      agency_type: "Field Verification Agency",
+      verification_stage: "Pre Sanction",
+      report_type: "Residence & Office",
+      turnaround_time: "48 Hours",
+      remarks: "Mandatory for salaried customers",
       status: "Active",
-    };
-    setForm(fetchedRule);
+    });
   }, [id]);
 
   const handleChange = (e) => {
@@ -32,13 +43,12 @@ export default function EditRuleName() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Updated Rule:", form);
-    navigate("/rule-management/rule-master");
+    console.log("Updated Agency Verification Rule:", form);
+    navigate("/rule-management/verification/agency");
   };
 
   return (
     <MainLayout>
-      {/* HEADER */}
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={() => navigate(-1)}
@@ -46,28 +56,47 @@ export default function EditRuleName() {
         >
           <FiArrowLeft />
         </button>
-        <h1 className="text-2xl font-bold">Edit Rule</h1>
+        <h1 className="text-2xl font-bold">
+          Edit Agency Verification Rule
+        </h1>
       </div>
 
-      {/* FORM */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow-md max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6"
+        className="bg-white p-8 rounded-2xl shadow-md max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6"
       >
+        <Select
+          label="Agency Type"
+          name="agency_type"
+          value={form.agency_type}
+          onChange={handleChange}
+          options={AGENCY_TYPES}
+          required
+        />
+
+        <Select
+          label="Verification Stage"
+          name="verification_stage"
+          value={form.verification_stage}
+          onChange={handleChange}
+          options={VERIFICATION_STAGES}
+          required
+        />
+
         <Input
-          label="Rule Name"
-          name="rule_name"
-          value={form.rule_name}
+          label="Report Type"
+          name="report_type"
+          value={form.report_type}
           onChange={handleChange}
           required
         />
 
         <Input
-          label="Rule Code"
-          name="rule_code"
-          value={form.rule_code}
+          label="Turnaround Time"
+          name="turnaround_time"
+          value={form.turnaround_time}
           onChange={handleChange}
-          required
+          placeholder="e.g. 24 / 48 Hours"
         />
 
         <Select
@@ -75,13 +104,13 @@ export default function EditRuleName() {
           name="status"
           value={form.status}
           onChange={handleChange}
-          options={["Active", "Inactive"]}
+          options={STATUS}
         />
 
         <Textarea
-          label="Description"
-          name="description"
-          value={form.description}
+          label="Remarks"
+          name="remarks"
+          value={form.remarks}
           onChange={handleChange}
           className="md:col-span-2"
         />
@@ -96,7 +125,7 @@ export default function EditRuleName() {
   );
 }
 
-/* -------- Reusable Inputs -------- */
+/* ---------- UI HELPERS ---------- */
 
 const Input = ({ label, ...props }) => (
   <div>
@@ -115,6 +144,7 @@ const Select = ({ label, options, ...props }) => (
       {...props}
       className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm"
     >
+      <option value="">Select</option>
       {options.map((o) => (
         <option key={o} value={o}>
           {o}

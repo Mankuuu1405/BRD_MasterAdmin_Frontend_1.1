@@ -365,6 +365,26 @@ import ConcessionList from "./pages/concession-management/ConcessionList";
 import ConcessionView from "./pages/concession-management/ConcessionView";
 import ConcessionTypeForm from "./pages/concession-management/ConcessionTypeForm";
 import ConcessionCategoryForm from "./pages/concession-management/ConcessionCategoryForm";
+import RuleNameList from "./pages/rule-management/rule-master/RuleNameList";
+import AddRuleName from "./pages/rule-management/rule-master/AddRuleName";
+import EditRuleName from "./pages/rule-management/rule-master/EditRuleName";
+import ViewRuleName from "./pages/rule-management/rule-master/ViewRuleName";
+import ImpactValueList from "./pages/rule-management/impact-values/ImpactValueList";
+import AddImpactValue from "./pages/rule-management/impact-values/AddImpactValue";
+import EditImpactValue from "./pages/rule-management/impact-values/EditImpactValue";
+import ViewImpactValue from "./pages/rule-management/impact-values/ViewImpactValue";
+import ClientProfileRuleList from "./pages/rule-management/client-profile/ClientProfileRuleList";
+import AddClientProfileRule from "./pages/rule-management/client-profile/AddClientProfileRule";
+import EditClientProfileRule from "./pages/rule-management/client-profile/EditClientProfileRule";
+import ViewClientProfileRule from "./pages/rule-management/client-profile/ViewClientProfileRule";
+import InternalVerificationRule from "./pages/rule-management/verification/InternalVerificationRule";
+import EditInternalVerificationRule from "./pages/rule-management/verification/EditInternalVerificationRule";
+import ViewInternalVerificationRule from "./pages/rule-management/verification/ViewInternalVerificationRule";
+import AgencyVerificationRule from "./pages/rule-management/verification/AgencyVerificationRule";
+import EditAgencyVerificationRule from "./pages/rule-management/verification/EditAgencyVerificationRule";
+import ViewAgencyVerificationRule from "./pages/rule-management/verification/ViewAgencyVerificationRule";
+import VerificationDashboard from "./pages/rule-management/verification/VerificationRuleHome";
+import VerificationRuleHome from "./pages/rule-management/verification/VerificationRuleHome";
 
 
 
@@ -1062,6 +1082,31 @@ function App() {
 
         <Route path="/concession-management/category/add" element={<ConcessionCategoryForm />} />
         <Route path="/concession-management/category/edit/:id" element={<ConcessionCategoryForm />} />
+
+        <Route path="rule-management/rule-master" element={<RuleNameList />} />
+        <Route path="/rule-management/rule-master/add" element={<AddRuleName />} />
+        <Route path="/rule-management/rule-master/edit/:id" element={<EditRuleName />} />
+        <Route path="/rule-management/rule-master/view/:id" element={<ViewRuleName />} />
+
+        <Route path="/rule-management/impact-values" element={<ImpactValueList />} />
+        <Route path="/rule-management/impact-values/add" element={<AddImpactValue />} />
+        <Route path="/rule-management/impact-values/edit/:id" element={<EditImpactValue />} />
+        <Route path="/rule-management/impact-values/view/:id" element={<ViewImpactValue />} />
+
+        <Route path="/rule-management/client-profile" element={<ClientProfileRuleList />} />
+        <Route path="/rule-management/client-profile/add" element={<AddClientProfileRule />} />
+        <Route path="/rule-management/client-profile/edit/:id" element={<EditClientProfileRule />} />
+        <Route path="/rule-management/client-profile/view/:id" element={<ViewClientProfileRule />} />
+
+        <Route path="/rule-management/verification" element={<VerificationRuleHome />} />
+
+        <Route path="/rule-management/verification/internal" element={<InternalVerificationRule />} />
+        <Route path="/rule-management/verification/internal/edit/:id" element={<EditInternalVerificationRule />} />
+        <Route path="/rule-management/verification/internal/view/:id" element={<ViewInternalVerificationRule />} />
+
+        <Route path="/rule-management/verification/agency" element={<AgencyVerificationRule />} />
+        <Route path="/rule-management/verification/agency/edit/:id" element={<EditAgencyVerificationRule />} />
+        <Route path="/rule-management/verification/agency/view/:id" element={<ViewAgencyVerificationRule />} />
 
       </Routes>
 

@@ -3,21 +3,18 @@ import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiEdit3 } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 
-export default function ViewClientProfileRule() {
+export default function ViewAgencyVerificationRule() {
   const navigate = useNavigate();
   const { id } = useParams();
-
   const [rule, setRule] = useState(null);
 
   useEffect(() => {
-    // mock API fetch
     setRule({
-      rule_name: "Salaried Applicant Rule",
-      applicant_age: "21 - 60",
-      employer_type: "Private",
-      qualification: "Graduate",
-      residence_location: "Urban",
-      business_location: "N/A",
+      agency_type: "Field Verification Agency",
+      verification_stage: "Pre Sanction",
+      report_type: "Residence & Office",
+      turnaround_time: "48 Hours",
+      remarks: "Mandatory for salaried applicants",
       status: "Active",
     });
   }, [id]);
@@ -26,7 +23,6 @@ export default function ViewClientProfileRule() {
 
   return (
     <MainLayout>
-      {/* HEADER */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <button
@@ -35,12 +31,16 @@ export default function ViewClientProfileRule() {
           >
             <FiArrowLeft />
           </button>
-          <h1 className="text-2xl font-bold">View Client Profile Rule</h1>
+          <h1 className="text-2xl font-bold">
+            View Agency Verification Rule
+          </h1>
         </div>
 
         <button
           onClick={() =>
-            navigate(`/rule-management/client-profile/edit/${id}`)
+            navigate(
+              `/rule-management/verification/agency/edit/${id}`
+            )
           }
           className="px-4 py-2 bg-indigo-600 text-white rounded-xl flex items-center gap-2"
         >
@@ -48,14 +48,12 @@ export default function ViewClientProfileRule() {
         </button>
       </div>
 
-      {/* DETAILS */}
       <div className="bg-white p-8 rounded-2xl shadow-md max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-        <Detail label="Rule Name" value={rule.rule_name} />
-        <Detail label="Applicant Age Range" value={rule.applicant_age} />
-        <Detail label="Employer Type" value={rule.employer_type} />
-        <Detail label="Qualification" value={rule.qualification} />
-        <Detail label="Residence Location" value={rule.residence_location} />
-        <Detail label="Business Location" value={rule.business_location} />
+        <Detail label="Agency Type" value={rule.agency_type} />
+        <Detail label="Verification Stage" value={rule.verification_stage} />
+        <Detail label="Report Type" value={rule.report_type} />
+        <Detail label="Turnaround Time" value={rule.turnaround_time} />
+        <Detail label="Remarks" value={rule.remarks} />
 
         <div>
           <p className="text-gray-500">Status</p>
@@ -74,11 +72,9 @@ export default function ViewClientProfileRule() {
   );
 }
 
-/* ---------- UI HELPER ---------- */
-
 const Detail = ({ label, value }) => (
   <div>
     <p className="text-gray-500">{label}</p>
-    <p className="font-medium text-gray-900 mt-1">{value}</p>
+    <p className="font-medium mt-1">{value}</p>
   </div>
 );

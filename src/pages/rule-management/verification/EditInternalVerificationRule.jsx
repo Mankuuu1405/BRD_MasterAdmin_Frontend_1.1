@@ -1,30 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-const PARAMETERS = [
-  "Age",
-  "Employment Type",
-  "Residence Type",
-  "Marital Status",
-  "City",
-];
-
-const CONDITIONS = ["Equals", "Between", "Greater Than", "Less Than"];
+const VERIFICATION_TYPES = ["Tele Verification", "CPV", "Document Check"];
 const STATUS = ["Active", "Inactive"];
 
-export default function AddClientProfileRule() {
+export default function EditInternalVerificationRule() {
   const navigate = useNavigate();
+  const { id } = useParams();
 
   const [form, setForm] = useState({
-    rule_name: "",
-    parameter: "",
-    condition: "",
-    value: "",
-    impact_value: "",
+    verification_type: "",
+    criteria: "",
+    remarks: "",
     status: "Active",
   });
+
+  useEffect(() => {
+    setForm({
+      verification_type: "Tele Verification",
+      criteria: "Applicant Contact Check",
+      remarks: "Mandatory before approval",
+      status: "Active",
+    });
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,8 +33,8 @@ export default function AddClientProfileRule() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Client Profile Rule:", form);
-    navigate("/rule-management/client-profile");
+    console.log("Updated Internal Verification Rule:", form);
+    navigate("/rule-management/verification/internal");
   };
 
   return (
@@ -46,52 +46,22 @@ export default function AddClientProfileRule() {
         >
           <FiArrowLeft />
         </button>
-        <h1 className="text-2xl font-bold">Add Client Profile Rule</h1>
+        <h1 className="text-2xl font-bold">
+          Edit Internal Verification Rule
+        </h1>
       </div>
 
       <form
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-2xl shadow-md max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6"
       >
-        <Input
-          label="Rule Name"
-          name="rule_name"
-          value={form.rule_name}
-          onChange={handleChange}
-          required
-        />
-
         <Select
-          label="Parameter"
-          name="parameter"
-          value={form.parameter}
+          label="Verification Type"
+          name="verification_type"
+          value={form.verification_type}
           onChange={handleChange}
-          options={PARAMETERS}
+          options={VERIFICATION_TYPES}
           required
-        />
-
-        <Select
-          label="Condition"
-          name="condition"
-          value={form.condition}
-          onChange={handleChange}
-          options={CONDITIONS}
-          required
-        />
-
-        <Input
-          label="Value"
-          name="value"
-          value={form.value}
-          onChange={handleChange}
-          required
-        />
-
-        <Input
-          label="Impact Value"
-          name="impact_value"
-          value={form.impact_value}
-          onChange={handleChange}
         />
 
         <Select
@@ -102,9 +72,25 @@ export default function AddClientProfileRule() {
           options={STATUS}
         />
 
+        <Input
+          label="Criteria"
+          name="criteria"
+          value={form.criteria}
+          onChange={handleChange}
+          required
+        />
+
+        <Textarea
+          label="Remarks"
+          name="remarks"
+          value={form.remarks}
+          onChange={handleChange}
+          className="md:col-span-2"
+        />
+
         <div className="md:col-span-2 flex justify-end">
           <button className="px-5 py-3 bg-indigo-600 text-white rounded-xl flex items-center gap-2">
-            <FiSave /> Save Rule
+            <FiSave /> Update Rule
           </button>
         </div>
       </form>
@@ -136,5 +122,15 @@ const Select = ({ label, options, ...props }) => (
         </option>
       ))}
     </select>
+  </div>
+);
+
+const Textarea = ({ label, ...props }) => (
+  <div>
+    <label className="text-sm font-medium">{label}</label>
+    <textarea
+      {...props}
+      className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm"
+    />
   </div>
 );
