@@ -411,6 +411,7 @@ import AddCreditHistoryRule from "./pages/rule-management/scorecard/AddCreditHis
 import EditCreditHistoryRule from "./pages/rule-management/scorecard/EditCreditHistoryRule";
 import InternalScoreRuleList from "./pages/rule-management/scorecard/InternalScoreRuleList";
 import ScorecardHome from "./pages/rule-management/scorecard/ScorecardHome";
+import AddPermission from "./pages/roles/AddPermission";
 
 function App() {
   return (
@@ -499,10 +500,8 @@ function App() {
         <Route path="/roles/list" element={<RoleList />} />
         <Route path="/roles/create" element={<CreateRole />} />
         <Route path="/roles/set-permissions" element={<SetPermissions />} />
-        <Route
-          path="/roles/assign-permissions"
-          element={<AssignPermissions />}
-        />
+        <Route path="/roles/assign-permissions" element={<AssignPermissions />} />
+        <Route path="/roles/add-permission" element={<AddPermission />} />
         <Route path="/reports" element={<ReportingAnalytics />} />
         <Route
           path="/reports/daily-disbursement"
@@ -1312,8 +1311,8 @@ function App() {
           path="/rule-management/financial-eligibility/view/:id"
           element={<ViewFinancialRule />}
         />
-  
-  <Route path="/rule-management/scorecard" element={<ScorecardHome />} />
+
+        <Route path="/rule-management/scorecard" element={<ScorecardHome />} />
 
         <Route
           path="/rule-management/scorecard/internal"
@@ -1364,9 +1363,9 @@ function App() {
           element={<ViewRiskMitigationRule />}
         />
         <Route path="/rule-management/scorecard/credit-history" element={<CreditHistoryRuleList />} />
-<Route path="/rule-management/scorecard/credit-history/add" element={<AddCreditHistoryRule />} />
-<Route path="/rule-management/scorecard/credit-history/edit/:id" element={<EditCreditHistoryRule />} />
-<Route path="/rule-management/scorecard/credit-history/view/:id" element={<ViewCreditHistoryRule />} />
+        <Route path="/rule-management/scorecard/credit-history/add" element={<AddCreditHistoryRule />} />
+        <Route path="/rule-management/scorecard/credit-history/edit/:id" element={<EditCreditHistoryRule />} />
+        <Route path="/rule-management/scorecard/credit-history/view/:id" element={<ViewCreditHistoryRule />} />
       </Routes>
     </Router>
   );

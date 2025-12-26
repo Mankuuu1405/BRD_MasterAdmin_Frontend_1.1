@@ -4,7 +4,8 @@ import {
   FiUserCheck,
   FiShield,
   FiCheckSquare,
-  FiList, // ✅ New Icon
+  FiList,
+  FiPenTool, // ✅ New Icon
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
@@ -53,6 +54,12 @@ const roleFeatures = [
     icon: <FiCheckSquare />,
     subtitle: "Control loan-module operations",
     link: "/roles/assign-permissions",
+  },
+  {
+    title: "Create Permissions",
+    icon: <FiPenTool />,
+    subtitle: "Create Permissions for Roles",
+    link: "/roles/add-permission",
   },
 ];
 

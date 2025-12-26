@@ -4,14 +4,19 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
+import { productManagementService } from "../../../services/productManagementService";
 
-// import { productService } from "../../../services/productService";
+const CATEGORY_OPTIONS = ["Loan", "Credit"];
+const TYPE_OPTIONS = ["Personal Loan", "Home Loan"];
+const FACILITY_OPTIONS = ["Top-up", "Insurance"];
+const PERIOD_UNITS = ["Days", "Months", "Years"];
 
 const EditProduct = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
   const [loading, setLoading] = useState(true);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   const [form, setForm] = useState({
     category: "",
@@ -27,8 +32,8 @@ const EditProduct = () => {
   useEffect(() => {
     (async () => {
       try {
-        /*
-        const data = await productService.getProductById(id);
+        setLoading(true);
+        const data = await productManagementService.getProduct(id);
 
         setForm({
           category: data.product_category,
@@ -36,22 +41,12 @@ const EditProduct = () => {
           name: data.product_name,
           facilities: data.product_facilities || [],
           amount: data.product_amount,
-          periodValue: data.product_period?.value,
-          periodUnit: data.product_period?.unit || "Months",
+          periodValue: data.product_period_value,
+          periodUnit: data.product_period_unit || "Months",
         });
-        */
-
-        // TEMP mock (remove when API ready)
-        setForm({
-          category: "Loan",
-          type: "Personal Loan",
-          name: "Personal Loan Premium",
-          facilities: ["Top-up", "Insurance"],
-          amount: 500000,
-          periodValue: 24,
-          periodUnit: "Months",
-        });
-
+      } catch (error) {
+        console.error("Failed to fetch product:", error);
+        alert("Error fetching product data");
       } finally {
         setLoading(false);
       }
@@ -71,24 +66,27 @@ const EditProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitLoading(true);
 
-    /*
-    const payload = {
-      product_category: form.category,
-      product_type: form.type,
-      product_name: form.name,
-      product_facilities: form.facilities,
-      product_amount: Number(form.amount),
-      product_period: {
-        value: Number(form.periodValue),
-        unit: form.periodUnit,
-      },
-    };
+    try {
+      const payload = {
+        product_category: form.category,
+        product_type: form.type,
+        product_name: form.name,
+        product_facilities: form.facilities,
+        product_amount: Number(form.amount),
+        product_period_value: Number(form.periodValue),
+        product_period_unit: form.periodUnit,
+      };
 
-    await productService.updateProduct(id, payload);
-    */
-
-    navigate(-1);
+      await productManagementService.updateProduct(id, payload);
+      navigate("/product-management/list");
+    } catch (error) {
+      console.error("Failed to update product:", error);
+      alert("Error updating product. Please try again.");
+    } finally {
+      setSubmitLoading(false);
+    }
   };
 
   if (loading) {
@@ -101,7 +99,7 @@ const EditProduct = () => {
 
   return (
     <MainLayout>
-      {/* HEADER (SAME AS ADD USER / ADD PRODUCT) */}
+      {/* HEADER */}
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={() => navigate(-1)}
@@ -111,12 +109,8 @@ const EditProduct = () => {
         </button>
 
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">
-            Edit Product
-          </h1>
-          <p className="text-gray-500 text-sm">
-            Update product configuration
-          </p>
+          <h1 className="text-2xl font-bold text-gray-800">Edit Product</h1>
+          <p className="text-gray-500 text-sm">Update product configuration</p>
         </div>
       </div>
 
@@ -131,7 +125,7 @@ const EditProduct = () => {
             name="category"
             value={form.category}
             onChange={handleChange}
-            options={["Loan", "Credit"]}
+            options={CATEGORY_OPTIONS}
           />
 
           <SelectField
@@ -139,7 +133,7 @@ const EditProduct = () => {
             name="type"
             value={form.type}
             onChange={handleChange}
-            options={["Personal Loan", "Home Loan"]}
+            options={TYPE_OPTIONS}
           />
 
           <InputField
@@ -159,9 +153,7 @@ const EditProduct = () => {
 
           {/* Product Period */}
           <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-medium">
-              Product Period
-            </label>
+            <label className="text-gray-700 text-sm font-medium">Product Period</label>
             <div className="mt-2 flex gap-3">
               <input
                 type="number"
@@ -176,33 +168,40 @@ const EditProduct = () => {
                 onChange={handleChange}
                 className="p-3 rounded-xl bg-gray-50 shadow-sm outline-none w-1/2"
               >
-                <option>Days</option>
-                <option>Months</option>
-                <option>Years</option>
+                {PERIOD_UNITS.map((u) => (
+                  <option key={u} value={u}>
+                    {u}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
 
-          {/* Facilities */}
+          {/* Product Facilities */}
           <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-medium">
-              Product Facilities
-            </label>
+            <label className="text-gray-700 text-sm font-medium">Product Facilities</label>
             <select
               multiple
               value={form.facilities}
               onChange={handleFacilitiesChange}
               className="mt-2 p-3 rounded-xl bg-gray-50 shadow-sm outline-none h-28"
             >
-              <option>Top-up</option>
-              <option>Insurance</option>
+              {FACILITY_OPTIONS.map((f) => (
+                <option key={f} value={f}>
+                  {f}
+                </option>
+              ))}
             </select>
           </div>
 
           {/* SUBMIT */}
           <div className="md:col-span-2">
-            <button className="w-full bg-blue-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition shadow-md">
-              <FiSave /> Update Product
+            <button
+              type="submit"
+              disabled={submitLoading}
+              className="w-full bg-blue-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition shadow-md"
+            >
+              <FiSave /> {submitLoading ? "Updating..." : "Update Product"}
             </button>
           </div>
         </form>
@@ -211,8 +210,7 @@ const EditProduct = () => {
   );
 };
 
-/* ---------- Reused Fields (same as AddUser) ---------- */
-
+/* ---------- Reused Components ---------- */
 const InputField = ({ label, type = "text", name, value, onChange }) => (
   <div className="flex flex-col">
     <label className="text-gray-700 text-sm font-medium">{label}</label>
@@ -237,7 +235,9 @@ const SelectField = ({ label, name, value, onChange, options }) => (
     >
       <option value="">Select {label}</option>
       {options.map((op, i) => (
-        <option key={i}>{op}</option>
+        <option key={i} value={op}>
+          {op}
+        </option>
       ))}
     </select>
   </div>
