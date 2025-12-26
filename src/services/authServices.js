@@ -5,7 +5,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const authService = {
   login: async (email, password) => {
-  const res = await axios.post(`${BASE_URL}/api/token/master/`, { email, password });
+  const res = await axios.post(`${BASE_URL}/api/v1/auth/login/`, { email, password });
 
   if (res.data.requires_2fa) {
     return { requires2FA: true };

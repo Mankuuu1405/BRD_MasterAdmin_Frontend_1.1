@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { productManagementService } from "../../../services/productManagementService"; // <-- API service
 
 /* OPTIONS (backend ready later) */
 const CATEGORY_OPTIONS = ["Loan", "Credit"];
@@ -22,6 +23,8 @@ const AddProduct = () => {
     periodUnit: "Months",
   });
 
+  const [loading, setLoading] = useState(false);
+
   /* -------------------- HANDLERS -------------------- */
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,32 +36,37 @@ const AddProduct = () => {
     setForm((prev) => ({ ...prev, facilities: values }));
   };
 
+  /* -------------------- SUBMIT FORM -------------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    /*
-      🔗 Backend payload (ready)
+    try {
       const payload = {
         product_category: form.category,
         product_type: form.type,
         product_name: form.name,
         product_facilities: form.facilities,
         product_amount: Number(form.amount),
-        product_period: {
-          value: Number(form.periodValue),
-          unit: form.periodUnit,
-        },
+        product_period_value: Number(form.periodValue),
+        product_period_unit: form.periodUnit,
       };
 
-      await productService.addProduct(payload);
-    */
+      await productManagementService.createProduct(payload);
 
-    navigate(-1);
+      // Redirect back after successful creation
+      navigate("/product-management");
+    } catch (error) {
+      console.error("Failed to create product:", error);
+      alert("Error creating product. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <MainLayout>
-      {/* HEADER (SAME AS ADD USER) */}
+      {/* HEADER */}
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={() => navigate(-1)}
@@ -68,16 +76,14 @@ const AddProduct = () => {
         </button>
 
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">
-            Add New Product
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-800">Add New Product</h1>
           <p className="text-gray-500 text-sm">
             Enter product details and configuration
           </p>
         </div>
       </div>
 
-      {/* FORM CARD (SAME AS ADD USER) */}
+      {/* FORM CARD */}
       <div className="bg-white p-8 rounded-2xl shadow-md max-w-3xl">
         <form
           onSubmit={handleSubmit}
@@ -116,9 +122,7 @@ const AddProduct = () => {
 
           {/* Product Period */}
           <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-medium">
-              Product Period
-            </label>
+            <label className="text-gray-700 text-sm font-medium">Product Period</label>
             <div className="mt-2 flex gap-3">
               <input
                 type="number"
@@ -134,17 +138,17 @@ const AddProduct = () => {
                 className="p-3 rounded-xl bg-gray-50 shadow-sm outline-none w-1/2"
               >
                 {PERIOD_UNITS.map((u) => (
-                  <option key={u}>{u}</option>
+                  <option key={u} value={u}>
+                    {u}
+                  </option>
                 ))}
               </select>
             </div>
           </div>
 
-          {/* Product Facilities (MULTI SELECT) */}
+          {/* Product Facilities */}
           <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-medium">
-              Product Facilities
-            </label>
+            <label className="text-gray-700 text-sm font-medium">Product Facilities</label>
             <select
               multiple
               value={form.facilities}
@@ -152,15 +156,21 @@ const AddProduct = () => {
               className="mt-2 p-3 rounded-xl bg-gray-50 shadow-sm outline-none h-28"
             >
               {FACILITY_OPTIONS.map((f) => (
-                <option key={f}>{f}</option>
+                <option key={f} value={f}>
+                  {f}
+                </option>
               ))}
             </select>
           </div>
 
           {/* SUBMIT BUTTON */}
           <div className="md:col-span-2">
-            <button className="w-full bg-blue-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition shadow-md">
-              <FiSave /> Add Product
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition shadow-md"
+            >
+              <FiSave /> {loading ? "Saving..." : "Add Product"}
             </button>
           </div>
         </form>
@@ -169,7 +179,7 @@ const AddProduct = () => {
   );
 };
 
-/* -------------------- REUSED FROM ADD USER -------------------- */
+/* -------------------- REUSED COMPONENTS -------------------- */
 const InputField = ({ label, type = "text", name, value, onChange }) => (
   <div className="flex flex-col">
     <label className="text-gray-700 text-sm font-medium">{label}</label>

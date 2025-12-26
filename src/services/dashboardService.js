@@ -5,7 +5,7 @@ export const dashboardService = {
   async getSummaryCards() {
     try {
       // ✅ Fix: '/api/v1' hata diya, sirf '/dashboard/full' rakha
-      const res = await axiosInstance.get("/dashboard/full");
+      const res = await axiosInstance.get("/adminpanel/dashboard/full");
       const kpis = res.data?.kpis || {};
       
       return {
