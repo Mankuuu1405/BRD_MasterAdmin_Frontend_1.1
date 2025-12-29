@@ -1,14 +1,14 @@
 import axiosInstance from "../utils/axiosInstance";
 
 // Correct Django API URL
-const BASE_URL = "/adminpanel/coupons/";
+const BASE_URL = "/adminpanel/coupon";
 
 const couponService = {
   
   // ---------- GET ALL COUPONS ----------
   async getAll() {
     try {
-      const res = await axiosInstance.get(BASE_URL);
+      const res = await axiosInstance.get(`${BASE_URL}/coupons/`);
       return res.data;
     } catch (error) {
       console.error("❌ Error fetching coupons:", error);
@@ -19,7 +19,7 @@ const couponService = {
   // ---------- GET SINGLE COUPON ----------
   async getOne(uuid) {
     try {
-      const res = await axiosInstance.get(`${BASE_URL}${uuid}/`);
+      const res = await axiosInstance.get(`${BASE_URL}/coupons/${uuid}/`);
       return res.data;
     } catch (error) {
       console.error("❌ Error fetching coupon:", error);
@@ -30,7 +30,7 @@ const couponService = {
   // ---------- CREATE COUPON ----------
   async create(data) {
     try {
-      const res = await axiosInstance.post(BASE_URL, data);
+      const res = await axiosInstance.post(`${BASE_URL}/coupons/`, data);
       return res.data;
     } catch (error) {
       console.error("❌ Error creating coupon:", error);
@@ -41,7 +41,7 @@ const couponService = {
   // ---------- UPDATE COUPON ----------
   async update(uuid, data) {
     try {
-      const res = await axiosInstance.put(`${BASE_URL}${uuid}/`, data);
+      const res = await axiosInstance.put(`${BASE_URL}/coupons/${uuid}/`, data);
       return res.data;
     } catch (error) {
       console.error("❌ Error updating coupon:", error);
@@ -52,7 +52,7 @@ const couponService = {
   // ---------- DELETE COUPON ----------
   async delete(uuid) {
     try {
-      await axiosInstance.delete(`${BASE_URL}${uuid}/`);
+      await axiosInstance.delete(`${BASE_URL}/coupons/${uuid}/`);
       return true;
     } catch (error) {
       console.error("❌ Error deleting coupon:", error);

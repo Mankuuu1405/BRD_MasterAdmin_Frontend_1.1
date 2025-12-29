@@ -412,6 +412,7 @@ import EditCreditHistoryRule from "./pages/rule-management/scorecard/EditCreditH
 import InternalScoreRuleList from "./pages/rule-management/scorecard/InternalScoreRuleList";
 import ScorecardHome from "./pages/rule-management/scorecard/ScorecardHome";
 import AddPermission from "./pages/roles/AddPermission";
+import EditSubscriber from "./pages/subscription/EditSubscriber";
 
 function App() {
   return (
@@ -538,6 +539,8 @@ function App() {
         <Route path="/coupons" element={<CouponPage />} />
         <Route path="/coupons/add" element={<AddCoupon />} />
         <Route path="/coupons/edit/:uuid" element={<EditCoupon />} />
+        <Route path="/subscribers" element={<SubscribersPage />} />
+        <Route path="/subscribers/edit/:uuid" element={<EditSubscriber />} />
         <Route path="/subscribers" element={<SubscribersPage />} />
         <Route path="/employment-types" element={<EmploymentTypePage />} />
         <Route

@@ -10,27 +10,25 @@ export default function AddCoupon() {
   const navigate = useNavigate();
 
   const [subscriptions, setSubscriptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState(null);
 
   const [form, setForm] = useState({
     coupon_code: "",
     coupon_value: "",
-    date_from: "",
-    date_to: "",
-    subscription_id: [],
-
+    valid_from: "",
+    valid_to: "",
+    subscriptions: [],
     created_user: "master_admin",
     modified_user: "master_admin",
-    isDeleted: false,
+    is_deleted: false,
   });
 
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState(null);
-
-  // Load all subscription plans
+  /* ---------------- LOAD SUBSCRIPTIONS ---------------- */
   const loadSubscriptions = async () => {
     try {
       const data = await subscriptionService.getAll();
-      setSubscriptions(data);  // NOW subscription_name available
+      setSubscriptions(data);
     } catch (err) {
       console.error("Failed to load subscriptions", err);
     }
@@ -40,33 +38,31 @@ export default function AddCoupon() {
     loadSubscriptions();
   }, []);
 
-  // input change handler
-  const handleChange = (e) => {
+  /* ---------------- HANDLERS ---------------- */
+  const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
-  // toggle subscription checkbox
   const toggleSubscription = (id) => {
-    setForm((prev) => {
-      const exists = prev.subscription_id.includes(id);
-
-      return {
-        ...prev,
-        subscription_id: exists
-          ? prev.subscription_id.filter((x) => x !== id)
-          : [...prev.subscription_id, id],
-      };
-    });
+    setForm((prev) => ({
+      ...prev,
+      subscriptions: prev.subscriptions.includes(id)
+        ? prev.subscriptions.filter((x) => x !== id)
+        : [...prev.subscriptions, id],
+    }));
   };
 
-  // submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrors(null);
 
     try {
-      await couponService.create(form);
+      await couponService.create({
+        ...form,
+        valid_from: `${form.valid_from}T00:00:00+05:30`,
+        valid_to: `${form.valid_to}T23:59:59+05:30`,
+      });
+
       navigate("/coupons");
     } catch (err) {
       console.error("Coupon Save Error:", err.response?.data || err);
@@ -82,9 +78,9 @@ export default function AddCoupon() {
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={() => navigate(-1)}
-          className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 transition "
+          className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200"
         >
-          <FiArrowLeft className="text-gray-700 text-lg" />
+          <FiArrowLeft />
         </button>
 
         <div>
@@ -98,15 +94,14 @@ export default function AddCoupon() {
       </div>
 
       {/* FORM CARD */}
-      <div className="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm max-w-4xl">
+      <div className="bg-white p-8 rounded-2xl shadow-sm max-w-4xl">
         {errors && (
-          <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg text-sm ">
+          <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg text-sm">
             {errors}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-10">
-          {/* GRID */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <InputField
               label="Coupon Code *"
@@ -126,33 +121,52 @@ export default function AddCoupon() {
               onChange={handleChange}
               required
             />
+            <InputField
+              label="Promotion Name *"
+              name="promotion_name"
+              placeholder="NEWYEAR_PROMO"
+              value={form.promotion_name}
+              onChange={handleChange}
+              required
+            />
+
+            <InputField
+              label="Number of Coupons *"
+              name="no_of_coupons"
+              type="number"
+              placeholder="100"
+              value={form.no_of_coupons}
+              onChange={handleChange}
+              required
+            />
+  
 
             <InputField
               label="Valid From *"
-              name="date_from"
+              name="valid_from"
               type="date"
-              value={form.date_from}
+              value={form.valid_from}
               onChange={handleChange}
               required
             />
 
             <InputField
               label="Valid To *"
-              name="date_to"
+              name="valid_to"
               type="date"
-              value={form.date_to}
+              value={form.valid_to}
               onChange={handleChange}
               required
             />
           </div>
 
-          {/* SUBSCRIPTION CHECKBOXES */}
+          {/* SUBSCRIPTIONS */}
           <div>
             <label className="text-gray-700 text-sm font-medium">
               Applicable Subscriptions *
             </label>
 
-            <div className="mt-3 space-y-2 bg-gray-50 p-4 rounded-xl ">
+            <div className="mt-3 space-y-2 bg-gray-50 p-4 rounded-xl">
               {subscriptions.length === 0 ? (
                 <p className="text-gray-500 text-sm">No subscriptions found.</p>
               ) : (
@@ -163,11 +177,10 @@ export default function AddCoupon() {
                   >
                     <input
                       type="checkbox"
-                      checked={form.subscription_id.includes(sub.id)}
+                      checked={form.subscriptions.includes(sub.id)}
                       onChange={() => toggleSubscription(sub.id)}
                       className="w-4 h-4"
                     />
-                    {/* FIXED: show the correct subscription name */}
                     {sub.subscription_name}
                   </label>
                 ))
@@ -175,13 +188,13 @@ export default function AddCoupon() {
             </div>
           </div>
 
-          {/* SUBMIT BUTTON */}
+          {/* SUBMIT */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-700 transition text-sm"
+            className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-700"
           >
-            <FiSave className="text-lg" />
+            <FiSave />
             {loading ? "Saving..." : "Save Coupon"}
           </button>
         </form>
@@ -190,14 +203,14 @@ export default function AddCoupon() {
   );
 }
 
-/* ---------------- INPUT COMPONENT ---------------- */
+/* ---------------- INPUT ---------------- */
 function InputField({ label, ...props }) {
   return (
     <div>
       <label className="text-gray-700 text-sm font-medium">{label}</label>
       <input
         {...props}
-        className="w-full mt-2 p-3 rounded-xl bg-gray-50 border border-gray-200 focus:bg-white outline-none text-sm"
+        className="w-full mt-2 p-3 rounded-xl bg-gray-50 focus:bg-white outline-none text-sm"
       />
     </div>
   );

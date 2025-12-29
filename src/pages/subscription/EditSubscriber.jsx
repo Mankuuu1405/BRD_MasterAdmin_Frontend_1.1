@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import MainLayout from "../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
-import subscribersService from "../../services/subscribersService";
+import subscribersService from "../../services/subscriberService";
 import subscriptionService from "../../services/subscriptionService";
 
 export default function EditSubscriber() {
@@ -30,7 +30,7 @@ export default function EditSubscriber() {
 
   // Load existing subscriber data
   const loadSubscriber = async () => {
-    const res = await subscribersService.getOne(uuid);
+    const res = await subscribersService.getById(uuid);
     setForm({
       subscription_id: res.data.subscription_id,
       tenant_id: res.data.tenant_id,

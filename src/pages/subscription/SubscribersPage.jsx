@@ -103,7 +103,7 @@ export default function SubscribersPage() {
                 {/* VIEW */}
                 <button
                   onClick={() =>
-                    navigate(`/subscribers/view/${item.uuid}`)
+                    navigate(`/subscribers/view/${item.id}`)
                   }
                   className="p-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-700"
                 >
@@ -113,7 +113,7 @@ export default function SubscribersPage() {
                 {/* EDIT */}
                 <button
                   onClick={() =>
-                    navigate(`/subscribers/edit/${item.uuid}`)
+                    navigate(`/subscribers/edit/${item.id}`)
                   }
                   className="p-2 rounded-lg bg-yellow-100 hover:bg-yellow-200 text-yellow-700"
                 >

@@ -1,12 +1,12 @@
 import axiosInstance from "../utils/axiosInstance";
 
-const BASE_URL = "adminpanel/subscribers/";
+const BASE_URL = "adminpanel/subscription";
 
 const subscriberService = {
   // ---------- GET ALL SUBSCRIBERS ----------
   async getAll() {
     try {
-      const res = await axiosInstance.get(BASE_URL);
+      const res = await axiosInstance.get(`${BASE_URL}/subscribers/`);
       return res.data;
     } catch (error) {
       console.error("❌ Error fetching subscribers:", error);
@@ -17,7 +17,7 @@ const subscriberService = {
   // ---------- GET SUBSCRIBER BY UUID ----------
   async getById(uuid) {
     try {
-      const res = await axiosInstance.get(`${BASE_URL}${uuid}/`);
+      const res = await axiosInstance.get(`${BASE_URL}/plans/${uuid}/`);
       return res.data;
     } catch (error) {
       console.error(`❌ Error fetching subscriber ${uuid}:`, error);
