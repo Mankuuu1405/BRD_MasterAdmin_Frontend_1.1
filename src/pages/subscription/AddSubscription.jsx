@@ -11,7 +11,10 @@ export default function AddSubscription() {
     subscription_name: "",
     subscription_amount: "",
     no_of_borrowers: "",
-    type_of: "Monthly",
+    no_of_users: "",
+    subscription_type: "MONTHLY",
+    valid_from: "",
+    valid_to: "",
 
     created_user: "master_admin",
     modified_user: "master_admin",
@@ -32,10 +35,9 @@ export default function AddSubscription() {
 
     try {
       await subscriptionService.create(form);
-
-      navigate("/subscriptions");
+      navigate("/subscriptions/list");
     } catch (err) {
-      setErrors("Something went wrong while saving subscription.");
+      setErrors(err?.response?.data || "Failed to save subscription.");
     } finally {
       setLoading(false);
     }
@@ -62,21 +64,19 @@ export default function AddSubscription() {
         </div>
       </div>
 
-      {/* FORM WRAPPER CARD */}
+      {/* FORM CARD */}
       <div className="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm max-w-4xl">
         {errors && (
           <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg text-sm border border-red-200">
-            {errors}
+            {JSON.stringify(errors)}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-10">
-          {/* GRID FIELDS */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <InputField
               label="Subscription Name *"
               name="subscription_name"
-              placeholder="Gold Plan"
               value={form.subscription_name}
               onChange={handleChange}
               required
@@ -86,7 +86,6 @@ export default function AddSubscription() {
               label="Amount (₹) *"
               name="subscription_amount"
               type="number"
-              placeholder="2500"
               value={form.subscription_amount}
               onChange={handleChange}
               required
@@ -96,22 +95,47 @@ export default function AddSubscription() {
               label="No. of Borrowers *"
               name="no_of_borrowers"
               type="number"
-              placeholder="10"
               value={form.no_of_borrowers}
+              onChange={handleChange}
+              required
+            />
+
+            <InputField
+              label="No. of Users *"
+              name="no_of_users"
+              type="number"
+              value={form.no_of_users}
               onChange={handleChange}
               required
             />
 
             <SelectField
               label="Subscription Type *"
-              name="type_of"
-              value={form.type_of}
+              name="subscription_type"
+              value={form.subscription_type}
               onChange={handleChange}
-              options={["Monthly", "Quarterly", "Yearly"]}
+              options={["MONTHLY", "QUARTERLY", "ANNUAL"]}
+            />
+
+            <InputField
+              label="Valid From *"
+              name="valid_from"
+              type="date"
+              value={form.valid_from}
+              onChange={handleChange}
+              required
+            />
+
+            <InputField
+              label="Valid To *"
+              name="valid_to"
+              type="date"
+              value={form.valid_to}
+              onChange={handleChange}
+              required
             />
           </div>
 
-          {/* SUBMIT BUTTON */}
           <button
             type="submit"
             disabled={loading}
@@ -126,7 +150,7 @@ export default function AddSubscription() {
   );
 }
 
-/* ---------------- INPUT FIELD ---------------- */
+/* INPUT */
 function InputField({ label, ...props }) {
   return (
     <div>
@@ -139,7 +163,7 @@ function InputField({ label, ...props }) {
   );
 }
 
-/* ---------------- SELECT FIELD ---------------- */
+/* SELECT */
 function SelectField({ label, options, ...props }) {
   return (
     <div>

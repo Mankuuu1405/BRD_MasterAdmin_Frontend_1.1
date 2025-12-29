@@ -7,12 +7,16 @@ import subscriptionService from "../../services/subscriptionService";
 export default function EditSubscription() {
   const navigate = useNavigate();
   const { uuid } = useParams();
+  console.log(uuid)
 
   const [form, setForm] = useState({
     subscription_name: "",
     subscription_amount: "",
     no_of_borrowers: "",
-    type_of: "Monthly",
+    no_of_users: "",
+    subscription_type: "MONTHLY",
+    valid_from: "",
+    valid_to: "",
 
     created_user: "",
     modified_user: "master_admin",
@@ -22,35 +26,42 @@ export default function EditSubscription() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
 
-  // 🔥 Load existing subscription (FIXED)
+  /* LOAD SUBSCRIPTION */
+  const formatDate = (dateString) =>
+    dateString ? dateString.split("T")[0] : "";
+
   const loadSubscription = async () => {
     try {
-      const data = await subscriptionService.getOne(uuid); // FIXED: direct data
+      const data = await subscriptionService.getOne(uuid);
 
       setForm({
-        subscription_name: data.subscription_name,
-        subscription_amount: data.subscription_amount,
-        no_of_borrowers: data.no_of_borrowers,
-        type_of: data.type_of,
+        subscription_name: data.subscription_name ?? "",
+        subscription_amount: data.subscription_amount ?? "",
+        no_of_borrowers: data.no_of_borrowers ?? "",
+        no_of_users: data.no_of_users ?? "",
+        subscription_type: data.subscription_type ?? "MONTHLY",
 
-        created_user: data.created_user,
+        valid_from: formatDate(data.valid_from),
+        valid_to: formatDate(data.valid_to),
+
+        created_user: data.created_user ?? "",
         modified_user: "master_admin",
-        isDeleted: data.isDeleted,
+        isDeleted: data.isDeleted ?? false,
       });
     } catch (err) {
-      console.error("Error loading subscription:", err);
       setErrors("Failed to load subscription details.");
     }
   };
 
+
   useEffect(() => {
     loadSubscription();
-  }, []);
+  }, [uuid]);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  // 🔥 Submit Handler (unchanged)
+  /* UPDATE */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -60,7 +71,7 @@ export default function EditSubscription() {
       await subscriptionService.update(uuid, form);
       navigate("/subscriptions/list");
     } catch (err) {
-      setErrors("Something went wrong while updating the subscription.");
+      setErrors(err?.response?.data || "Failed to update subscription.");
     } finally {
       setLoading(false);
     }
@@ -91,15 +102,12 @@ export default function EditSubscription() {
       <div className="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm max-w-4xl">
         {errors && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
-            {errors}
+            {JSON.stringify(errors)}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-10">
-          
-          {/* GRID SECTION */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
             <InputField
               label="Subscription Name *"
               name="subscription_name"
@@ -126,16 +134,42 @@ export default function EditSubscription() {
               required
             />
 
+            <InputField
+              label="No. of Users *"
+              name="no_of_users"
+              type="number"
+              value={form.no_of_users}
+              onChange={handleChange}
+              required
+            />
+
             <SelectField
               label="Subscription Type *"
-              name="type_of"
-              value={form.type_of}
+              name="subscription_type"
+              value={form.subscription_type}
               onChange={handleChange}
-              options={["Monthly", "Quarterly", "Yearly"]}
+              options={["MONTHLY", "QUARTERLY", "ANNUAL"]}
+            />
+
+            <InputField
+              label="Valid From *"
+              name="valid_from"
+              type="date"
+              value={form.valid_from}
+              onChange={handleChange}
+              required
+            />
+
+            <InputField
+              label="Valid To *"
+              name="valid_to"
+              type="date"
+              value={form.valid_to}
+              onChange={handleChange}
+              required
             />
           </div>
 
-          {/* SAVE BUTTON */}
           <button
             type="submit"
             disabled={loading}
@@ -150,7 +184,7 @@ export default function EditSubscription() {
   );
 }
 
-/* ---------------- INPUT COMPONENT ---------------- */
+/* INPUT */
 function InputField({ label, ...props }) {
   return (
     <div>
@@ -163,7 +197,7 @@ function InputField({ label, ...props }) {
   );
 }
 
-/* ---------------- SELECT COMPONENT ---------------- */
+/* SELECT */
 function SelectField({ label, options, ...props }) {
   return (
     <div>

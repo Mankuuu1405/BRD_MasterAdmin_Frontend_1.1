@@ -13,13 +13,16 @@ export default function SubscriptionPage() {
 
   const loadData = async () => {
     try {
-      const data = await subscriptionService.getAll();
+      const res = await subscriptionService.getAll();
+      const data = Array.isArray(res) ? res : res.results;
+
       setList(data);
       setFiltered(data);
     } catch (err) {
       console.error("Error loading subscriptions:", err);
     }
   };
+
 
   useEffect(() => {
     loadData();
@@ -90,20 +93,21 @@ export default function SubscriptionPage() {
                 <p className="text-lg font-medium">{item.subscription_name}</p>
                 <p className="text-sm text-gray-500">
                   ₹{item.subscription_amount} • {item.no_of_borrowers} borrowers •{" "}
-                  {item.type_of}
+                  {item.subscription_type}
+
                 </p>
               </div>
 
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => navigate(`/subscriptions/edit/${item.uuid}`)}
+                  onClick={() => navigate(`/subscriptions/edit/${item.id}`)}
                   className="p-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-700 shadow-sm"
                 >
                   <FiEdit2 size={18} />
                 </button>
 
                 <button
-                  onClick={() => handleDelete(item.uuid)}
+                  onClick={() => handleDelete(item.id)}
                   className="p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-600 shadow-sm"
                 >
                   <FiTrash2 size={18} />
