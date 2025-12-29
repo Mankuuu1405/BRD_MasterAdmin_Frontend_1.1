@@ -3,7 +3,7 @@ import MainLayout from "../../../layout/MainLayout";
 import { FiPlus, FiEdit, FiTrash2, FiSearch } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
-// import { productMixService } from "../../../services/productMixService";
+import { productMixService } from "../../../services/productManagementService";
 
 const ProductMixList = () => {
   const navigate = useNavigate();
@@ -11,46 +11,41 @@ const ProductMixList = () => {
   const [mixes, setMixes] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  /* ---------------- LOAD LIST ---------------- */
+  // Load product mixes
+  const loadMixes = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await productMixService.getProductMixes();
+      setMixes(data || []);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load product mixes.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    (async () => {
-      try {
-        /*
-        const data = await productMixService.getProductMixes();
-        setMixes(data || []);
-        */
-
-        // TEMP MOCK DATA
-        setMixes([
-          {
-            id: 1,
-            name: "Personal Loan Combo",
-            category: "Loan",
-            type: "Personal Loan",
-            amount: 550000,
-            period: "24 Months",
-            facilities: ["Top-up", "Insurance"],
-            status: "Active",
-          },
-          {
-            id: 2,
-            name: "Home Loan Premium Pack",
-            category: "Loan",
-            type: "Home Loan",
-            amount: 5200000,
-            period: "20 Years",
-            facilities: ["Insurance"],
-            status: "Active",
-          },
-        ]);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    loadMixes();
   }, []);
 
-  /* ---------------- SEARCH ---------------- */
+  // Delete product mix
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this product mix?")) return;
+
+    try {
+      await productMixService.deleteProductMix(id);
+      setMixes((prev) => prev.filter((mix) => mix.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete the product mix.");
+    }
+  };
+
+  // Filtered list
   const filteredMixes = mixes.filter((m) =>
     m.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -88,6 +83,10 @@ const ProductMixList = () => {
       {/* LIST */}
       {loading ? (
         <p className="text-gray-500">Loading product mixes...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : filteredMixes.length === 0 ? (
+        <p className="text-gray-500 text-sm">No product mixes found.</p>
       ) : (
         <div className="space-y-3">
           {/* COLUMN HEADER */}
@@ -112,54 +111,47 @@ const ProductMixList = () => {
               <div className="font-medium text-gray-900">
                 {mix.name}
                 <div className="text-xs text-gray-400 md:hidden">
-                  {mix.category} • {mix.type}
+                  {mix.product_category} • {mix.product_type}
                 </div>
               </div>
 
               {/* Category */}
-              <div className="text-gray-600 hidden md:block">
-                {mix.category}
-              </div>
+              <div className="text-gray-600 hidden md:block">{mix.product_category}</div>
 
               {/* Type */}
-              <div className="text-gray-600 hidden md:block">
-                {mix.type}
-              </div>
+              <div className="text-gray-600 hidden md:block">{mix.product_type}</div>
 
               {/* Amount */}
-              <div className="font-medium text-gray-700">
-                ₹{mix.amount.toLocaleString()}
-              </div>
+              <div className="font-medium text-gray-700">-</div>
 
               {/* Period */}
-              <div className="text-gray-600">
-                {mix.period}
-              </div>
+              <div className="text-gray-600">-</div>
 
               {/* Facilities */}
-              <div className="text-gray-600 text-xs hidden md:block">
-                {mix.facilities.join(", ")}
-              </div>
+              <div className="text-gray-600 text-xs hidden md:block">-</div>
 
               {/* Status */}
               <div>
-                <span className="px-3 py-1 text-xs rounded-full bg-green-100 text-green-700">
-                  {mix.status}
+                <span
+                  className={`px-3 py-1 text-xs rounded-full ${
+                    mix.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  {mix.is_active ? "Active" : "Inactive"}
                 </span>
               </div>
 
               {/* Actions */}
               <div className="flex justify-end gap-2 col-span-2 md:col-span-1">
                 <button
-                  onClick={() =>
-                    navigate(`/product-mix/${mix.id}/edit`)
-                  }
+                  onClick={() => navigate(`/product-mix/${mix.id}/edit`)}
                   className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200"
                 >
                   <FiEdit />
                 </button>
 
                 <button
+                  onClick={() => handleDelete(mix.id)}
                   className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200"
                 >
                   <FiTrash2 />
@@ -167,12 +159,6 @@ const ProductMixList = () => {
               </div>
             </div>
           ))}
-
-          {filteredMixes.length === 0 && (
-            <p className="text-gray-500 text-sm">
-              No product mixes found.
-            </p>
-          )}
         </div>
       )}
     </MainLayout>

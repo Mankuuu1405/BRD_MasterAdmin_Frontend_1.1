@@ -71,7 +71,7 @@ import OccupationTypePage from "./pages/occupation/OccupationTypePage";
 import ViewOccupationTypePage from "./pages/occupation/ViewOccupationTypePage";
 import RequireMasterAdmin from "./auth/RequireMasterAdmin";
 
-import ApprovalPage from "./pages/approvalMaster/ApprovalPage";
+import ApprovalList from "./pages/approvalMaster/ApprovalList";
 import AddApproval from "./pages/approvalMaster/AddApproval";
 import EditApproval from "./pages/approvalMaster/EditApproval";
 import { ManageApprovalPage } from "./pages/approvalMaster/ManageApprovalPage";
@@ -442,7 +442,7 @@ function App() {
         />
         <Route path="/organizations/list" element={<OrganizationList />} />
         <Route path="/organizations/edit/:id" element={<EditOrganization />} />
-        <Route path="/approvals" element={<ApprovalPage />} />
+        <Route path="/approvals" element={<ApprovalList />} />
         <Route path="/approvals/add" element={<AddApproval />} />
         <Route path="/approvals/edit/:id" element={<EditApproval />} />
         <Route path="/approvals/view/:id" element={<ApprovalView />} />

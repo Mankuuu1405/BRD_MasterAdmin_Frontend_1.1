@@ -1,216 +1,4 @@
-import React, { useEffect, useState } from "react";
-import MainLayout from "../../layout/MainLayout";
-import { FiArrowLeft, FiSave } from "react-icons/fi";
-import { useNavigate, useParams } from "react-router-dom";
-
-const EditApproval = () => {
-  const navigate = useNavigate();
-  const { id } = useParams();
-
-  const [form, setForm] = useState({
-    level: "",
-    type: "",
-    product_type: "",
-    product_name: "",
-    approval_name: {
-      sanction: "",
-      rate_inc: "",
-      rate_dec: "",
-      fees_inc: "",
-      fees_dec: "",
-      tenure_inc: "",
-      tenure_dec: "",
-      range: "",
-      moratorium: {
-        interest: "",
-        period: "",
-      },
-    },
-    status: "Active",
-  });
-
-  /* MOCK FETCH – replace with API */
-  useEffect(() => {
-    const mockData = {
-      level: "1",
-      type: "Individual",
-      product_type: "Loan",
-      product_name: "Home Loan",
-      approval_name: {
-        sanction: "Branch Sanction",
-        rate_inc: 2,
-        rate_dec: 1,
-        fees_inc: 5000,
-        fees_dec: 2000,
-        tenure_inc: 12,
-        tenure_dec: 6,
-        range: "0 – 25L",
-        moratorium: {
-          interest: 1.5,
-          period: 6,
-        },
-      },
-      status: "Active",
-    };
-    setForm(mockData);
-  }, [id]);
-
-  /* NESTED CHANGE HANDLER */
-  const handleChange = (e, path = null) => {
-    if (!path) {
-      setForm({ ...form, [e.target.name]: e.target.value });
-      return;
-    }
-
-    const updated = { ...form };
-    let obj = updated;
-
-    for (let i = 0; i < path.length - 1; i++) {
-      obj = obj[path[i]];
-    }
-
-    obj[path[path.length - 1]] = e.target.value;
-    setForm(updated);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Updated Approval:", id, form);
-    navigate("/approvals");
-  };
-
-  return (
-    <MainLayout>
-      {/* HEADER */}
-      <div className="flex items-center gap-3 mb-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200"
-        >
-          <FiArrowLeft />
-        </button>
-
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">
-            Edit Approval
-          </h1>
-          <p className="text-sm text-gray-500">
-            Modify approval configuration
-          </p>
-        </div>
-      </div>
-
-      {/* FORM */}
-      <div className="bg-white p-8 rounded-2xl shadow-md max-w-5xl">
-        <form onSubmit={handleSubmit} className="space-y-10">
-
-          {/* BASIC DETAILS */}
-          <Section title="Basic Details">
-            <Select
-              label="Approval Level"
-              options={["1","2","3","4","Final"]}
-              value={form.level}
-              onChange={(e)=>handleChange(e)}
-              name="level"
-            />
-
-            <Select
-              label="Approval Type"
-              options={["Individual","Team"]}
-              value={form.type}
-              onChange={(e)=>handleChange(e)}
-              name="type"
-            />
-
-            <Input
-              label="Product Type"
-              value={form.product_type}
-              onChange={(e)=>handleChange(e)}
-              name="product_type"
-            />
-
-            <Input
-              label="Product Name"
-              value={form.product_name}
-              onChange={(e)=>handleChange(e)}
-              name="product_name"
-            />
-
-            <Input
-              label="Sanction Name"
-              value={form.approval_name.sanction}
-              onChange={(e)=>handleChange(e,["approval_name","sanction"])}
-            />
-
-            <Input
-              label="Approval Range"
-              value={form.approval_name.range}
-              onChange={(e)=>handleChange(e,["approval_name","range"])}
-            />
-          </Section>
-
-          {/* RATE & FEES */}
-          <Section title="Rate & Fees">
-            <Input label="Rate Increase (%)"
-              value={form.approval_name.rate_inc}
-              onChange={(e)=>handleChange(e,["approval_name","rate_inc"])} />
-
-            <Input label="Rate Decrease (%)"
-              value={form.approval_name.rate_dec}
-              onChange={(e)=>handleChange(e,["approval_name","rate_dec"])} />
-
-            <Input label="Fees Increase"
-              value={form.approval_name.fees_inc}
-              onChange={(e)=>handleChange(e,["approval_name","fees_inc"])} />
-
-            <Input label="Fees Decrease"
-              value={form.approval_name.fees_dec}
-              onChange={(e)=>handleChange(e,["approval_name","fees_dec"])} />
-          </Section>
-
-          {/* TENURE & MORATORIUM */}
-          <Section title="Tenure & Moratorium">
-            <Input label="Tenure Increase (Months)"
-              value={form.approval_name.tenure_inc}
-              onChange={(e)=>handleChange(e,["approval_name","tenure_inc"])} />
-
-            <Input label="Tenure Decrease (Months)"
-              value={form.approval_name.tenure_dec}
-              onChange={(e)=>handleChange(e,["approval_name","tenure_dec"])} />
-
-            <Input label="Moratorium Interest (%)"
-              value={form.approval_name.moratorium.interest}
-              onChange={(e)=>handleChange(e,["approval_name","moratorium","interest"])} />
-
-            <Input label="Moratorium Period (Months)"
-              value={form.approval_name.moratorium.period}
-              onChange={(e)=>handleChange(e,["approval_name","moratorium","period"])} />
-
-            <Select
-              label="Status"
-              options={["Active","Inactive"]}
-              value={form.status}
-              onChange={(e)=>handleChange(e)}
-              name="status"
-            />
-          </Section>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-700"
-          >
-            <FiSave />
-            Update Approval
-          </button>
-        </form>
-      </div>
-    </MainLayout>
-  );
-};
-
-export default EditApproval;
-
-/* ---------------- UI HELPERS ---------------- */
+/* ---------------- UI HELPERS (MUST BE ON TOP) ---------------- */
 
 const Section = ({ title, children }) => (
   <div>
@@ -245,3 +33,188 @@ const Select = ({ label, options, ...props }) => (
     </select>
   </div>
 );
+
+/* ---------------- MAIN COMPONENT ---------------- */
+
+import React, { useEffect, useState } from "react";
+import MainLayout from "../../layout/MainLayout";
+import { FiArrowLeft, FiSave } from "react-icons/fi";
+import { useNavigate, useParams } from "react-router-dom";
+import { approvalMasterService } from "../../services/approvalMasterService";
+
+const EditApproval = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
+
+  const [form, setForm] = useState({
+    level: "",
+    type: "",
+    product_type: "",
+    product_name: "",
+    sanction_name: "",
+    rate_inc: "",
+    rate_dec: "",
+    fees_inc: "",
+    fees_dec: "",
+    tenure_inc: "",
+    tenure_dec: "",
+    moratorium_interest: "",
+    moratorium_period: "",
+    approval_range: "",
+    status: "ACTIVE",
+  });
+
+  /* FETCH APPROVAL */
+  useEffect(() => {
+    fetchApproval();
+  }, [id]);
+
+  const fetchApproval = async () => {
+    try {
+      const res = await approvalMasterService.getApprovalById(id);
+      setForm({
+        level: res.level,
+        type: res.type,
+        product_type: res.product_type,
+        product_name: res.product_name,
+        sanction_name: res.sanction_name,
+        rate_inc: res.rate_inc ?? "",
+        rate_dec: res.rate_dec ?? "",
+        fees_inc: res.fees_inc ?? "",
+        fees_dec: res.fees_dec ?? "",
+        tenure_inc: res.tenure_inc ?? "",
+        tenure_dec: res.tenure_dec ?? "",
+        moratorium_interest: res.moratorium_interest ?? "",
+        moratorium_period: res.moratorium_period ?? "",
+        approval_range: res.approval_range ?? "",
+        status: res.status,
+      });
+    } catch (err) {
+      console.error("Failed to fetch approval", err);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await approvalMasterService.updateApproval(id, form);
+      navigate("/approvals");
+    } catch (err) {
+      console.error("Update failed", err);
+    }
+  };
+
+  return (
+    <MainLayout>
+      {/* HEADER */}
+      <div className="flex items-center gap-3 mb-8">
+        <button
+          onClick={() => navigate(-1)}
+          className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200"
+        >
+          <FiArrowLeft />
+        </button>
+
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">
+            Edit Approval
+          </h1>
+          <p className="text-sm text-gray-500">
+            Modify approval configuration
+          </p>
+        </div>
+      </div>
+
+      {/* FORM */}
+      <div className="bg-white p-8 rounded-2xl shadow-md max-w-5xl">
+        <form onSubmit={handleSubmit} className="space-y-10">
+
+          {/* BASIC DETAILS */}
+          <Section title="Basic Details">
+            <Select
+              label="Approval Level"
+              name="level"
+              value={form.level}
+              options={["L1", "L2", "L3", "L4", "FINAL"]}
+              onChange={handleChange}
+            />
+
+            <Select
+              label="Approval Type"
+              name="type"
+              value={form.type}
+              options={["INDIVIDUAL", "TEAM"]}
+              onChange={handleChange}
+            />
+
+            <Input
+              label="Product Type"
+              name="product_type"
+              value={form.product_type}
+              onChange={handleChange}
+            />
+
+            <Input
+              label="Product Name"
+              name="product_name"
+              value={form.product_name}
+              onChange={handleChange}
+            />
+
+            <Input
+              label="Sanction Name"
+              name="sanction_name"
+              value={form.sanction_name}
+              onChange={handleChange}
+            />
+
+            <Input
+              label="Approval Range"
+              name="approval_range"
+              value={form.approval_range}
+              onChange={handleChange}
+            />
+          </Section>
+
+          {/* RATE & FEES */}
+          <Section title="Rate & Fees">
+            <Input label="Rate Increase (%)" name="rate_inc" value={form.rate_inc} onChange={handleChange} />
+            <Input label="Rate Decrease (%)" name="rate_dec" value={form.rate_dec} onChange={handleChange} />
+            <Input label="Fees Increase" name="fees_inc" value={form.fees_inc} onChange={handleChange} />
+            <Input label="Fees Decrease" name="fees_dec" value={form.fees_dec} onChange={handleChange} />
+          </Section>
+
+          {/* TENURE & MORATORIUM */}
+          <Section title="Tenure & Moratorium">
+            <Input label="Tenure Increase (Months)" name="tenure_inc" value={form.tenure_inc} onChange={handleChange} />
+            <Input label="Tenure Decrease (Months)" name="tenure_dec" value={form.tenure_dec} onChange={handleChange} />
+            <Input label="Moratorium Interest (%)" name="moratorium_interest" value={form.moratorium_interest} onChange={handleChange} />
+            <Input label="Moratorium Period (Months)" name="moratorium_period" value={form.moratorium_period} onChange={handleChange} />
+
+            <Select
+              label="Status"
+              name="status"
+              value={form.status}
+              options={["ACTIVE", "INACTIVE"]}
+              onChange={handleChange}
+            />
+          </Section>
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-700"
+          >
+            <FiSave /> Update Approval
+          </button>
+        </form>
+      </div>
+    </MainLayout>
+  );
+};
+
+export default EditApproval;
