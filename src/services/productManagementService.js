@@ -37,32 +37,32 @@ export const productManagementService = {
 export const productMixService = {
   
   // GET all loan products
-  async getProducts() {
-    const response = await api.get("/adminpanel/product-management/loan-products/");
+  async getProductMixes() {
+    const response = await api.get("/adminpanel/product-mixes/");
     return response.data;
   },
 
   // GET single product
-  async getProduct(id) {
-    const response = await api.get(`/adminpanel/product-management/loan-products/${id}/`);
+  async getProductMix(id) {
+    const response = await api.get(`/adminpanel/product-mixes/${id}/`);
     return response.data;
   },
 
   // CREATE product
-  async createProduct(data) {
-    const response = await api.post("/adminpanel/product-management/loan-products/", data);
+  async createProductMix(data) {
+    const response = await api.post("/adminpanel/product-mixes/", data);
     return response.data;
   },
 
   // UPDATE product
-  async updateProduct(id, data) {
-    const response = await api.put(`/adminpanel/product-management/loan-products/${id}/`, data);
+  async updateProductMix(id, data) {
+    const response = await api.put(`/adminpanel/product-mixes/${id}/`, data);
     return response.data;
   },
 
   // DELETE product
-  async deleteProduct(id) {
-    const response = await api.delete(`/adminpanel/product-management/loan-products/${id}/`);
+  async deleteProductMix(id) {
+    const response = await api.delete(`/adminpanel/product-mixes/${id}/`);
     return response.data;
   },
 

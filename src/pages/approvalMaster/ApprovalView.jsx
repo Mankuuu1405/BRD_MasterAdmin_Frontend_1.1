@@ -1,38 +1,52 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../../layout/MainLayout";
 import { FiArrowLeft } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
+import { approvalMasterService } from "../../services/approvalMasterService";
 
 const ApprovalView = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  /* MOCK DATA – replace with API */
-  const approval = {
-    product_name: "Home Loan",
-    product_type: "Loan",
-    level: "1",
-    type: "Individual",
-    approval_name: {
-      sanction: "Branch Sanction",
-      rate_inc: 2,
-      rate_dec: 1,
-      fees_inc: 5000,
-      fees_dec: 2000,
-      tenure_inc: 12,
-      tenure_dec: 6,
-      range: "0 – 25L",
-      moratorium: {
-        interest: 1.5,
-        period: 6,
-      },
-    },
-    status: "Active",
-    created_user: "Admin",
-    modified_user: "Admin",
-    created_at: "2024-10-01",
-    modified_at: "2024-10-10",
-  };
+  const [approval, setApproval] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    approvalMasterService
+      .getApprovalById(id)
+      .then((d) => {
+        // 🔁 Map backend → UI structure (NO UI CHANGE)
+        setApproval({
+          product_name: d.product_name,
+          product_type: d.product_type,
+          level: d.level,
+          type: d.type,
+          approval_name: {
+            sanction: d.sanction_name,
+            rate_inc: d.rate_inc,
+            rate_dec: d.rate_dec,
+            fees_inc: d.fees_inc,
+            fees_dec: d.fees_dec,
+            tenure_inc: d.tenure_inc,
+            tenure_dec: d.tenure_dec,
+            range: d.approval_range,
+            moratorium: {
+              interest: d.moratorium_interest,
+              period: d.moratorium_period,
+            },
+          },
+          status: d.status,
+          created_at: d.created_at,
+        });
+      })
+      .catch((err) => {
+        console.error("Failed to fetch approval", err);
+      })
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) return null;
+  if (!approval) return null;
 
   return (
     <MainLayout>
@@ -81,16 +95,19 @@ const ApprovalView = () => {
         <Card title="Tenure & Moratorium">
           <Row label="Tenure Increase (Months)" value={approval.approval_name.tenure_inc} />
           <Row label="Tenure Decrease (Months)" value={approval.approval_name.tenure_dec} />
-          <Row label="Moratorium Interest (%)" value={approval.approval_name.moratorium.interest} />
-          <Row label="Moratorium Period (Months)" value={approval.approval_name.moratorium.period} />
+          <Row
+            label="Moratorium Interest (%)"
+            value={approval.approval_name.moratorium.interest}
+          />
+          <Row
+            label="Moratorium Period (Months)"
+            value={approval.approval_name.moratorium.period}
+          />
         </Card>
 
         {/* METADATA */}
         <Card title="Audit Information">
-          <Row label="Created By" value={approval.created_user} />
           <Row label="Created At" value={approval.created_at} />
-          <Row label="Modified By" value={approval.modified_user} />
-          <Row label="Modified At" value={approval.modified_at} />
         </Card>
       </div>
     </MainLayout>
@@ -122,7 +139,7 @@ const Row = ({ label, value, children }) => (
 const StatusBadge = ({ status }) => (
   <span
     className={`px-3 py-1 text-xs rounded-full font-medium ${
-      status === "Active"
+      status === "ACTIVE" || status === "Active"
         ? "bg-green-100 text-green-700"
         : "bg-red-100 text-red-600"
     }`}
