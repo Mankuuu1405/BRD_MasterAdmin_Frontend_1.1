@@ -2,6 +2,17 @@ import React, { useState, useEffect } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
+import { ruleManagementService } from "../../../services/ruleManagementService";
+
+/* Allowed engines */
+const RULE_CODES = [
+  { label: "Client Profile Engine", value: "CLIENT_PROFILE" },
+  { label: "Collateral Quality Engine", value: "COLLATERAL" },
+  { label: "Financial Eligibility Engine", value: "FINANCIAL" },
+  { label: "Score Card Engine", value: "SCORECARD" },
+  { label: "Verification Engine", value: "VERIFICATION" },
+  { label: "Risk & Mitigation Engine", value: "RISK" },
+];
 
 export default function EditRuleName() {
   const navigate = useNavigate();
@@ -14,81 +25,57 @@ export default function EditRuleName() {
     status: "Active",
   });
 
-  // 🔹 Mock fetch (replace with API later)
   useEffect(() => {
-    const fetchedRule = {
-      rule_name: "Age Eligibility Rule",
-      rule_code: "AGE_ELIG_01",
-      description: "Applicant age should be between 21 and 60",
-      status: "Active",
-    };
-    setForm(fetchedRule);
+    (async () => {
+      const data = await ruleManagementService.getRuleMasterById(id);
+      setForm({
+        rule_name: data.rule_name,
+        rule_code: data.rule_code,
+        description: data.description || "",
+        status: data.status,
+      });
+    })();
   }, [id]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((p) => ({ ...p, [name]: value }));
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Updated Rule:", form);
+
+    const payload = {
+      rule_name: form.rule_name.trim(),
+      rule_code: form.rule_code,
+      description: form.description,
+      status: form.status,
+    };
+
+    await ruleManagementService.updateRuleMaster(id, payload);
     navigate("/rule-management/rule-master");
   };
 
   return (
     <MainLayout>
-      {/* HEADER */}
       <div className="flex items-center gap-3 mb-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-gray-50"
-        >
+        <button onClick={() => navigate(-1)} className="p-2 rounded-xl bg-gray-50">
           <FiArrowLeft />
         </button>
-        <h1 className="text-2xl font-bold">Edit Rule</h1>
+        <h1 className="text-2xl font-bold">Edit Rule Engine</h1>
       </div>
 
-      {/* FORM */}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow-md max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6"
-      >
-        <Input
-          label="Rule Name"
-          name="rule_name"
-          value={form.rule_name}
-          onChange={handleChange}
-          required
-        />
+      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-md max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Input label="Rule Name" name="rule_name" value={form.rule_name} onChange={handleChange} required />
 
-        <Input
-          label="Rule Code"
-          name="rule_code"
-          value={form.rule_code}
-          onChange={handleChange}
-          required
-        />
+        <Select label="Rule Engine" name="rule_code" value={form.rule_code} onChange={handleChange} options={RULE_CODES} required />
 
-        <Select
-          label="Status"
-          name="status"
-          value={form.status}
-          onChange={handleChange}
-          options={["Active", "Inactive"]}
-        />
+        <Select label="Status" name="status" value={form.status} onChange={handleChange} options={[{label:"Active",value:"Active"},{label:"Inactive",value:"Inactive"}]} />
 
-        <Textarea
-          label="Description"
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          className="md:col-span-2"
-        />
+        <Textarea label="Description" name="description" value={form.description} onChange={handleChange} className="md:col-span-2" />
 
         <div className="md:col-span-2 flex justify-end">
           <button className="px-5 py-3 bg-indigo-600 text-white rounded-xl flex items-center gap-2">
-            <FiSave /> Update Rule
+            <FiSave /> Update Engine
           </button>
         </div>
       </form>
@@ -96,30 +83,21 @@ export default function EditRuleName() {
   );
 }
 
-/* -------- Reusable Inputs -------- */
+/* UI helpers */
 
 const Input = ({ label, ...props }) => (
   <div>
     <label className="text-sm font-medium">{label}</label>
-    <input
-      {...props}
-      className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm"
-    />
+    <input {...props} className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm" />
   </div>
 );
 
 const Select = ({ label, options, ...props }) => (
   <div>
     <label className="text-sm font-medium">{label}</label>
-    <select
-      {...props}
-      className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm"
-    >
-      {options.map((o) => (
-        <option key={o} value={o}>
-          {o}
-        </option>
-      ))}
+    <select {...props} className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm">
+      <option value="" disabled>Select</option>
+      {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
     </select>
   </div>
 );
@@ -127,9 +105,6 @@ const Select = ({ label, options, ...props }) => (
 const Textarea = ({ label, ...props }) => (
   <div>
     <label className="text-sm font-medium">{label}</label>
-    <textarea
-      {...props}
-      className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm"
-    />
+    <textarea {...props} className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm" />
   </div>
 );

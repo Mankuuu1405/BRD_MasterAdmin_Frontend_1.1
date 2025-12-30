@@ -1,47 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
-import {
-  FiPlus,
-  FiEdit3,
-  FiTrash2,
-  FiSearch,
-  FiEye,
-} from "react-icons/fi";
+import { FiPlus, FiEdit3, FiTrash2, FiSearch, FiEye } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { ruleManagementService } from "../../../services/ruleManagementService";
+import DeleteConfirmButton from "../../../components/DeleteConfirmButton";
 
 export default function ClientProfileRuleList() {
   const navigate = useNavigate();
-
-  const [rules, setRules] = useState([
-    {
-      id: 1,
-      rule_name: "Age Between 21-60",
-      parameter: "Age",
-      condition: "Between",
-      value: "21-60",
-      impact_value: "+10",
-      status: "Active",
-    },
-    {
-      id: 2,
-      rule_name: "Self Employed Applicant",
-      parameter: "Employment Type",
-      condition: "Equals",
-      value: "Self Employed",
-      impact_value: "+5",
-      status: "Active",
-    },
-  ]);
-
+  const [rules, setRules] = useState([]);
   const [search, setSearch] = useState("");
+  const [deleteId, setDeleteId] = useState(null);
+
+  useEffect(() => {
+    loadRules();
+  }, []);
+
+  const loadRules = async () => {
+    const data = await ruleManagementService.getClientProfileRules();
+    setRules(data || []);
+  };
 
   const filtered = rules.filter((r) =>
-    r.rule_name.toLowerCase().includes(search.toLowerCase())
+    r.rule_name?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleDelete = (id) => {
-    if (!window.confirm("Delete this rule?")) return;
-    setRules(rules.filter((r) => r.id !== id));
+  const handleDelete = async () => {
+    await ruleManagementService.deleteClientProfileRule(deleteId);
+    setDeleteId(null);
+    loadRules();
   };
 
   return (
@@ -56,9 +42,7 @@ export default function ClientProfileRuleList() {
         </div>
 
         <button
-          onClick={() =>
-            navigate("/rule-management/client-profile/add")
-          }
+          onClick={() => navigate("/rule-management/client-profile/add")}
           className="px-4 py-2 bg-indigo-600 text-white rounded-xl flex items-center gap-2"
         >
           <FiPlus /> Add Rule
@@ -97,47 +81,43 @@ export default function ClientProfileRuleList() {
             <div>{rule.condition}</div>
             <div>{rule.value}</div>
 
-            <span
-              className={`px-3 py-1 text-xs rounded-full ${
-                rule.status === "Active"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-600"
-              }`}
-            >
-              {rule.status}
-            </span>
+  <span
+  className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium ring-1
+    ${
+      rule.status?.toLowerCase() === "active"
+        ? "bg-green-100 text-green-700"
+        : "bg-red-100 text-red-600"
+    }`}
+>
+  {rule.status}
+</span>
+
+
 
             <div className="flex justify-end gap-2 col-span-2 md:col-span-1">
-              <IconButton
-                color="gray"
-                onClick={() =>
-                  navigate(
-                    `/rule-management/client-profile/view/${rule.id}`
-                  )
-                }
-              >
+              <IconButton color="gray" onClick={() => navigate(`/rule-management/client-profile/view/${rule.id}`)}>
                 <FiEye />
               </IconButton>
-              <IconButton
-                color="blue"
-                onClick={() =>
-                  navigate(
-                    `/rule-management/client-profile/edit/${rule.id}`
-                  )
-                }
-              >
+              <IconButton color="blue" onClick={() => navigate(`/rule-management/client-profile/edit/${rule.id}`)}>
                 <FiEdit3 />
               </IconButton>
-              <IconButton
-                color="red"
-                onClick={() => handleDelete(rule.id)}
-              >
+              <IconButton color="red" onClick={() => setDeleteId(rule.id)}>
                 <FiTrash2 />
               </IconButton>
             </div>
           </div>
         ))}
       </div>
+
+      {/* DELETE CONFIRM */}
+      {deleteId && (
+        <DeleteConfirmButton
+          title="Delete Rule"
+          message="Are you sure you want to delete this rule?"
+          onCancel={() => setDeleteId(null)}
+          onConfirm={handleDelete}
+        />
+      )}
     </MainLayout>
   );
 }

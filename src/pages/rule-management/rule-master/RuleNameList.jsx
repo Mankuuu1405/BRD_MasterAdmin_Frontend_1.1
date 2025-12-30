@@ -1,45 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
-import {
-  FiPlus,
-  FiEdit3,
-  FiTrash2,
-  FiSearch,
-  FiEye,
-} from "react-icons/fi";
+import { FiPlus, FiEdit3, FiTrash2, FiSearch, FiEye } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { ruleManagementService } from "../../../services/ruleManagementService";
+import DeleteConfirmButton from "../../../components/DeleteConfirmButton";
 
 export default function RuleNameList() {
   const navigate = useNavigate();
-
-  const [rules, setRules] = useState([
-    {
-      id: 1,
-      rule_name: "Age Eligibility Rule",
-      rule_code: "AGE_ELIG_01",
-      description: "Applicant age should be between 21 and 60",
-      status: "Active",
-    },
-    {
-      id: 2,
-      rule_name: "Business Vintage Rule",
-      rule_code: "BUS_VINT_02",
-      description: "Minimum 3 years of business required",
-      status: "Inactive",
-    },
-  ]);
-
+  const [rules, setRules] = useState([]);
   const [search, setSearch] = useState("");
+  const [deleteId, setDeleteId] = useState(null);
+
+  useEffect(() => {
+    loadRules();
+  }, []);
+
+  const loadRules = async () => {
+    const data = await ruleManagementService.getRuleMasters();
+    setRules(data || []);
+  };
 
   const filteredRules = rules.filter(
     (r) =>
-      r.rule_name.toLowerCase().includes(search.toLowerCase()) ||
-      r.rule_code.toLowerCase().includes(search.toLowerCase())
+      r.rule_name?.toLowerCase().includes(search.toLowerCase()) ||
+      r.rule_code?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleDelete = (id) => {
-    if (!window.confirm("Delete this rule?")) return;
-    setRules(rules.filter((r) => r.id !== id));
+  const handleDelete = async () => {
+    await ruleManagementService.deleteRuleMaster(deleteId);
+    setDeleteId(null);
+    loadRules();
   };
 
   return (
@@ -89,12 +79,10 @@ export default function RuleNameList() {
           >
             <div className="font-medium">{rule.rule_name}</div>
             <div className="text-gray-600">{rule.rule_code}</div>
-            <div className="col-span-2 text-gray-600">
-              {rule.description}
-            </div>
+            <div className="col-span-2 text-gray-600">{rule.description || "-"}</div>
 
             <span
-              className={`px-3 py-1 text-xs rounded-full justify-self-start ${
+              className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium ${
                 rule.status === "Active"
                   ? "bg-green-100 text-green-700"
                   : "bg-red-100 text-red-600"
@@ -104,41 +92,34 @@ export default function RuleNameList() {
             </span>
 
             <div className="flex justify-end gap-2 col-span-2 md:col-span-1">
-              <IconButton
-                color="gray"
-                onClick={() =>
-                  navigate(`/rule-management/rule-master/view/${rule.id}`)
-                }
-              >
+              <IconButton color="gray" onClick={() => navigate(`/rule-management/rule-master/view/${rule.id}`)}>
                 <FiEye />
               </IconButton>
-              <IconButton
-                color="blue"
-                onClick={() =>
-                  navigate(`/rule-management/rule-master/edit/${rule.id}`)
-                }
-              >
+              <IconButton color="blue" onClick={() => navigate(`/rule-management/rule-master/edit/${rule.id}`)}>
                 <FiEdit3 />
               </IconButton>
-              <IconButton
-                color="red"
-                onClick={() => handleDelete(rule.id)}
-              >
+              <IconButton color="red" onClick={() => setDeleteId(rule.id)}>
                 <FiTrash2 />
               </IconButton>
             </div>
           </div>
         ))}
       </div>
+
+      {deleteId && (
+        <DeleteConfirmButton
+          title="Delete Rule"
+          message="Are you sure you want to delete this rule?"
+          onCancel={() => setDeleteId(null)}
+          onConfirm={handleDelete}
+        />
+      )}
     </MainLayout>
   );
 }
 
 const IconButton = ({ children, onClick, color }) => (
-  <button
-    onClick={onClick}
-    className={`p-2 rounded-full bg-${color}-100 hover:bg-${color}-200`}
-  >
+  <button onClick={onClick} className={`p-2 rounded-full bg-${color}-100 hover:bg-${color}-200`}>
     <span className={`text-${color}-600`}>{children}</span>
   </button>
 );

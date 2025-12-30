@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
+import { ruleManagementService } from "../../../services/ruleManagementService";
 
 const BUREAUS = ["CIBIL", "Experian", "Equifax", "CRIF"];
 const RISK_LEVELS = ["Low", "Medium", "High"];
@@ -12,36 +13,33 @@ export default function EditCreditHistoryRule() {
   const { id } = useParams();
 
   const [form, setForm] = useState({
-    bureau: "",
-    min_score: "",
-    max_dpd: "",
+    credit_bureau: "",
+    min_credit_score: "",
+    max_dpd_days: "",
     max_enquiries: "",
-    risk: "",
+    risk_level: "",
     status: "Active",
     remarks: "",
   });
 
   useEffect(() => {
-    const mock = {
-      bureau: "CIBIL",
-      min_score: 650,
-      max_dpd: 30,
-      max_enquiries: 5,
-      risk: "Low",
-      status: "Active",
-      remarks: "Standard CIBIL profile",
-    };
-    setForm(mock);
+    loadRule();
   }, [id]);
+
+  const loadRule = async () => {
+    const data = await ruleManagementService.getCreditHistoryRules();
+    const record = data.find((x) => String(x.id) === String(id));
+    if (record) setForm(record);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((p) => ({ ...p, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Updated Credit History Rule:", id, form);
+    await ruleManagementService.updateCreditHistoryRule(id, form);
     navigate("/rule-management/scorecard/credit-history");
   };
 
@@ -55,11 +53,11 @@ export default function EditCreditHistoryRule() {
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-md max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Select label="Credit Bureau" name="bureau" value={form.bureau} onChange={handleChange} options={BUREAUS} required />
-        <Input label="Minimum Credit Score" name="min_score" type="number" value={form.min_score} onChange={handleChange} required />
-        <Input label="Maximum DPD (days)" name="max_dpd" type="number" value={form.max_dpd} onChange={handleChange} required />
+        <Select label="Credit Bureau" name="credit_bureau" value={form.credit_bureau} onChange={handleChange} options={BUREAUS} required />
+        <Input label="Minimum Credit Score" name="min_credit_score" type="number" value={form.min_credit_score} onChange={handleChange} required />
+        <Input label="Maximum DPD (days)" name="max_dpd_days" type="number" value={form.max_dpd_days} onChange={handleChange} required />
         <Input label="Maximum Enquiries" name="max_enquiries" type="number" value={form.max_enquiries} onChange={handleChange} required />
-        <Select label="Risk Level" name="risk" value={form.risk} onChange={handleChange} options={RISK_LEVELS} required />
+        <Select label="Risk Level" name="risk_level" value={form.risk_level} onChange={handleChange} options={RISK_LEVELS} required />
         <Select label="Status" name="status" value={form.status} onChange={handleChange} options={STATUS} />
         <Textarea label="Remarks" name="remarks" value={form.remarks} onChange={handleChange} className="md:col-span-2" />
 
@@ -73,6 +71,7 @@ export default function EditCreditHistoryRule() {
   );
 }
 
+/* UI helpers */
 const Input = ({ label, ...props }) => (
   <div>
     <label className="text-sm font-medium">{label}</label>
