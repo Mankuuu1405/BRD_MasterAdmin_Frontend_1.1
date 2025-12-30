@@ -1181,16 +1181,16 @@ function App() {
         <Route path="/currency-management" element={<CurrencyList />} />
         <Route path="/currency-management/add" element={<CurrencyForm />} />
         <Route
-          path="/currency-management/edit/:id"
+          path="/currency-management/edit/:uuid"
           element={<CurrencyForm isEdit />}
         />
         <Route
-          path="/currency-management/view/:id"
+          path="/currency-management/view/:uuid"
           element={<CurrencyView />}
         />
         <Route path="/concession-management" element={<ConcessionList />} />
         <Route
-          path="/concession-management/view/:id"
+          path="/concession-management/type/view/:id"
           element={<ConcessionView />}
         />
         <Route
@@ -1208,6 +1208,10 @@ function App() {
         <Route
           path="/concession-management/category/edit/:id"
           element={<ConcessionCategoryForm />}
+        />
+        <Route
+          path="/concession-management/category/view/:id"
+          element={<ConcessionView />}
         />
         <Route path="rule-management/rule-master" element={<RuleNameList />} />
         <Route

@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import currencyManagementService from "../../services/currencyManagementService";
 
 const STATUS = ["Active", "Inactive"];
 const CURRENCIES = ["INR", "USD", "EUR", "GBP"];
 
 export default function CurrencyForm({ isEdit = false }) {
   const navigate = useNavigate();
+  const { uuid } = useParams(); // For edit mode
 
   const [form, setForm] = useState({
     currency_code: "",
@@ -15,6 +17,24 @@ export default function CurrencyForm({ isEdit = false }) {
     conversion_value_to_inr: "",
     status: "Active",
   });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Load existing currency if editing
+  useEffect(() => {
+    if (isEdit && uuid) {
+      setLoading(true);
+      currencyManagementService
+        .getOne(uuid)
+        .then((res) => setForm(res))
+        .catch((err) => {
+          console.error("Failed to load currency:", err.response?.data || err);
+          setError("Failed to load currency details");
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [isEdit, uuid]);
 
   const handleChange = (e, isNumber = false) => {
     const { name, value } = e.target;
@@ -24,10 +44,24 @@ export default function CurrencyForm({ isEdit = false }) {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Currency Payload:", form);
-    navigate("/currency-management");
+    setLoading(true);
+    setError("");
+
+    try {
+      if (isEdit && uuid) {
+        await currencyManagementService.update(uuid, form);
+      } else {
+        await currencyManagementService.create(form);
+      }
+      navigate("/currency-management");
+    } catch (err) {
+      console.error("API error:", err.response?.data || err);
+      setError("Failed to save currency. Please check your inputs.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -91,12 +125,19 @@ export default function CurrencyForm({ isEdit = false }) {
           required
         />
 
+        {error && (
+          <div className="md:col-span-2 text-sm text-red-600">{error}</div>
+        )}
+
         <div className="md:col-span-2 flex justify-end mt-4">
           <button
             type="submit"
-            className="px-5 py-3 rounded-xl text-white bg-blue-600 flex items-center gap-2"
+            disabled={loading}
+            className={`px-5 py-3 rounded-xl text-white flex items-center gap-2 ${
+              loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+            }`}
           >
-            <FiSave /> Save Currency
+            <FiSave /> {loading ? "Saving..." : "Save Currency"}
           </button>
         </div>
       </form>

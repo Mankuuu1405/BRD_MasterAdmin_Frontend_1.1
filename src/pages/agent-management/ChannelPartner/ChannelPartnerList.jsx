@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import {
   FiPlus,
@@ -8,33 +8,32 @@ import {
   FiEye,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { agentManagementService } from "../../../services/agentManagementService";
 
 const ChannelPartnerList = () => {
   const navigate = useNavigate();
 
-  const [agents, setAgents] = useState([
-    {
-      id: 1,
-      name: "Rahul Sharma",
-      type: "DSA",
-      category: "Freelance",
-      status: "Active",
-    },
-    {
-      id: 2,
-      name: "Amit Verma",
-      type: "Broker",
-      category: "Agency",
-      status: "Inactive",
-    },
-  ]);
+  const [agents, setAgents] = useState([]);
+
+  useEffect(()=>{
+    fetchChannelPartners();
+  },[])
+
+  const fetchChannelPartners = async ()=>{
+    try {
+      const res = await agentManagementService.getChannelPartners();
+      setAgents(res)
+    } catch (error) {
+      console.error("Failed to fetch channel partners", error);
+    }
+  }
 
   const [search, setSearch] = useState("");
 
   const filteredAgents = agents.filter(
     (a) =>
-      a.name.toLowerCase().includes(search.toLowerCase()) ||
-      a.type.toLowerCase().includes(search.toLowerCase())
+      a.agent_name.toLowerCase().includes(search.toLowerCase()) ||
+      a.agent_type.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleDelete = (id) => {
@@ -90,13 +89,13 @@ const ChannelPartnerList = () => {
             className="bg-white rounded-2xl px-5 py-4 shadow-sm grid grid-cols-2 md:grid-cols-5 gap-y-2 items-center text-sm"
           >
             {/* Name */}
-            <div className="font-medium text-gray-900">{a.name}</div>
+            <div className="font-medium text-gray-900">{a.agent_name}</div>
 
             {/* Type */}
-            <div className="text-gray-600">{a.type}</div>
+            <div className="text-gray-600">{a.agent_type}</div>
 
             {/* Category */}
-            <div className="text-gray-600">{a.category}</div>
+            <div className="text-gray-600">{a.agent_category}</div>
 
             {/* Status */}
             <span

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../../layout/MainLayout";
 import {
   FiPlus,
@@ -8,38 +8,76 @@ import {
   FiSearch,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import concessionManagementService from "../../services/concessionManagementService";
 
 export default function ConcessionList() {
   const navigate = useNavigate();
+
+  const [activeTab, setActiveTab] = useState("TYPE");
   const [search, setSearch] = useState("");
 
-  const [concessions, setConcessions] = useState([
-    {
-      id: 1,
-      type_name: "Interest Rate",
-      category_name: "Senior Citizen",
-      applicable_on: "Sanction",
-      status: "Active",
-    },
-    {
-      id: 2,
-      type_name: "Processing Fee",
-      category_name: "Startup Offer",
-      applicable_on: "Disbursement",
-      status: "Inactive",
-    },
-  ]);
+  const [types, setTypes] = useState([]);
+  const [categories, setCategories] = useState([]);
 
-  const filtered = concessions.filter(
-    (c) =>
-      c.type_name.toLowerCase().includes(search.toLowerCase()) ||
-      c.category_name.toLowerCase().includes(search.toLowerCase())
+  /* =======================
+     FETCH ON TAB CHANGE
+     ======================= */
+  useEffect(() => {
+    if (activeTab === "TYPE") {
+      fetchTypes();
+    } else {
+      fetchCategories();
+    }
+  }, [activeTab]);
+
+  const fetchTypes = async () => {
+    try {
+      const res = await concessionManagementService.getAllTypes();
+      setTypes(res);
+    } catch (error) {
+      console.error("Failed to load concession types", error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const res = await concessionManagementService.getAllCategories();
+      setCategories(res);
+    } catch (error) {
+      console.error("Failed to load concession categories", error);
+    }
+  };
+
+  /* =======================
+     FILTERING
+     ======================= */
+  const filteredTypes = types.filter((t) =>
+    t.concession_type_name?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleDelete = (id) => {
-    if (!window.confirm("Delete this concession?")) return;
-    setConcessions((prev) => prev.filter((c) => c.id !== id));
-  };
+  const filteredCategories = categories.filter((c) =>
+    c.category_name?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleDelete = async (uuid) => {
+  if (!window.confirm("Deactivate this record?")) return;
+
+  try {
+    if (activeTab === "TYPE") {
+      // Call API to delete type
+      await concessionManagementService.deleteType(uuid);
+      setTypes((prev) => prev.filter((t) => t.uuid !== uuid));
+    } else {
+      // Call API to delete category
+      await concessionManagementService.deleteCategory(uuid);
+      setCategories((prev) => prev.filter((c) => c.uuid !== uuid));
+    }
+  } catch (err) {
+    console.error("Failed to delete:", err.response?.data || err);
+    alert("Failed to delete. Please try again.");
+  }
+};
+
 
   return (
     <MainLayout>
@@ -68,76 +106,165 @@ export default function ConcessionList() {
         </div>
       </div>
 
+      {/* TABS */}
+      <div className="flex gap-4 mb-4">
+        <TabButton
+          active={activeTab === "TYPE"}
+          onClick={() => setActiveTab("TYPE")}
+        >
+          Concession Types
+        </TabButton>
+        <TabButton
+          active={activeTab === "CATEGORY"}
+          onClick={() => setActiveTab("CATEGORY")}
+        >
+          Concession Categories
+        </TabButton>
+      </div>
+
       {/* SEARCH */}
       <div className="bg-white rounded-2xl p-4 mb-6 flex items-center gap-3 shadow-sm">
         <FiSearch className="text-gray-400" />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by type or category..."
+          placeholder={
+            activeTab === "TYPE"
+              ? "Search by concession type..."
+              : "Search by category..."
+          }
           className="w-full outline-none text-sm"
         />
       </div>
 
-      {/* TABLE */}
-      <div className="space-y-3">
-        <div className="hidden md:grid grid-cols-5 bg-gray-100 rounded-xl px-5 py-3 text-xs font-semibold text-gray-600">
-          <div>Concession Type</div>
-          <div>Category</div>
-          <div>Applicable On</div>
-          <div>Status</div>
-          <div className="text-right">Actions</div>
+      {/* =======================
+          TABLE : TYPES
+         ======================= */}
+      {activeTab === "TYPE" && (
+        <div className="space-y-3">
+          <TableHeader headers={["Type Name", "Applicable On", "Status", "Actions"]} />
+
+          {filteredTypes.map((t) => (
+            <TableRow key={t.uuid}>
+              <div className="font-medium">{t.concession_type_name}</div>
+              <div>{t.applicable_on}</div>
+              <StatusBadge status={t.status} />
+              <ActionButtons
+                onView={() =>
+                  navigate(`/concession-management/type/view/${t.uuid}`)
+                }
+                onEdit={() =>
+                  navigate(`/concession-management/type/edit/${t.uuid}`)
+                }
+                onDelete={() => handleDelete(t.uuid)}
+              />
+            </TableRow>
+          ))}
         </div>
+      )}
 
-        {filtered.map((c) => (
-          <div
-            key={c.id}
-            className="bg-white rounded-2xl px-5 py-4 shadow-sm grid grid-cols-2 md:grid-cols-5 gap-y-2 items-center text-sm"
-          >
-            <div className="font-medium">{c.type_name}</div>
-            <div>{c.category_name}</div>
-            <div>{c.applicable_on}</div>
+      {/* =======================
+          TABLE : CATEGORIES
+         ======================= */}
+      {activeTab === "CATEGORY" && (
+        <div className="space-y-3">
+          <TableHeader
+            headers={[
+              "Category Name",
+              "Concession Type",
+              "Product",
+              "Validity",
+              "Status",
+              "Actions",
+            ]}
+          />
 
-            <span
-              className={`px-3 py-1 text-xs rounded-full justify-self-start ${
-                c.status === "Active"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-600"
-              }`}
-            >
-              {c.status}
-            </span>
-
-            <div className="flex justify-end gap-2 col-span-2 md:col-span-1">
-              <IconButton
-                color="gray"
-                onClick={() =>
-                  navigate(`/concession-management/view/${c.id}`)
+          {filteredCategories.map((c) => (
+            <TableRow key={c.uuid} cols={6}>
+              <div className="font-medium">{c.category_name}</div>
+              <div>{c.concession_type_name}</div>
+              <div>{c.product_type}</div>
+              <div className="text-xs">
+                {c.valid_from} → {c.valid_to}
+              </div>
+              <StatusBadge status={c.status} />
+              <ActionButtons
+                onView={() =>
+                  navigate(`/concession-management/category/view/${c.uuid}`)
                 }
-              >
-                <FiEye />
-              </IconButton>
-              <IconButton
-                color="blue"
-                onClick={() =>
-                  navigate(`/concession-management/category/edit/${c.id}`)
+                onEdit={() =>
+                  navigate(`/concession-management/category/edit/${c.uuid}`)
                 }
-              >
-                <FiEdit3 />
-              </IconButton>
-              <IconButton
-                color="red"
-                onClick={() => handleDelete(c.id)}
-              >
-                <FiTrash2 />
-              </IconButton>
-            </div>
-          </div>
-        ))}
-      </div>
+                onDelete={() => handleDelete(c.uuid)}
+              />
+            </TableRow>
+          ))}
+        </div>
+      )}
     </MainLayout>
   );
 }
+
+/* ---------- REUSABLE COMPONENTS ---------- */
+
+const TabButton = ({ active, children, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`px-4 py-2 rounded-xl text-sm font-medium ${
+      active
+        ? "bg-blue-600 text-white"
+        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+    }`}
+  >
+    {children}
+  </button>
+);
+
+const TableHeader = ({ headers }) => (
+  <div
+    className="hidden md:grid bg-gray-100 rounded-xl px-5 py-3 text-xs font-semibold text-gray-600"
+    style={{ gridTemplateColumns: `repeat(${headers.length}, minmax(0,1fr))` }}
+  >
+    {headers.map((h) => (
+      <div key={h}>{h}</div>
+    ))}
+  </div>
+);
+
+const TableRow = ({ children, cols = 4 }) => (
+  <div
+    className="bg-white rounded-2xl px-5 py-4 shadow-sm grid gap-y-2 items-center text-sm"
+    style={{ gridTemplateColumns: `repeat(${cols}, minmax(0,1fr))` }}
+  >
+    {children}
+  </div>
+);
+
+const StatusBadge = ({ status }) => (
+  <span
+    className={`px-3 py-1 text-xs rounded-full ${
+      status === "Active"
+        ? "bg-green-100 text-green-700"
+        : "bg-red-100 text-red-600"
+    }`}
+  >
+    {status}
+  </span>
+);
+
+const ActionButtons = ({ onView, onEdit, onDelete }) => (
+  <div className="flex justify-end gap-2">
+    <IconButton color="gray" onClick={onView}>
+      <FiEye />
+    </IconButton>
+    <IconButton color="blue" onClick={onEdit}>
+      <FiEdit3 />
+    </IconButton>
+    <IconButton color="red" onClick={onDelete}>
+      <FiTrash2 />
+    </IconButton>
+  </div>
+);
 
 const IconButton = ({ children, onClick, color }) => (
   <button

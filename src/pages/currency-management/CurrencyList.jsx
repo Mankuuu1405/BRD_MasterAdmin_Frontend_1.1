@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../../layout/MainLayout";
 import {
   FiPlus,
@@ -8,26 +8,25 @@ import {
   FiEye,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import currencyManagementService from "../../services/currencyManagementService"
 
 export default function CurrencyList() {
   const navigate = useNavigate();
 
-  const [currencies, setCurrencies] = useState([
-    {
-      id: 1,
-      currency_code: "INR",
-      currency_symbol: "₹",
-      conversion_value_to_inr: 1,
-      status: "Active",
-    },
-    {
-      id: 2,
-      currency_code: "USD",
-      currency_symbol: "$",
-      conversion_value_to_inr: 83.25,
-      status: "Active",
-    },
-  ]);
+  const [currencies, setCurrencies] = useState([]);
+
+  useEffect(()=>{
+    fetchCurrencies()
+  },[])
+
+  const fetchCurrencies = async ()=>{
+    try {
+      const res = await currencyManagementService.getAll();
+      setCurrencies(res)
+    } catch (error) {
+      console.log("Failed to fetch currencies",error)
+    }
+  }
 
   const [search, setSearch] = useState("");
 
@@ -37,9 +36,9 @@ export default function CurrencyList() {
       c.currency_symbol.includes(search)
   );
 
-  const handleDelete = (id) => {
+  const handleDelete = (uuid) => {
     if (!window.confirm("Delete this currency?")) return;
-    setCurrencies((prev) => prev.filter((c) => c.id !== id));
+    setCurrencies((prev) => prev.filter((c) => c.uuid !== uuid));
   };
 
   return (
@@ -75,7 +74,7 @@ export default function CurrencyList() {
       {/* TABLE */}
       <div className="space-y-3">
         {/* HEADER */}
-        <div className="hidden md:grid grid-cols-5 bg-gray-100 rounded-xl px-5 py-3 text-xs font-semibold text-gray-600">
+        <div className="huuidden md:grid grid-cols-5 bg-gray-100 rounded-xl px-5 py-3 text-xs font-semibold text-gray-600">
           <div>Code</div>
           <div>Symbol</div>
           <div>Conversion (to INR)</div>
@@ -86,7 +85,7 @@ export default function CurrencyList() {
         {/* ROWS */}
         {filtered.map((c) => (
           <div
-            key={c.id}
+            key={c.uuid}
             className="bg-white rounded-2xl px-5 py-4 shadow-sm grid grid-cols-2 md:grid-cols-5 gap-y-2 items-center text-sm"
           >
             <div className="font-medium">{c.currency_code}</div>
@@ -107,7 +106,7 @@ export default function CurrencyList() {
               <IconButton
                 color="gray"
                 onClick={() =>
-                  navigate(`/currency-management/view/${c.id}`)
+                  navigate(`/currency-management/view/${c.uuid}`)
                 }
               >
                 <FiEye />
@@ -115,14 +114,14 @@ export default function CurrencyList() {
               <IconButton
                 color="blue"
                 onClick={() =>
-                  navigate(`/currency-management/edit/${c.id}`)
+                  navigate(`/currency-management/edit/${c.uuid}`)
                 }
               >
                 <FiEdit3 />
               </IconButton>
               <IconButton
                 color="red"
-                onClick={() => handleDelete(c.id)}
+                onClick={() => handleDelete(c.uuid)}
               >
                 <FiTrash2 />
               </IconButton>
