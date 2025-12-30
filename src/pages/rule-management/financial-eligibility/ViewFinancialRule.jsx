@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiEdit3 } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
+import { ruleManagementService } from "../../../services/ruleManagementService";
 
 export default function ViewFinancialRule() {
   const navigate = useNavigate();
@@ -9,16 +10,11 @@ export default function ViewFinancialRule() {
   const [rule, setRule] = useState(null);
 
   useEffect(() => {
-    const mock = {
-      income_type: "Salaried",
-      min_income: 25000,
-      max_emi_ratio: 50,
-      min_bank_balance: 10000,
-      max_existing_obligation: 5000,
-      status: "Active",
-      remarks: "Default salaried profile",
-    };
-    setRule(mock);
+    (async () => {
+    const data = await ruleManagementService.getFinancialRuleById(id);
+setRule(data);
+
+    })();
   }, [id]);
 
   if (!rule) return null;
@@ -43,16 +39,20 @@ export default function ViewFinancialRule() {
 
       <div className="bg-white rounded-2xl shadow-md p-8 max-w-4xl space-y-6">
         <Info label="Income Type" value={rule.income_type} />
-        <Info label="Minimum Income" value={`₹${rule.min_income}`} />
+        <Info label="Minimum Monthly Income" value={`₹${rule.min_monthly_income}`} />
         <Info label="Max EMI Ratio (%)" value={rule.max_emi_ratio} />
         <Info label="Min Bank Balance" value={`₹${rule.min_bank_balance}`} />
         <Info label="Max Existing Obligation" value={`₹${rule.max_existing_obligation}`} />
-        <Info label="Remarks" value={rule.remarks} />
+        <Info label="Remarks" value={rule.remarks || "-"} />
 
         <div>
           <label className="text-sm font-medium">Status</label>
           <div className="mt-2">
-            <span className={`px-3 py-1 text-xs rounded-full ${rule.status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+            <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium ${
+              rule.status === "Active"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-600"
+            }`}>
               {rule.status}
             </span>
           </div>

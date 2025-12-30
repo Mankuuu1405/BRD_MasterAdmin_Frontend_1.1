@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
+import { ruleManagementService } from "../../../services/ruleManagementService";
 
 const COLLATERAL_TYPES = ["Property", "Vehicle", "Gold", "FD", "Insurance"];
 const OWNERSHIP_TYPES = ["Self", "Family", "Company"];
@@ -19,33 +20,42 @@ export default function EditCollateralRule() {
     max_value: "",
     ltv: "",
     risk: "",
-    remarks: "",
     status: "Active",
   });
 
   useEffect(() => {
-    // Mock API load
-    const mock = {
-      collateral_type: "Property",
-      ownership: "Self",
-      min_value: 500000,
-      max_value: 5000000,
-      ltv: 70,
-      risk: "Low",
-      remarks: "Prime residential property",
-      status: "Active",
-    };
-    setForm(mock);
+    (async () => {
+      const data = await ruleManagementService.getCollateralRuleById(id);
+      setForm({
+        collateral_type: data.collateral_type,
+        ownership: data.ownership,
+        min_value: data.min_market_value,
+        max_value: data.max_market_value,
+        ltv: data.allowed_ltv,
+        risk: data.risk_level,
+        status: data.status,
+      });
+    })();
   }, [id]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((p) => ({ ...p, [name]: value }));
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Updated Collateral Rule:", id, form);
+
+    const payload = {
+      collateral_type: form.collateral_type,
+      ownership: form.ownership,
+      min_market_value: form.min_value,
+      max_market_value: form.max_value,
+      allowed_ltv: form.ltv,
+      risk_level: form.risk,
+      status: form.status,
+    };
+
+    await ruleManagementService.updateCollateralRule(id, payload);
     navigate("/rule-management/collateral-quality");
   };
 
@@ -62,11 +72,10 @@ export default function EditCollateralRule() {
         <Select label="Collateral Type" name="collateral_type" value={form.collateral_type} onChange={handleChange} options={COLLATERAL_TYPES} required />
         <Select label="Ownership" name="ownership" value={form.ownership} onChange={handleChange} options={OWNERSHIP_TYPES} required />
         <Input label="Minimum Market Value" name="min_value" type="number" value={form.min_value} onChange={handleChange} required />
-        <Input label="Maximum Market Value" name="max_value" type="number" value={form.max_value} onChange={handleChange} />
+        <Input label="Maximum Market Value" name="max_value" type="number" value={form.max_value} onChange={handleChange} required />
         <Input label="Allowed LTV (%)" name="ltv" value={form.ltv} onChange={handleChange} required />
         <Select label="Risk Level" name="risk" value={form.risk} onChange={handleChange} options={RISK_LEVELS} required />
-        <Select label="Status" name="status" value={form.status} onChange={handleChange} options={STATUS} />
-        <Textarea label="Remarks" name="remarks" value={form.remarks} onChange={handleChange} className="md:col-span-2" />
+        <Select label="Status" name="status" value={form.status} onChange={handleChange} options={STATUS} required />
 
         <div className="md:col-span-2 flex justify-end">
           <button className="px-5 py-3 bg-indigo-600 text-white rounded-xl flex items-center gap-2">
@@ -77,8 +86,6 @@ export default function EditCollateralRule() {
     </MainLayout>
   );
 }
-
-/* UI helpers */
 
 const Input = ({ label, ...props }) => (
   <div>
@@ -91,17 +98,8 @@ const Select = ({ label, options, ...props }) => (
   <div>
     <label className="text-sm font-medium">{label}</label>
     <select {...props} className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm">
-      <option value="">Select</option>
-      {options.map((o) => (
-        <option key={o} value={o}>{o}</option>
-      ))}
+      <option value="" disabled>Select</option>
+      {options.map(o => <option key={o} value={o}>{o}</option>)}
     </select>
-  </div>
-);
-
-const Textarea = ({ label, ...props }) => (
-  <div>
-    <label className="text-sm font-medium">{label}</label>
-    <textarea {...props} className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm" />
   </div>
 );

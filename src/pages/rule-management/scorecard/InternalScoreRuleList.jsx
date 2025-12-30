@@ -1,16 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiPlus, FiEdit3, FiTrash2, FiSearch, FiEye } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { ruleManagementService } from "../../../services/ruleManagementService";
+import DeleteConfirmButton from "../../../components/DeleteConfirmButton";
 
 export default function InternalScoreRuleList() {
   const navigate = useNavigate();
+  const [rules, setRules] = useState([]);
   const [search, setSearch] = useState("");
+  const [deleteId, setDeleteId] = useState(null);
 
-  const [rules, setRules] = useState([
-    { id:1, parameter:"Bank Balance", min:10000, weight:20, risk:"Low", status:"Active" },
-    { id:2, parameter:"Employment Stability", min:12, weight:25, risk:"Medium", status:"Active" },
-  ]);
+  useEffect(() => { load(); }, []);
+
+  const load = async () => {
+    const data = await ruleManagementService.getInternalScoreRules();
+    setRules(data || []);
+  };
 
   const filtered = rules.filter(r =>
     r.parameter.toLowerCase().includes(search.toLowerCase())
@@ -28,7 +34,7 @@ export default function InternalScoreRuleList() {
           onClick={() => navigate("/rule-management/scorecard/internal/add")}
           className="px-4 py-2 bg-indigo-600 text-white rounded-xl flex items-center gap-2"
         >
-          <FiPlus/> Add Rule
+          <FiPlus /> Add Rule
         </button>
       </div>
 
@@ -53,21 +59,39 @@ export default function InternalScoreRuleList() {
         </div>
 
         {filtered.map(r=>(
-          <div key={r.id} className="bg-white rounded-2xl px-5 py-4 shadow-sm grid grid-cols-2 md:grid-cols-6 gap-y-2 text-sm items-center">
+          <div key={r.id} className="bg-white rounded-2xl px-5 py-4 shadow-sm grid grid-cols-2 md:grid-cols-6 items-center text-sm">
             <div className="font-medium">{r.parameter}</div>
-            <div>{r.min}</div>
+            <div>{r.min_value}</div>
             <div>{r.weight}</div>
-            <div>{r.risk}</div>
-            <span className={`px-3 py-1 text-xs rounded-full ${r.status==="Active"?"bg-green-100 text-green-700":"bg-red-100 text-red-600"}`}>{r.status}</span>
+            <div className="capitalize">{r.risk_level}</div>
+
+            <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${
+              r.status==="ACTIVE"?"bg-green-100 text-green-700":"bg-red-100 text-red-600"
+            }`}>
+              {r.status}
+            </span>
 
             <div className="flex justify-end gap-2 col-span-2 md:col-span-1">
               <IconButton color="gray" onClick={()=>navigate(`/rule-management/scorecard/internal/view/${r.id}`)}><FiEye/></IconButton>
               <IconButton color="blue" onClick={()=>navigate(`/rule-management/scorecard/internal/edit/${r.id}`)}><FiEdit3/></IconButton>
-              <IconButton color="red" onClick={()=>setRules(rules.filter(x=>x.id!==r.id))}><FiTrash2/></IconButton>
+              <IconButton color="red" onClick={()=>setDeleteId(r.id)}><FiTrash2/></IconButton>
             </div>
           </div>
         ))}
       </div>
+
+      {deleteId && (
+        <DeleteConfirmButton
+          title="Delete Rule"
+          message="Are you sure you want to delete this internal score rule?"
+          onCancel={()=>setDeleteId(null)}
+          onConfirm={async()=>{
+            await ruleManagementService.deleteInternalScoreRule(deleteId);
+            setDeleteId(null);
+            load();
+          }}
+        />
+      )}
     </MainLayout>
   );
 }

@@ -1,38 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiPlus, FiEdit3, FiTrash2, FiSearch, FiEye } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { ruleManagementService } from "../../../services/ruleManagementService";
+import DeleteConfirmButton from "../../../components/DeleteConfirmButton";
 
 export default function FinancialRuleList() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [rules, setRules] = useState([]);
+  const [deleteId, setDeleteId] = useState(null);
 
-  const [rules, setRules] = useState([
-    {
-      id: 1,
-      income_type: "Salaried",
-      min_income: 25000,
-      max_emi_ratio: "50%",
-      bank_balance: 10000,
-      status: "Active",
-    },
-    {
-      id: 2,
-      income_type: "Business",
-      min_income: 50000,
-      max_emi_ratio: "60%",
-      bank_balance: 20000,
-      status: "Active",
-    },
-  ]);
+  useEffect(() => {
+    loadRules();
+  }, []);
+
+  const loadRules = async () => {
+    const data = await ruleManagementService.getFinancialRules();
+    setRules(data || []);
+  };
 
   const filtered = rules.filter((r) =>
-    r.income_type.toLowerCase().includes(search.toLowerCase())
+    r.income_type?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleDelete = (id) => {
-    if (!window.confirm("Delete this financial eligibility rule?")) return;
-    setRules(rules.filter((r) => r.id !== id));
+  const handleDelete = async () => {
+    await ruleManagementService.deleteFinancialRule(deleteId);
+    setDeleteId(null);
+    loadRules();
   };
 
   return (
@@ -41,7 +36,7 @@ export default function FinancialRuleList() {
         <div>
           <h1 className="text-xl font-semibold">Financial Eligibility Rules</h1>
           <p className="text-sm text-gray-500">
-            Define income, cash‑flow and repayment capacity logic
+            Define income, cash-flow and repayment capacity logic
           </p>
         </div>
 
@@ -74,21 +69,15 @@ export default function FinancialRuleList() {
         </div>
 
         {filtered.map((r) => (
-          <div
-            key={r.id}
-            className="bg-white rounded-2xl px-5 py-4 shadow-sm grid grid-cols-2 md:grid-cols-6 gap-y-2 text-sm items-center"
-          >
+          <div key={r.id} className="bg-white rounded-2xl px-5 py-4 shadow-sm grid grid-cols-2 md:grid-cols-6 gap-y-2 text-sm items-center">
             <div className="font-medium">{r.income_type}</div>
-            <div>₹{r.min_income}</div>
-            <div>{r.max_emi_ratio}</div>
-            <div>₹{r.bank_balance}</div>
-            <span
-              className={`px-3 py-1 text-xs rounded-full w-fit ${
-                r.status === "Active"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-600"
-              }`}
-            >
+            <div>₹{r.min_monthly_income}</div>
+            <div>{r.max_emi_ratio}%</div>
+            <div>₹{r.min_bank_balance}</div>
+
+            <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium ${
+              r.status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
+            }`}>
               {r.status}
             </span>
 
@@ -99,13 +88,22 @@ export default function FinancialRuleList() {
               <IconButton color="blue" onClick={() => navigate(`/rule-management/financial-eligibility/edit/${r.id}`)}>
                 <FiEdit3 />
               </IconButton>
-              <IconButton color="red" onClick={() => handleDelete(r.id)}>
+              <IconButton color="red" onClick={() => setDeleteId(r.id)}>
                 <FiTrash2 />
               </IconButton>
             </div>
           </div>
         ))}
       </div>
+
+      {deleteId && (
+        <DeleteConfirmButton
+          title="Delete Rule"
+          message="Are you sure you want to delete this financial rule?"
+          onCancel={() => setDeleteId(null)}
+          onConfirm={handleDelete}
+        />
+      )}
     </MainLayout>
   );
 }

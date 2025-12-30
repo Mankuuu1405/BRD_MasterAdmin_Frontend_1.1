@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiEdit3 } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
+import { ruleManagementService } from "../../../services/ruleManagementService";
 
 export default function ViewCollateralRule() {
   const navigate = useNavigate();
@@ -9,18 +10,10 @@ export default function ViewCollateralRule() {
   const [rule, setRule] = useState(null);
 
   useEffect(() => {
-    const mock = {
-      collateral_type: "Property",
-      ownership: "Self",
-      min_value: 500000,
-      max_value: 5000000,
-      ltv: 70,
-      risk: "Low",
-      remarks: "Prime residential property",
-      status: "Active",
-      created_at: "25 Dec 2025",
-    };
-    setRule(mock);
+    (async () => {
+      const data = await ruleManagementService.getCollateralRuleById(id);
+      setRule(data);
+    })();
   }, [id]);
 
   if (!rule) return null;
@@ -46,16 +39,24 @@ export default function ViewCollateralRule() {
       <div className="bg-white rounded-2xl shadow-md p-8 max-w-4xl space-y-6">
         <Info label="Collateral Type" value={rule.collateral_type} />
         <Info label="Ownership" value={rule.ownership} />
-        <Info label="Minimum Value" value={`₹${rule.min_value}`} />
-        <Info label="Maximum Value" value={`₹${rule.max_value}`} />
-        <Info label="Allowed LTV (%)" value={rule.ltv} />
-        <Info label="Risk Level" value={rule.risk} />
-        <Info label="Remarks" value={rule.remarks} />
+        <Info label="Minimum Value" value={`₹${rule.min_market_value}`} />
+        <Info label="Maximum Value" value={`₹${rule.max_market_value}`} />
+        <Info label="Allowed LTV (%)" value={`${rule.allowed_ltv}%`} />
+        <Info label="Risk Level" value={rule.risk_level} />
+
+        <Info label="Created At" value={formatDate(rule.created_at)} />
+        <Info label="Updated At" value={formatDate(rule.updated_at)} />
+        <Info label="Created By" value={`${rule.created_by_name} (${rule.created_by_role})`} />
+        <Info label="Updated By" value={`${rule.updated_by_name} (${rule.updated_by_role})`} />
 
         <div>
           <label className="text-sm font-medium">Status</label>
           <div className="mt-2">
-            <span className={`px-3 py-1 text-xs rounded-full ${rule.status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+            <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium ${
+              rule.status === "Active"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-600"
+            }`}>
               {rule.status}
             </span>
           </div>
@@ -65,9 +66,14 @@ export default function ViewCollateralRule() {
   );
 }
 
+const formatDate = (d) => {
+  if (!d) return "-";
+  return new Date(d).toLocaleString();
+};
+
 const Info = ({ label, value }) => (
   <div>
     <label className="text-sm font-medium text-gray-600">{label}</label>
-    <p className="mt-1 text-sm text-gray-900">{value}</p>
+    <p className="mt-1 text-sm text-gray-900">{value || "-"}</p>
   </div>
 );
