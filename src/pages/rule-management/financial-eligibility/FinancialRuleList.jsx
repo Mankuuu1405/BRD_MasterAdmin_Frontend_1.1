@@ -75,11 +75,14 @@ export default function FinancialRuleList() {
             <div>{r.max_emi_ratio}%</div>
             <div>₹{r.min_bank_balance}</div>
 
-            <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium ${
-              r.status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
-            }`}>
-              {r.status}
-            </span>
+        <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium ${
+  r.status?.toUpperCase() === "ACTIVE"
+    ? "bg-green-100 text-green-700"
+    : "bg-red-100 text-red-600"
+}`}>
+  {r.status}
+</span>
+
 
             <div className="flex justify-end gap-2 col-span-2 md:col-span-1">
               <IconButton color="gray" onClick={() => navigate(`/rule-management/financial-eligibility/view/${r.id}`)}>

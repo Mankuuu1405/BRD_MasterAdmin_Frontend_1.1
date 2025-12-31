@@ -2,19 +2,37 @@ import React,{useEffect,useState} from "react";
 import MainLayout from "../../../layout/MainLayout";
 import {FiArrowLeft,FiSave} from "react-icons/fi";
 import {useNavigate,useParams} from "react-router-dom";
+import { ruleManagementService } from "../../../services/ruleManagementService";
 
-const RISK=["Low","Medium","High"];
-const STATUS=["Active","Inactive"];
+const RISK=["low","medium","high"];
+const STATUS=["ACTIVE","INACTIVE"];
 
 export default function EditGeoLocationRule(){
   const navigate=useNavigate();
   const {id}=useParams();
   const [form,setForm]=useState({
-    state:"",city:"",pincode:"",risk:"",weight:"",status:"Active",remarks:""
+    state:"",
+    city:"",
+    pincode:"",
+    risk_level:"",
+    weight:"",
+    status:"ACTIVE",
+    remarks:""
   });
 
   useEffect(()=>{
-    setForm({state:"Maharashtra",city:"Mumbai",pincode:"400001",risk:"Low",weight:20,status:"Active",remarks:"Prime zone"});
+    (async()=>{
+      const res = await ruleManagementService.getGeoLocationRule(id);
+      setForm({
+        state: res.state,
+        city: res.city,
+        pincode: res.pincode,
+        risk_level: res.risk_level,
+        weight: res.weight,
+        status: res.status,
+        remarks: res.remarks || ""
+      });
+    })();
   },[id]);
 
   const handleChange=e=>{
@@ -22,9 +40,19 @@ export default function EditGeoLocationRule(){
     setForm(p=>({...p,[name]:value}));
   };
 
-  const handleSubmit=e=>{
+  const handleSubmit=async e=>{
     e.preventDefault();
-    console.log("Updated Geo Rule:",id,form);
+
+    await ruleManagementService.updateGeoLocationRule(id,{
+      state: String(form.state),
+      city: String(form.city),
+      pincode: Number(form.pincode),
+      risk_level: String(form.risk_level),
+      weight: Number(form.weight),
+      status: String(form.status),
+      remarks: String(form.remarks || "")
+    });
+
     navigate("/rule-management/scorecard/geo");
   };
 
@@ -37,13 +65,22 @@ export default function EditGeoLocationRule(){
 
       <form onSubmit={handleSubmit}
         className="bg-white p-8 rounded-2xl shadow-md max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6">
+
         <Input label="State" name="state" value={form.state} onChange={handleChange} required/>
         <Input label="City" name="city" value={form.city} onChange={handleChange} required/>
-        <Input label="Pincode" name="pincode" value={form.pincode} onChange={handleChange} required/>
-        <Select label="Risk Level" name="risk" value={form.risk} onChange={handleChange} options={RISK} required/>
-        <Input label="Weight (%)" name="weight" value={form.weight} onChange={handleChange} required/>
-        <Select label="Status" name="status" value={form.status} onChange={handleChange} options={STATUS}/>
-        <Textarea label="Remarks" name="remarks" value={form.remarks} onChange={handleChange} className="md:col-span-2"/>
+        <Input label="Pincode" name="pincode" type="number" value={form.pincode} onChange={handleChange} required/>
+
+        <Select label="Risk Level" name="risk_level" value={form.risk_level}
+          onChange={handleChange} options={RISK} required/>
+
+        <Input label="Weight (%)" name="weight" type="number" value={form.weight} onChange={handleChange} required/>
+
+        <Select label="Status" name="status" value={form.status}
+          onChange={handleChange} options={STATUS}/>
+
+        <Textarea label="Remarks" name="remarks" value={form.remarks} onChange={handleChange}
+          className="md:col-span-2"/>
+
         <div className="md:col-span-2 flex justify-end">
           <button className="px-5 py-3 bg-indigo-600 text-white rounded-xl flex items-center gap-2">
             <FiSave/> Update Rule
@@ -54,16 +91,21 @@ export default function EditGeoLocationRule(){
   );
 }
 
+/* UI Components */
 const Input=({label,...props})=>(
   <div><label className="text-sm font-medium">{label}</label>
     <input {...props} className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm"/></div>
 );
+
 const Select=({label,options,...props})=>(
   <div><label className="text-sm font-medium">{label}</label>
     <select {...props} className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm">
-      <option value="">Select</option>{options.map(o=><option key={o}>{o}</option>)}
-    </select></div>
+      <option value="">Select</option>
+      {options.map(o=><option key={o} value={o}>{o}</option>)}
+    </select>
+  </div>
 );
+
 const Textarea=({label,...props})=>(
   <div><label className="text-sm font-medium">{label}</label>
     <textarea {...props} className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm"/></div>

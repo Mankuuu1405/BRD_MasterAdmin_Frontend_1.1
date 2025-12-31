@@ -18,9 +18,10 @@ export default function InternalScoreRuleList() {
     setRules(data || []);
   };
 
-  const filtered = rules.filter(r =>
-    r.parameter.toLowerCase().includes(search.toLowerCase())
-  );
+const filtered = rules.filter(r =>
+  (r.parameter || "").toLowerCase().includes(search.toLowerCase())
+);
+
 
   return (
     <MainLayout>

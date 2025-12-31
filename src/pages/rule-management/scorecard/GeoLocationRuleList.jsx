@@ -1,19 +1,26 @@
-import React,{useState} from "react";
+import React,{useEffect,useState} from "react";
 import MainLayout from "../../../layout/MainLayout";
 import {FiPlus,FiEdit3,FiTrash2,FiSearch,FiEye} from "react-icons/fi";
 import {useNavigate} from "react-router-dom";
+import { ruleManagementService } from "../../../services/ruleManagementService";
+import DeleteConfirmButton from "../../../components/DeleteConfirmButton";
 
 export default function GeoLocationRuleList(){
   const navigate=useNavigate();
   const [search,setSearch]=useState("");
-  const [rules,setRules]=useState([
-    {id:1,state:"Maharashtra",city:"Mumbai",pincode:"400001",risk:"Low",weight:20,status:"Active"},
-    {id:2,state:"Bihar",city:"Patna",pincode:"800001",risk:"High",weight:40,status:"Active"},
-  ]);
+  const [rules,setRules]=useState([]);
+  const [deleteId,setDeleteId]=useState(null);
 
-  const filtered=rules.filter(r=>
-    r.city.toLowerCase().includes(search.toLowerCase()) ||
-    r.state.toLowerCase().includes(search.toLowerCase())
+  useEffect(()=>{ load(); },[]);
+
+  const load = async () => {
+    const data = await ruleManagementService.getGeoLocationRules();
+    setRules(data || []);
+  };
+
+  const filtered = rules.filter(r =>
+    (r.city || "").toLowerCase().includes(search.toLowerCase()) ||
+    (r.state || "").toLowerCase().includes(search.toLowerCase())
   );
 
   return(
@@ -46,17 +53,36 @@ export default function GeoLocationRuleList(){
             <div className="font-medium">{r.state}</div>
             <div>{r.city}</div>
             <div>{r.pincode}</div>
-            <div>{r.risk}</div>
+            <div className="capitalize">{r.risk_level}</div>
             <div>{r.weight}%</div>
-            <span className={`px-3 py-1 text-xs rounded-full ${r.status==="Active"?"bg-green-100 text-green-700":"bg-red-100 text-red-600"}`}>{r.status}</span>
+
+            <span className={`px-3 py-1 text-xs rounded-full ${
+              r.status==="ACTIVE"?"bg-green-100 text-green-700":"bg-red-100 text-red-600"
+            }`}>
+              {r.status}
+            </span>
+
             <div className="flex justify-end gap-2 col-span-2 md:col-span-1">
               <IconButton color="gray" onClick={()=>navigate(`/rule-management/scorecard/geo/view/${r.id}`)}><FiEye/></IconButton>
               <IconButton color="blue" onClick={()=>navigate(`/rule-management/scorecard/geo/edit/${r.id}`)}><FiEdit3/></IconButton>
-              <IconButton color="red" onClick={()=>setRules(rules.filter(x=>x.id!==r.id))}><FiTrash2/></IconButton>
+              <IconButton color="red" onClick={()=>setDeleteId(r.id)}><FiTrash2/></IconButton>
             </div>
           </div>
         ))}
       </div>
+
+      {deleteId && (
+        <DeleteConfirmButton
+          title="Delete Rule"
+          message="Are you sure you want to delete this geo-location rule?"
+          onCancel={()=>setDeleteId(null)}
+          onConfirm={async()=>{
+            await ruleManagementService.deleteGeoLocationRule(deleteId);
+            setDeleteId(null);
+            load();
+          }}
+        />
+      )}
     </MainLayout>
   );
 }

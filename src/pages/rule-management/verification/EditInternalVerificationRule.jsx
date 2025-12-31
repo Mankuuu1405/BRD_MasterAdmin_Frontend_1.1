@@ -1,96 +1,76 @@
-import React, { useEffect, useState } from "react";
+import React,{useEffect,useState} from "react";
 import MainLayout from "../../../layout/MainLayout";
-import { FiArrowLeft, FiSave } from "react-icons/fi";
-import { useNavigate, useParams } from "react-router-dom";
+import {FiArrowLeft,FiSave} from "react-icons/fi";
+import {useNavigate,useParams} from "react-router-dom";
+import { ruleManagementService } from "../../../services/ruleManagementService";
 
-const VERIFICATION_TYPES = ["Tele Verification", "CPV", "Document Check"];
-const STATUS = ["Active", "Inactive"];
+const STATUS=["ACTIVE","INACTIVE"];
 
-export default function EditInternalVerificationRule() {
-  const navigate = useNavigate();
-  const { id } = useParams();
-
-  const [form, setForm] = useState({
-    verification_type: "",
-    criteria: "",
-    remarks: "",
-    status: "Active",
+export default function EditInternalVerificationRule(){
+  const navigate=useNavigate();
+  const {id}=useParams();
+  const [form,setForm]=useState({
+    verification_type:"",
+    criteria:"",
+    remarks:"",
+    status:"ACTIVE"
   });
 
-  useEffect(() => {
-    setForm({
-      verification_type: "Tele Verification",
-      criteria: "Applicant Contact Check",
-      remarks: "Mandatory before approval",
-      status: "Active",
-    });
-  }, [id]);
+  useEffect(()=>{
+    (async()=>{
+      const res = await ruleManagementService.getInternalVerificationRule(id);
+      setForm({
+        verification_type: res.verification_type,
+        criteria: res.criteria,
+        remarks: res.remarks || "",
+        status: res.status
+      });
+    })();
+  },[id]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((p) => ({ ...p, [name]: value }));
+  const handleChange=e=>{
+    const {name,value}=e.target;
+    setForm(p=>({...p,[name]:value}));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit=async e=>{
     e.preventDefault();
-    console.log("Updated Internal Verification Rule:", form);
+
+    await ruleManagementService.updateInternalVerificationRule(id,{
+      verification_type: String(form.verification_type),
+      criteria: String(form.criteria),
+      remarks: String(form.remarks || ""),
+      status: String(form.status)
+    });
+
     navigate("/rule-management/verification/internal");
   };
 
-  return (
+  return(
     <MainLayout>
       <div className="flex items-center gap-3 mb-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-gray-50"
-        >
-          <FiArrowLeft />
-        </button>
-        <h1 className="text-2xl font-bold">
-          Edit Internal Verification Rule
-        </h1>
+        <button onClick={()=>navigate(-1)} className="p-2 rounded-xl bg-gray-50"><FiArrowLeft/></button>
+        <h1 className="text-2xl font-bold">Edit Internal Verification Rule</h1>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow-md max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6"
-      >
-        <Select
-          label="Verification Type"
-          name="verification_type"
-          value={form.verification_type}
-          onChange={handleChange}
-          options={VERIFICATION_TYPES}
-          required
-        />
+      <form onSubmit={handleSubmit}
+        className="bg-white p-8 rounded-2xl shadow-md max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        <Select
-          label="Status"
-          name="status"
-          value={form.status}
-          onChange={handleChange}
-          options={STATUS}
-        />
+        <Input label="Verification Type" name="verification_type"
+          value={form.verification_type} onChange={handleChange} required/>
 
-        <Input
-          label="Criteria"
-          name="criteria"
-          value={form.criteria}
-          onChange={handleChange}
-          required
-        />
+        <Select label="Status" name="status"
+          value={form.status} onChange={handleChange} options={STATUS}/>
 
-        <Textarea
-          label="Remarks"
-          name="remarks"
-          value={form.remarks}
-          onChange={handleChange}
-          className="md:col-span-2"
-        />
+        <Input label="Criteria" name="criteria"
+          value={form.criteria} onChange={handleChange} required/>
+
+        <Textarea label="Remarks" name="remarks"
+          value={form.remarks} onChange={handleChange} className="md:col-span-2"/>
 
         <div className="md:col-span-2 flex justify-end">
           <button className="px-5 py-3 bg-indigo-600 text-white rounded-xl flex items-center gap-2">
-            <FiSave /> Update Rule
+            <FiSave/> Update Rule
           </button>
         </div>
       </form>
@@ -98,39 +78,20 @@ export default function EditInternalVerificationRule() {
   );
 }
 
-const Input = ({ label, ...props }) => (
-  <div>
-    <label className="text-sm font-medium">{label}</label>
-    <input
-      {...props}
-      className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm"
-    />
-  </div>
+/* UI */
+const Input=({label,...props})=>(
+  <div><label className="text-sm font-medium">{label}</label>
+    <input {...props} className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm"/></div>
 );
-
-const Select = ({ label, options, ...props }) => (
-  <div>
-    <label className="text-sm font-medium">{label}</label>
-    <select
-      {...props}
-      className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm"
-    >
+const Select=({label,options,...props})=>(
+  <div><label className="text-sm font-medium">{label}</label>
+    <select {...props} className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm">
       <option value="">Select</option>
-      {options.map((o) => (
-        <option key={o} value={o}>
-          {o}
-        </option>
-      ))}
+      {options.map(o=><option key={o} value={o}>{o}</option>)}
     </select>
   </div>
 );
-
-const Textarea = ({ label, ...props }) => (
-  <div>
-    <label className="text-sm font-medium">{label}</label>
-    <textarea
-      {...props}
-      className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm"
-    />
-  </div>
+const Textarea=({label,...props})=>(
+  <div><label className="text-sm font-medium">{label}</label>
+    <textarea {...props} className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm"/></div>
 );
