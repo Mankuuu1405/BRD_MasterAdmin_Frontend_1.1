@@ -4,46 +4,30 @@ import { FiPlus, FiEdit3, FiTrash2, FiSearch, FiEye } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { approvalMasterService } from "../../services/approvalMasterService";
 
-const ApprovalList = () => {
+export default function ApprovalList() {
   const navigate = useNavigate();
-
   const [approvals, setApprovals] = useState([]);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetchApprovals();
+    loadApprovals();
   }, []);
 
-  const fetchApprovals = async () => {
-    try {
-      const res = await approvalMasterService.getApprovalList();
-      setApprovals(res);
-    } catch (error) {
-      console.error("Failed to fetch approvals", error);
-    }
+  const loadApprovals = async () => {
+    const data = await approvalMasterService.getApprovalList();
+    setApprovals(Array.isArray(data) ? data : []);
   };
 
-  const filteredApprovals = approvals.filter(
+  const filtered = approvals.filter(
     (a) =>
       a.product_name?.toLowerCase().includes(search.toLowerCase()) ||
       a.sanction_name?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this approval configuration?")) return;
-
-    try {
-      await approvalMasterService.deleteApproval(id);
-      fetchApprovals();
-    } catch (error) {
-      console.error("Delete failed", error);
-    }
-  };
-
   return (
     <MainLayout>
       {/* HEADER */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div>
           <h1 className="text-xl font-semibold">Approval Master</h1>
           <p className="text-sm text-gray-500">
@@ -53,7 +37,7 @@ const ApprovalList = () => {
 
         <button
           onClick={() => navigate("/approvals/add")}
-          className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm flex items-center gap-2 hover:bg-blue-700 transition"
+          className="w-full sm:w-auto px-4 py-2 bg-indigo-600 text-white rounded-xl flex items-center justify-center gap-2 text-sm"
         >
           <FiPlus /> Add Approval
         </button>
@@ -65,15 +49,16 @@ const ApprovalList = () => {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by product or sanction name..."
-          className="w-full outline-none text-sm"
+          placeholder="Search product or sanction..."
+          className="w-full outline-none text-sm bg-transparent"
         />
       </div>
 
-      {/* TABLE */}
-      <div className="space-y-3">
-        {/* HEADER */}
-        <div className="hidden md:grid grid-cols-6 bg-gray-100 rounded-xl px-5 py-3 text-xs font-semibold text-gray-600">
+      {/* LIST */}
+      <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+
+        {/* DESKTOP HEADER */}
+        <div className="hidden md:grid grid-cols-6 bg-gray-100 rounded-xl px-5 py-3 text-xs font-semibold text-gray-600 sticky top-0 z-10">
           <div>Product</div>
           <div>Level</div>
           <div>Type</div>
@@ -82,51 +67,89 @@ const ApprovalList = () => {
           <div className="text-right">Actions</div>
         </div>
 
-        {/* ROWS */}
-        {filteredApprovals.map((a) => (
-          <div
-            key={a.id}
-            className="bg-white rounded-2xl px-5 py-4 shadow-sm grid grid-cols-2 md:grid-cols-6 gap-y-2 items-center text-sm"
-          >
-            <div className="font-medium text-gray-900">
-              {a.product_name}
+        {filtered.map((a) => (
+          <React.Fragment key={a.id}>
+            {/* DESKTOP ROW */}
+            <div className="hidden md:grid bg-white rounded-2xl px-5 py-4 shadow-sm grid-cols-6 items-center text-sm">
+              <div className="font-medium truncate">{a.product_name}</div>
+              <div>{a.level}</div>
+              <div>{a.type}</div>
+              <div className="truncate">
+                {a.sanction_name} ({a.approval_range})
+              </div>
+              <StatusBadge status={a.status} />
+
+              <div className="flex justify-end gap-2">
+                <IconButton
+                  color="gray"
+                  onClick={() => navigate(`/approvals/view/${a.id}`)}
+                >
+                  <FiEye />
+                </IconButton>
+                <IconButton
+                  color="blue"
+                  onClick={() => navigate(`/approvals/edit/${a.id}`)}
+                >
+                  <FiEdit3 />
+                </IconButton>
+                <IconButton
+                  color="red"
+                  onClick={() => approvalMasterService.deleteApproval(a.id)}
+                >
+                  <FiTrash2 />
+                </IconButton>
+              </div>
             </div>
 
-            <div className="text-gray-600">{a.level}</div>
+            {/* MOBILE CARD */}
+            <div className="md:hidden bg-white rounded-2xl shadow-sm divide-y">
+              <div className="flex items-center justify-between px-4 py-3">
+                <span className="font-semibold text-sm">
+                  {a.product_name}
+                </span>
 
-            <div className="text-gray-600">{a.type}</div>
+                <div className="flex items-center gap-3 text-gray-600">
+                  <FiEye onClick={() => navigate(`/approvals/view/${a.id}`)} />
+                  <FiEdit3 onClick={() => navigate(`/approvals/edit/${a.id}`)} />
+                  <FiTrash2 onClick={() => approvalMasterService.deleteApproval(a.id)} />
+                </div>
+              </div>
 
-            <div className="text-gray-600">
-              {a.sanction_name} ({a.approval_range})
+              <div className="px-4 py-3 space-y-3 text-sm">
+                <Row label="Level" value={a.level} />
+                <Row label="Type" value={a.type} />
+                <Row
+                  label="Sanction"
+                  value={`${a.sanction_name} (${a.approval_range})`}
+                />
+
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 text-xs">Status</span>
+                  <StatusBadge status={a.status} />
+                </div>
+              </div>
             </div>
-
-            <StatusBadge status={a.status} />
-
-            <div className="flex justify-end gap-2 col-span-2 md:col-span-1">
-              <IconButton variant="gray" onClick={() => navigate(`/approvals/view/${a.id}`)}>
-                <FiEye />
-              </IconButton>
-              <IconButton variant="blue" onClick={() => navigate(`/approvals/edit/${a.id}`)}>
-                <FiEdit3 />
-              </IconButton>
-              <IconButton variant="red" onClick={() => handleDelete(a.id)}>
-                <FiTrash2 />
-              </IconButton>
-            </div>
-          </div>
+          </React.Fragment>
         ))}
       </div>
     </MainLayout>
   );
-};
-
-export default ApprovalList;
+}
 
 /* ---------------- HELPERS ---------------- */
 
+const Row = ({ label, value }) => (
+  <div className="flex justify-between gap-4">
+    <span className="text-gray-400 text-xs">{label}</span>
+    <span className="font-medium text-gray-800 text-right">
+      {value || "-"}
+    </span>
+  </div>
+);
+
 const StatusBadge = ({ status }) => (
   <span
-    className={`px-3 py-1 text-xs rounded-full ${
+    className={`inline-flex items-center justify-center w-fit whitespace-nowrap px-3 py-1 text-xs rounded-full ${
       status === "ACTIVE"
         ? "bg-green-100 text-green-700"
         : "bg-red-100 text-red-600"
@@ -136,18 +159,16 @@ const StatusBadge = ({ status }) => (
   </span>
 );
 
-const IconButton = ({ children, onClick, variant }) => {
-  const styles = {
+
+const IconButton = ({ children, color, onClick }) => {
+  const map = {
     gray: "bg-gray-100 hover:bg-gray-200 text-gray-600",
     blue: "bg-blue-100 hover:bg-blue-200 text-blue-600",
     red: "bg-red-100 hover:bg-red-200 text-red-600",
   };
 
   return (
-    <button
-      onClick={onClick}
-      className={`p-2 rounded-full ${styles[variant]}`}
-    >
+    <button onClick={onClick} className={`p-2 rounded-full ${map[color]}`}>
       {children}
     </button>
   );
