@@ -11,13 +11,11 @@ export default function ClientProfileRuleList() {
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState(null);
 
-  useEffect(() => {
-    loadRules();
-  }, []);
+  useEffect(() => { loadRules(); }, []);
 
   const loadRules = async () => {
     const data = await ruleManagementService.getClientProfileRules();
-    setRules(data || []);
+    setRules(Array.isArray(data) ? data : []);
   };
 
   const filtered = rules.filter((r) =>
@@ -33,17 +31,15 @@ export default function ClientProfileRuleList() {
   return (
     <MainLayout>
       {/* HEADER */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div>
           <h1 className="text-xl font-semibold">Client Profile Rules</h1>
-          <p className="text-sm text-gray-500">
-            Define applicant profile based rules
-          </p>
+          <p className="text-sm text-gray-500">Define applicant profile based rules</p>
         </div>
 
         <button
           onClick={() => navigate("/rule-management/client-profile/add")}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-xl flex items-center gap-2"
+          className="w-full sm:w-auto px-4 py-2 bg-indigo-600 text-white rounded-xl flex items-center justify-center gap-2 text-sm"
         >
           <FiPlus /> Add Rule
         </button>
@@ -56,13 +52,15 @@ export default function ClientProfileRuleList() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search rule..."
-          className="w-full outline-none text-sm"
+          className="w-full outline-none text-sm bg-transparent"
         />
       </div>
 
-      {/* TABLE */}
-      <div className="space-y-3">
-        <div className="hidden md:grid grid-cols-6 bg-gray-100 rounded-xl px-5 py-3 text-xs font-semibold text-gray-600">
+      {/* LIST */}
+      <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+
+        {/* DESKTOP HEADER */}
+        <div className="hidden md:grid grid-cols-6 bg-gray-100 rounded-xl px-5 py-3 text-xs font-semibold text-gray-600 sticky top-0 z-10">
           <div>Rule</div>
           <div>Parameter</div>
           <div>Condition</div>
@@ -71,45 +69,55 @@ export default function ClientProfileRuleList() {
           <div className="text-right">Actions</div>
         </div>
 
-        {filtered.map((rule) => (
-          <div
-            key={rule.id}
-            className="bg-white rounded-2xl px-5 py-4 shadow-sm grid grid-cols-2 md:grid-cols-6 gap-y-2 items-center text-sm"
-          >
-            <div className="font-medium">{rule.rule_name}</div>
-            <div>{rule.parameter}</div>
-            <div>{rule.condition}</div>
-            <div>{rule.value}</div>
+        {filtered.map(rule => (
+          <React.Fragment key={rule.id}>
 
-  <span
-  className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium ring-1
-    ${
-      rule.status?.toLowerCase() === "active"
-        ? "bg-green-100 text-green-700"
-        : "bg-red-100 text-red-600"
-    }`}
->
-  {rule.status}
-</span>
+            {/* DESKTOP ROW */}
+            <div className="hidden md:grid bg-white rounded-2xl px-5 py-4 shadow-sm grid-cols-6 items-center text-sm">
+              <div className="font-medium truncate">{rule.rule_name}</div>
+              <div className="truncate">{rule.parameter}</div>
+              <div className="truncate">{rule.condition}</div>
+              <div className="truncate">{rule.value}</div>
+              <StatusBadge status={rule.status} />
 
-
-
-            <div className="flex justify-end gap-2 col-span-2 md:col-span-1">
-              <IconButton color="gray" onClick={() => navigate(`/rule-management/client-profile/view/${rule.id}`)}>
-                <FiEye />
-              </IconButton>
-              <IconButton color="blue" onClick={() => navigate(`/rule-management/client-profile/edit/${rule.id}`)}>
-                <FiEdit3 />
-              </IconButton>
-              <IconButton color="red" onClick={() => setDeleteId(rule.id)}>
-                <FiTrash2 />
-              </IconButton>
+              <div className="flex justify-end gap-2">
+                <IconButton color="gray" onClick={() => navigate(`/rule-management/client-profile/view/${rule.id}`)}><FiEye /></IconButton>
+                <IconButton color="blue" onClick={() => navigate(`/rule-management/client-profile/edit/${rule.id}`)}><FiEdit3 /></IconButton>
+                <IconButton color="red" onClick={() => setDeleteId(rule.id)}><FiTrash2 /></IconButton>
+              </div>
             </div>
-          </div>
+
+            {/* MOBILE CARD */}
+            <div className="md:hidden bg-white rounded-2xl shadow-sm divide-y">
+              <div className="flex items-center justify-between px-4 py-3">
+                <div className="flex items-center gap-3">
+                  
+                  <span className="font-semibold text-sm">{rule.rule_name}</span>
+                </div>
+
+                <div className="flex items-center gap-3 text-gray-600">
+                  <FiEye onClick={() => navigate(`/rule-management/client-profile/view/${rule.id}`)} />
+                  <FiEdit3 onClick={() => navigate(`/rule-management/client-profile/edit/${rule.id}`)} />
+                  <FiTrash2 onClick={() => setDeleteId(rule.id)} />
+                </div>
+              </div>
+
+              <div className="px-4 py-3 space-y-3 text-sm">
+                <Row label="Parameter" value={rule.parameter} />
+                <Row label="Condition" value={rule.condition} />
+                <Row label="Value" value={rule.value} />
+
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 text-xs">Status</span>
+                  <StatusBadge status={rule.status} />
+                </div>
+              </div>
+            </div>
+
+          </React.Fragment>
         ))}
       </div>
 
-      {/* DELETE CONFIRM */}
       {deleteId && (
         <DeleteConfirmButton
           title="Delete Rule"
@@ -122,11 +130,35 @@ export default function ClientProfileRuleList() {
   );
 }
 
-const IconButton = ({ children, onClick, color }) => (
-  <button
-    onClick={onClick}
-    className={`p-2 rounded-full bg-${color}-100 hover:bg-${color}-200`}
-  >
-    <span className={`text-${color}-600`}>{children}</span>
-  </button>
+/* HELPERS */
+
+const Row = ({ label, value }) => (
+  <div className="flex justify-between gap-4">
+    <span className="text-gray-400 text-xs">{label}</span>
+    <span className="font-medium text-gray-800 text-right">{value || "-"}</span>
+  </div>
 );
+
+const StatusBadge = ({ status }) => (
+  <span
+    className={`inline-flex items-center justify-center
+      px-3 py-1 text-xs font-medium
+      rounded-full w-fit whitespace-nowrap leading-none
+      ${
+        status === "ACTIVE"
+          ? "bg-green-100 text-green-700"
+          : "bg-red-100 text-red-600"
+      }`}
+  >
+    {status}
+  </span>
+);
+
+const IconButton = ({ children, color, onClick }) => {
+  const map = {
+    gray: "bg-gray-100 hover:bg-gray-200 text-gray-600",
+    blue: "bg-blue-100 hover:bg-blue-200 text-blue-600",
+    red: "bg-red-100 hover:bg-red-200 text-red-600",
+  };
+  return <button onClick={onClick} className={`p-2 rounded-full ${map[color]}`}>{children}</button>;
+};
