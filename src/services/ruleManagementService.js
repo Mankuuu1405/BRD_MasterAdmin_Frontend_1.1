@@ -210,49 +210,119 @@ async updateInternalScoreRule(id, payload) {
 async deleteInternalScoreRule(id) {
   return axiosInstance.delete(`${BASE}internal-score/${id}/`);
 },
+async getInternalScoreRule(id) {
+  const res = await axiosInstance.get(`${BASE}internal-score/${id}/`);
+  return res.data;
+},
 
-
-
-  async getScorecardRules(params = {}) {
-    const res = await axiosInstance.get(`${BASE}scorecard/`, { params });
+async getGeoLocationRules() {
+    const res = await axiosInstance.get(`${BASE}geo-location/`);
     return res.data;
   },
 
-  async createScorecardRule(payload) {
-    const res = await axiosInstance.post(`${BASE}scorecard/`, payload);
+  async getGeoLocationRule(id) {
+    const res = await axiosInstance.get(`${BASE}geo-location/${id}/`);
     return res.data;
   },
 
-  async updateScorecardRule(id, payload) {
-    const res = await axiosInstance.patch(`${BASE}scorecard/${id}/`, payload);
+  async createGeoLocationRule(payload) {
+    const res = await axiosInstance.post(`${BASE}geo-location/`, payload);
     return res.data;
   },
 
-  async deleteScorecardRule(id) {
-    return axiosInstance.delete(`${BASE}scorecard/${id}/`);
-  },
-
-
-
-  /* ---------------- VERIFICATION RULES ---------------- */
-
-  async getVerificationRules(params = {}) {
-    const res = await axiosInstance.get(`${BASE}verification/`, { params });
+  async updateGeoLocationRule(id, payload) {
+    const res = await axiosInstance.patch(`${BASE}geo-location/${id}/`, payload);
     return res.data;
   },
 
-  async createVerificationRule(payload) {
-    const res = await axiosInstance.post(`${BASE}verification/`, payload);
-    return res.data;
+  async deleteGeoLocationRule(id) {
+    return axiosInstance.delete(`${BASE}geo-location/${id}/`);
   },
 
-  async updateVerificationRule(id, payload) {
-    const res = await axiosInstance.patch(`${BASE}verification/${id}/`, payload);
-    return res.data;
-  },
+  /* ================= RISK MITIGATION RULE ================= */
 
-  async deleteVerificationRule(id) {
-    return axiosInstance.delete(`${BASE}verification/${id}/`);
-  },
+async getRiskMitigationRules() {
+  const res = await axiosInstance.get(`${BASE}risk-mitigation/`);
+  return res.data;
+},
+
+async getRiskMitigationRule(id) {
+  const res = await axiosInstance.get(`${BASE}risk-mitigation/${id}/`);
+  return res.data;
+},
+
+async createRiskMitigationRule(payload) {
+  const res = await axiosInstance.post(`${BASE}risk-mitigation/`, payload);
+  return res.data;
+},
+
+async updateRiskMitigationRule(id, payload) {
+  const res = await axiosInstance.patch(`${BASE}risk-mitigation/${id}/`, payload);
+  return res.data;
+},
+
+async deleteRiskMitigationRule(id) {
+  return axiosInstance.delete(`${BASE}risk-mitigation/${id}/`);
+},
+
+
+
+
+
+
+/* ================= INTERNAL VERIFICATION RULE ================= */
+
+async getInternalVerificationRules(params = {}) {
+  const res = await axiosInstance.get(`${BASE}internal-verification/`, { params });
+  return res.data;
+},
+
+async getInternalVerificationRule(id) {
+  const res = await axiosInstance.get(`${BASE}internal-verification/${id}/`);
+  return res.data;
+},
+
+async createInternalVerificationRule(payload) {
+  const res = await axiosInstance.post(`${BASE}internal-verification/`, payload);
+  return res.data;
+},
+
+async updateInternalVerificationRule(id, payload) {
+  const res = await axiosInstance.patch(`${BASE}internal-verification/${id}/`, payload);
+  return res.data;
+},
+
+async deleteInternalVerificationRule(id) {
+  return axiosInstance.delete(`${BASE}internal-verification/${id}/`);
+},
+
+/* ================= AGENCY VERIFICATION RULE ================= */
+
+async getAgencyVerificationRules(params = {}) {
+  const res = await axiosInstance.get(`${BASE}agency-verification/`, { params });
+  return res.data;
+},
+
+async getAgencyVerificationRuleById(id) {
+  const res = await axiosInstance.get(`${BASE}agency-verification/${id}/`);
+  return res.data;
+},
+
+async createAgencyVerificationRule(payload) {
+  const res = await axiosInstance.post(`${BASE}agency-verification/`, payload);
+  return res.data;
+},
+
+async updateAgencyVerificationRule(id, payload) {
+  const res = await axiosInstance.patch(`${BASE}agency-verification/${id}/`, payload);
+  return res.data;
+},
+
+async deleteAgencyVerificationRule(id) {
+  return axiosInstance.delete(`${BASE}agency-verification/${id}/`);
+},
+
+
 
 };
+

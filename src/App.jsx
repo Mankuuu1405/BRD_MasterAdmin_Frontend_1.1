@@ -413,6 +413,8 @@ import InternalScoreRuleList from "./pages/rule-management/scorecard/InternalSco
 import ScorecardHome from "./pages/rule-management/scorecard/ScorecardHome";
 import AddPermission from "./pages/roles/AddPermission";
 import EditSubscriber from "./pages/subscription/EditSubscriber";
+import AddInternalVerificationRule from "./pages/rule-management/verification/AddInternalVerificationRule";
+import AddAgencyVerificationRule from "./pages/rule-management/verification/AddAgencyVerificationRule";
 
 function App() {
   return (
@@ -1266,6 +1268,10 @@ function App() {
           path="/rule-management/verification/internal"
           element={<InternalVerificationRule />}
         />
+         <Route
+          path="/rule-management/verification/internal/add"
+          element={<AddInternalVerificationRule />}
+        />
         <Route
           path="/rule-management/verification/internal/edit/:id"
           element={<EditInternalVerificationRule />}
@@ -1277,6 +1283,10 @@ function App() {
         <Route
           path="/rule-management/verification/agency"
           element={<AgencyVerificationRule />}
+        />
+         <Route
+          path="/rule-management/verification/agency/add"
+          element={<AddAgencyVerificationRule />}
         />
         <Route
           path="/rule-management/verification/agency/edit/:id"

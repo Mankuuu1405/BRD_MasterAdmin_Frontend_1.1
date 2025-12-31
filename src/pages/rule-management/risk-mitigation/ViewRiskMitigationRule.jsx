@@ -2,6 +2,7 @@ import React,{useEffect,useState} from "react";
 import MainLayout from "../../../layout/MainLayout";
 import {FiArrowLeft,FiEdit3} from "react-icons/fi";
 import {useNavigate,useParams} from "react-router-dom";
+import { ruleManagementService } from "../../../services/ruleManagementService";
 
 export default function ViewRiskMitigationRule(){
   const navigate=useNavigate();
@@ -9,7 +10,10 @@ export default function ViewRiskMitigationRule(){
   const [rule,setRule]=useState(null);
 
   useEffect(()=>{
-    setRule({risk_parameter:"Low Credit Score",mitigation_action:"Guarantor Required",severity:"High",status:"Active",remarks:"Mandatory guarantor"});
+    (async()=>{
+      const res = await ruleManagementService.getRiskMitigationRule(id);
+      setRule(res);
+    })();
   },[id]);
 
   if(!rule) return null;
@@ -31,11 +35,16 @@ export default function ViewRiskMitigationRule(){
         <Info label="Risk Parameter" value={rule.risk_parameter}/>
         <Info label="Mitigation Action" value={rule.mitigation_action}/>
         <Info label="Severity" value={rule.severity}/>
-        <Info label="Remarks" value={rule.remarks}/>
+        <Info label="Remarks" value={rule.remarks || "-"}/>
+
         <div>
           <label className="text-sm font-medium">Status</label>
           <div className="mt-2">
-            <span className={`px-3 py-1 text-xs rounded-full ${rule.status==="Active"?"bg-green-100 text-green-700":"bg-red-100 text-red-600"}`}>{rule.status}</span>
+            <span className={`px-3 py-1 text-xs rounded-full ${
+              rule.status==="ACTIVE"?"bg-green-100 text-green-700":"bg-red-100 text-red-600"
+            }`}>
+              {rule.status}
+            </span>
           </div>
         </div>
       </div>
@@ -44,6 +53,8 @@ export default function ViewRiskMitigationRule(){
 }
 
 const Info=({label,value})=>(
-  <div><label className="text-sm font-medium text-gray-600">{label}</label>
-    <p className="mt-1 text-sm text-gray-900">{value}</p></div>
+  <div>
+    <label className="text-sm font-medium text-gray-600">{label}</label>
+    <p className="mt-1 text-sm text-gray-900">{value}</p>
+  </div>
 );
