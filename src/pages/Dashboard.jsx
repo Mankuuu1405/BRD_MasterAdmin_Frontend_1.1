@@ -55,10 +55,7 @@ const Dashboard = () => {
       </div>
 
       {/* ACTIVITY + ALERTS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-        <ReactiveActivity activities={activities} />
-        <AlertsPage alerts={alerts} />
-      </div>
+   
     </MainLayout>
   );
 };
