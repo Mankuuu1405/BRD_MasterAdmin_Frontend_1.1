@@ -55,7 +55,7 @@ const AddProduct = () => {
       await productManagementService.createProduct(payload);
 
       // Redirect back after successful creation
-      navigate("/product-management");
+      navigate("/product-management/list");
     } catch (error) {
       console.error("Failed to create product:", error);
       alert("Error creating product. Please try again.");

@@ -10,41 +10,47 @@ import {
 import { useNavigate } from "react-router-dom";
 import { agentManagementService } from "../../../services/agentManagementService";
 
-const ChannelPartnerList = () => {
+export default function ChannelPartnerList() {
   const navigate = useNavigate();
 
   const [agents, setAgents] = useState([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  useEffect(()=>{
-    fetchChannelPartners();
-  },[])
-
-  const fetchChannelPartners = async ()=>{
+  /* ================= FETCH ================= */
+  const fetchChannelPartners = async () => {
     try {
+      setLoading(true);
       const res = await agentManagementService.getChannelPartners();
-      setAgents(res)
+      setAgents(Array.isArray(res) ? res : []);
     } catch (error) {
       console.error("Failed to fetch channel partners", error);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-  const [search, setSearch] = useState("");
+  useEffect(() => {
+    fetchChannelPartners();
+  }, []);
 
-  const filteredAgents = agents.filter(
+  /* ================= FILTER ================= */
+  const filtered = agents.filter(
     (a) =>
-      a.agent_name.toLowerCase().includes(search.toLowerCase()) ||
-      a.agent_type.toLowerCase().includes(search.toLowerCase())
+      a.agent_name?.toLowerCase().includes(search.toLowerCase()) ||
+      a.agent_type?.toLowerCase().includes(search.toLowerCase())
   );
 
+  /* ================= DELETE ================= */
   const handleDelete = (id) => {
     if (!window.confirm("Delete this channel partner?")) return;
-    setAgents(agents.filter((a) => a.id !== id));
+    setAgents((prev) => prev.filter((a) => a.id !== id));
   };
 
   return (
     <MainLayout>
-      {/* HEADER */}
-      <div className="flex justify-between items-center mb-6">
+      {/* ================= HEADER ================= */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div>
           <h1 className="text-xl font-semibold">Channel Partners</h1>
           <p className="text-sm text-gray-500">
@@ -54,27 +60,28 @@ const ChannelPartnerList = () => {
 
         <button
           onClick={() => navigate("/channel-partners/add")}
-          className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm flex items-center gap-2 hover:bg-blue-700 transition"
+          className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-xl flex items-center justify-center gap-2 text-sm"
         >
           <FiPlus /> Add Agent
         </button>
       </div>
 
-      {/* SEARCH BAR */}
+      {/* ================= SEARCH ================= */}
       <div className="bg-white rounded-2xl p-4 mb-6 flex items-center gap-3 shadow-sm">
         <FiSearch className="text-gray-400" />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by agent name or type..."
-          className="w-full outline-none text-sm"
+          className="w-full outline-none text-sm bg-transparent"
         />
       </div>
 
-      {/* LIST */}
-      <div className="space-y-3">
-        {/* HEADER ROW */}
-        <div className="hidden md:grid grid-cols-5 bg-gray-100 rounded-xl px-5 py-3 text-xs font-semibold text-gray-600">
+      {/* ================= LIST ================= */}
+      <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+
+        {/* ===== DESKTOP HEADER ===== */}
+        <div className="hidden md:grid grid-cols-5 bg-gray-100 rounded-xl px-5 py-3 text-xs font-semibold text-gray-600 sticky top-0 z-10">
           <div>Agent Name</div>
           <div>Type</div>
           <div>Category</div>
@@ -82,81 +89,140 @@ const ChannelPartnerList = () => {
           <div className="text-right">Actions</div>
         </div>
 
-        {/* ROWS */}
-        {filteredAgents.map((a) => (
-          <div
-            key={a.id}
-            className="bg-white rounded-2xl px-5 py-4 shadow-sm grid grid-cols-2 md:grid-cols-5 gap-y-2 items-center text-sm"
-          >
-            {/* Name */}
-            <div className="font-medium text-gray-900">{a.agent_name}</div>
-
-            {/* Type */}
-            <div className="text-gray-600">{a.agent_type}</div>
-
-            {/* Category */}
-            <div className="text-gray-600">{a.agent_category}</div>
-
-            {/* Status */}
-            <span
-              className={`px-3 py-1 text-xs rounded-full justify-self-start ${
-                a.status === "Active"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-600"
-              }`}
-            >
-              {a.status}
-            </span>
-
-            {/* Actions */}
-            <div className="flex justify-end gap-2 col-span-2 md:col-span-1">
-              <IconButton
-                color="gray"
-                onClick={() =>
-                  navigate(`/channel-partners/view/${a.id}`)
-                }
-              >
-                <FiEye />
-              </IconButton>
-
-              <IconButton
-                color="blue"
-                onClick={() =>
-                  navigate(`/channel-partners/edit/${a.id}`)
-                }
-              >
-                <FiEdit3 />
-              </IconButton>
-
-              <IconButton
-                color="red"
-                onClick={() => handleDelete(a.id)}
-              >
-                <FiTrash2 />
-              </IconButton>
-            </div>
+        {loading ? (
+          <div className="text-center py-10 text-gray-500">
+            Loading channel partners...
           </div>
-        ))}
-
-        {filteredAgents.length === 0 && (
-          <div className="bg-white rounded-2xl p-6 text-center text-gray-500 shadow-sm">
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-10 text-gray-500">
             No channel partners found
           </div>
+        ) : (
+          filtered.map((a) => (
+            <React.Fragment key={a.id}>
+
+              {/* ================= DESKTOP ROW ================= */}
+              <div className="hidden md:grid bg-white rounded-2xl px-5 py-4 shadow-sm grid-cols-5 items-center text-sm">
+                <div className="font-medium truncate">{a.agent_name}</div>
+                <div className="text-gray-600">{a.agent_type}</div>
+                <div className="text-gray-600">{a.agent_category}</div>
+
+                <span
+                  className={`w-fit px-3 py-1 text-xs rounded-full ${
+                    a.status === "ACTIVE"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-600"
+                  }`}
+                >
+                  {a.status}
+                </span>
+
+                <div className="flex justify-end gap-2">
+                  <IconButton
+                    color="gray"
+                    onClick={() =>
+                      navigate(`/channel-partners/view/${a.id}`)
+                    }
+                  >
+                    <FiEye />
+                  </IconButton>
+                  <IconButton
+                    color="blue"
+                    onClick={() =>
+                      navigate(`/channel-partners/edit/${a.id}`)
+                    }
+                  >
+                    <FiEdit3 />
+                  </IconButton>
+                  <IconButton
+                    color="red"
+                    onClick={() => handleDelete(a.id)}
+                  >
+                    <FiTrash2 />
+                  </IconButton>
+                </div>
+              </div>
+
+              {/* ================= MOBILE CARD ================= */}
+              <div className="md:hidden bg-white rounded-2xl shadow-sm divide-y">
+                {/* TOP */}
+                <div className="flex items-center justify-between px-4 py-3">
+                  <span className="font-semibold text-sm">
+                    {a.agent_name}
+                  </span>
+
+                  <div className="flex gap-3 text-gray-600">
+                    <FiEye
+                      className="cursor-pointer"
+                      onClick={() =>
+                        navigate(`/channel-partners/view/${a.id}`)
+                      }
+                    />
+                    <FiEdit3
+                      className="cursor-pointer"
+                      onClick={() =>
+                        navigate(`/channel-partners/edit/${a.id}`)
+                      }
+                    />
+                    <FiTrash2
+                      className="cursor-pointer"
+                      onClick={() => handleDelete(a.id)}
+                    />
+                  </div>
+                </div>
+
+                {/* BODY */}
+                <div className="px-4 py-3 space-y-3 text-sm">
+                  <Row label="Type" value={a.agent_type} />
+                  <Row label="Category" value={a.agent_category} />
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 text-xs">Status</span>
+                    <span
+                      className={`px-3 py-1 text-xs rounded-full ${
+                        a.status === "ACTIVE"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-600"
+                      }`}
+                    >
+                      {a.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </React.Fragment>
+          ))
         )}
       </div>
     </MainLayout>
   );
-};
+}
 
-export default ChannelPartnerList;
+/* ================= HELPERS ================= */
 
-/* ---------------- HELPERS ---------------- */
-
-const IconButton = ({ children, onClick, color }) => (
-  <button
-    onClick={onClick}
-    className={`p-2 rounded-full bg-${color}-100 hover:bg-${color}-200 transition`}
-  >
-    <span className={`text-${color}-600`}>{children}</span>
-  </button>
+const Row = ({ label, value }) => (
+  <div className="flex justify-between gap-4">
+    <span className="text-gray-400 text-xs">{label}</span>
+    <span className="font-medium text-gray-800 text-right">
+      {value || "-"}
+    </span>
+  </div>
 );
+
+const IconButton = ({ children, onClick, color = "blue" }) => {
+  const styles = {
+    blue: "bg-blue-100 hover:bg-blue-200 text-blue-600",
+    red: "bg-red-100 hover:bg-red-200 text-red-600",
+    gray: "bg-gray-100 hover:bg-gray-200 text-gray-600",
+    green: "bg-green-100 hover:bg-green-200 text-green-600",
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      className={`p-2 rounded-full transition ${styles[color]}`}
+    >
+      {children}
+    </button>
+  );
+};
