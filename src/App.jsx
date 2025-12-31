@@ -413,6 +413,10 @@ import InternalScoreRuleList from "./pages/rule-management/scorecard/InternalSco
 import ScorecardHome from "./pages/rule-management/scorecard/ScorecardHome";
 import AddPermission from "./pages/roles/AddPermission";
 import EditSubscriber from "./pages/subscription/EditSubscriber";
+import ManageGeoLocation from "./pages/ControlsManagement/ManageGeoLocation/ManageGeoLocation";
+import GeoForm from "./pages/ControlsManagement/ManageGeoLocation/GeoForm";
+import GeoList from "./pages/ControlsManagement/ManageGeoLocation/GeoList";
+import GeoLocationList from "./pages/ControlsManagement/ManageGeoLocation/GeoLocationList";
 
 function App() {
   return (
@@ -911,7 +915,10 @@ function App() {
         <Route path="/controls/language/add" element={<LanguageAdd />} />
         <Route path="/controls/language/edit/:id" element={<LanguageEdit />} />
         <Route path="/controls/language/view/:id" element={<LanguageView />} />
-        <Route path="/controls/geo/country" element={<CountryList />} />
+
+
+        <Route path="/controls/geo" element={<GeoLocationList />} />
+        <Route path="/controls/geo/add" element={<GeoForm />} />
         <Route path="/controls/geo/country/add" element={<AddCountry />} />
         <Route
           path="/controls/geo/country/edit/:id"
@@ -1373,6 +1380,30 @@ function App() {
         <Route path="/rule-management/scorecard/credit-history/add" element={<AddCreditHistoryRule />} />
         <Route path="/rule-management/scorecard/credit-history/edit/:id" element={<EditCreditHistoryRule />} />
         <Route path="/rule-management/scorecard/credit-history/view/:id" element={<ViewCreditHistoryRule />} />
+
+
+        <Route path="/profile-management/vendor" element={<VendorList />} />
+        <Route path="/profile-management/vendor/add" element={<VendorAdd />} />
+        <Route path="/profile-management/vendor/edit/:id" element={<VendorMasterEdit />} />
+        <Route path="/profile-management/vendor/view/:id" element={<VendorView />} />
+
+        <Route path="/profile-management/agent" element={<AgentList />} />
+        <Route path="/profile-management/agent/add" element={<AgentAdd />} />
+        <Route path="/profile-management/agent/edit/:id" element={<AgencyForm />} />
+        <Route path="/profile-management/agent/view/:id" element={<AgentView />} />
+
+        <Route path="/profile-management/client" element={<ClientList />} />
+        <Route path="/profile-management/client/add" element={<ClientAdd />} />
+        <Route path="/profile-management/client/edit/:id" element={<ClientMasterEdit />} />
+        <Route path="/profile-management/client/view/:id" element={<ClientView />} />
+
+        
+
+
+        <Route path="/controls-management/geo/form" element={<GeoForm />} />
+        <Route path="/controls-management/geo/list" element={<GeoList />} />
+
+      
       </Routes>
     </Router>
   );

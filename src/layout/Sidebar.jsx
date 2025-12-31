@@ -576,8 +576,8 @@ const Sidebar = () => {
               </Link>
 
               <Link
-                to="/controls/geo/country"
-                className={menuItemStyle("/controls/geo/country")}
+                to="/controls/geo"
+                className={menuItemStyle("/controls/geo")}
               >
                 Geo Location
               </Link>

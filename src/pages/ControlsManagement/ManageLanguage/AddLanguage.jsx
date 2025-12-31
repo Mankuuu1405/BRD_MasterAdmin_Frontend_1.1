@@ -2,20 +2,34 @@ import React, { useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { controlsManagementService } from "../../../services/controlsManagementService";
 
 export default function AddLanguage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", code: "", default: false });
+  const [form, setForm] = useState({ language_name: "", language_code: "", is_default: false });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Add Language:", form);
-    navigate("/controls/language");
+    setLoading(true);
+    try {
+      const success = await controlsManagementService.languages.create(form);
+      if (success) {
+        navigate("/controls/language");
+      } else {
+        alert("Failed to save language. Try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("An error occurred while saving.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -43,8 +57,8 @@ export default function AddLanguage() {
         {/* Name */}
         <Input
           label="Language Name"
-          name="name"
-          value={form.name}
+          name="language_name"
+          value={form.language_name}
           onChange={handleChange}
           required
         />
@@ -52,8 +66,8 @@ export default function AddLanguage() {
         {/* Code */}
         <Input
           label="Language Code"
-          name="code"
-          value={form.code}
+          name="language_code"
+          value={form.language_code}
           onChange={handleChange}
           required
         />
@@ -62,8 +76,8 @@ export default function AddLanguage() {
         <div className="flex items-center mt-4 md:col-span-2 gap-3">
           <input
             type="checkbox"
-            name="default"
-            checked={form.default}
+            name="is_default"
+            checked={form.is_default}
             onChange={handleChange}
             className="w-5 h-5"
           />
@@ -76,14 +90,18 @@ export default function AddLanguage() {
             type="button"
             onClick={() => navigate("/controls/language")}
             className="px-5 py-3 rounded-xl border text-gray-700"
+            disabled={loading}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-5 py-3 rounded-xl text-white bg-blue-600 flex items-center gap-2 hover:bg-blue-700"
+            className={`px-5 py-3 rounded-xl text-white bg-blue-600 flex items-center gap-2 hover:bg-blue-700 ${
+              loading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
+            disabled={loading}
           >
-            <FiSave /> Save Language
+            <FiSave /> {loading ? "Saving..." : "Save Language"}
           </button>
         </div>
       </form>
