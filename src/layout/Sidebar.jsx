@@ -29,7 +29,19 @@ import {
 } from "react-icons/fi";
 import { HiCurrencyRupee } from "react-icons/hi2";
 
-const Sidebar = () => {
+const Sidebar = ({ open, setOpen }) => {
+
+  {open && (
+  <div
+    onClick={() => setOpen(false)}
+    className="fixed inset-0 bg-black/40 z-40 md:hidden"
+  />
+)}
+
+const closeMobile = () => {
+  if (window.innerWidth < 768) setOpen(false);
+};
+
   const location = useLocation();
 
   /* ---------------- STATE ---------------- */
@@ -147,11 +159,13 @@ const Sidebar = () => {
   const isActive = (path) =>
     location.pathname === path || location.pathname.startsWith(path);
 
-  const menuItemStyle = (path) =>
-    `flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all ${isActive(path)
+const menuItemStyle = (path) =>
+  `flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all ${
+    isActive(path)
       ? "bg-[#E8F1FF] text-[#0A66FF] font-medium"
       : "text-gray-700 hover:bg-gray-100"
-    }`;
+  } md:static` + " md:pointer-events-auto";
+
 
   const productRevenueActive =
     location.pathname.startsWith("/product") ||
@@ -197,7 +211,14 @@ const Sidebar = () => {
 
   /* ---------------- RENDER ---------------- */
   return (
-    <div className="fixed left-0 top-0 h-screen w-64 bg-white border-r flex flex-col justify-between overflow-y-auto">
+<div className={`
+  fixed md:static z-50 md:z-auto
+  top-0 left-0 h-screen w-64 bg-white border-r
+  transform transition-transform duration-300 ease-in-out
+  ${open ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+  flex flex-col justify-between overflow-y-auto
+`}>
+
       {/* TOP */}
       <div>
         {/* TITLE */}
@@ -210,7 +231,7 @@ const Sidebar = () => {
         {/* MENU */}
         <nav className="px-3 space-y-1">
           {/* MAIN */}
-          <Link to="/dashboard" className={menuItemStyle("/dashboard")}>
+          <Link to="/dashboard" onClick={closeMobile} className={menuItemStyle("/dashboard")}>
             <FiHome size={18} /> Home
           </Link>
 

@@ -25,11 +25,23 @@ export default function AddFinancialRule() {
     setForm((p) => ({ ...p, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await ruleManagementService.createFinancialRule(form);
-    navigate("/rule-management/financial-eligibility");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const payload = {
+    income_type: String(form.income_type),
+    min_monthly_income: Number(form.min_monthly_income),
+    max_emi_ratio: Number(form.max_emi_ratio),
+    min_bank_balance: Number(form.min_bank_balance),
+    max_existing_obligation: Number(form.max_existing_obligation || 0),
+    status: String(form.status).toUpperCase(),
+    remarks: String(form.remarks || "")
   };
+
+  await ruleManagementService.createFinancialRule(payload);
+  navigate("/rule-management/financial-eligibility");
+};
+
 
   return (
     <MainLayout>

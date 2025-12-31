@@ -1,56 +1,37 @@
 import React, { useEffect, useState } from "react";
+import { FiMenu } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
-const Header = () => {
+export default function Header({ onMenu }) {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
-  const loadUser = () => {
-    const storedUser = localStorage.getItem("currentUser");
-    setUser(storedUser ? JSON.parse(storedUser) : null);
-  };
-
   useEffect(() => {
-    loadUser();
-
-    // SAME TAB refresh support
-    const handler = () => loadUser();
-    window.addEventListener("profile-updated", handler);
-
-    return () => {
-      window.removeEventListener("profile-updated", handler);
-    };
+    const u = localStorage.getItem("currentUser");
+    setUser(u ? JSON.parse(u) : null);
   }, []);
 
   return (
-    <div className="w-full h-20 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-20">
+    <div className="h-16 bg-white border-b sticky top-0 z-30 flex items-center justify-between px-4 md:px-6">
 
-      <h1 className="text-xl font-semibold text-gray-900">Xpertland.Ai</h1>
+      {/* Mobile menu */}
+      <button onClick={onMenu} className="md:hidden text-2xl text-gray-700">
+        <FiMenu />
+      </button>
 
-      <div
-        className="flex items-center gap-3 cursor-pointer"
-        onClick={() => navigate("/profile")}
-      >
-        {/* USER NAME */}
-        <span className="text-gray-700 text-sm font-medium">
-          {user?.first_name || "User"}
-        </span>
+      <h1 className="text-lg md:text-xl font-semibold">Xpertland.Ai</h1>
 
-        {/* AVATAR */}
+      <div onClick={() => navigate("/profile")} className="flex items-center gap-3 cursor-pointer">
+        <span className="hidden sm:block text-sm font-medium">{user?.first_name || "User"}</span>
+
         {user?.avatar ? (
-          <img
-            src={user.avatar}
-            alt="profile"
-            className="w-10 h-10 rounded-full object-cover"
-          />
+          <img src={user.avatar} className="w-9 h-9 rounded-full object-cover" />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg font-semibold">
-            {(user?.first_name || "U").charAt(0).toUpperCase()}
+          <div className="w-9 h-9 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
+            {(user?.first_name || "U")[0]}
           </div>
         )}
       </div>
     </div>
   );
-};
-
-export default Header;
+}

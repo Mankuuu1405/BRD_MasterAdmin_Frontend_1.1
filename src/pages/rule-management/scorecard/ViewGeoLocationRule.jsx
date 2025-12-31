@@ -2,6 +2,7 @@ import React,{useEffect,useState} from "react";
 import MainLayout from "../../../layout/MainLayout";
 import {FiArrowLeft,FiEdit3} from "react-icons/fi";
 import {useNavigate,useParams} from "react-router-dom";
+import { ruleManagementService } from "../../../services/ruleManagementService";
 
 export default function ViewGeoLocationRule(){
   const navigate=useNavigate();
@@ -9,7 +10,10 @@ export default function ViewGeoLocationRule(){
   const [rule,setRule]=useState(null);
 
   useEffect(()=>{
-    setRule({state:"Maharashtra",city:"Mumbai",pincode:"400001",risk:"Low",weight:20,status:"Active",remarks:"Prime zone"});
+    (async()=>{
+      const res = await ruleManagementService.getGeoLocationRule(id);
+      setRule(res);
+    })();
   },[id]);
 
   if(!rule) return null;
@@ -31,13 +35,18 @@ export default function ViewGeoLocationRule(){
         <Info label="State" value={rule.state}/>
         <Info label="City" value={rule.city}/>
         <Info label="Pincode" value={rule.pincode}/>
-        <Info label="Risk Level" value={rule.risk}/>
+        <Info label="Risk Level" value={rule.risk_level}/>
         <Info label="Weight (%)" value={rule.weight}/>
-        <Info label="Remarks" value={rule.remarks}/>
+        <Info label="Remarks" value={rule.remarks || "-"}/>
+
         <div>
           <label className="text-sm font-medium">Status</label>
           <div className="mt-2">
-            <span className={`px-3 py-1 text-xs rounded-full ${rule.status==="Active"?"bg-green-100 text-green-700":"bg-red-100 text-red-600"}`}>{rule.status}</span>
+            <span className={`px-3 py-1 text-xs rounded-full ${
+              rule.status==="ACTIVE"?"bg-green-100 text-green-700":"bg-red-100 text-red-600"
+            }`}>
+              {rule.status}
+            </span>
           </div>
         </div>
       </div>
@@ -46,6 +55,8 @@ export default function ViewGeoLocationRule(){
 }
 
 const Info=({label,value})=>(
-  <div><label className="text-sm font-medium text-gray-600">{label}</label>
-    <p className="mt-1 text-sm text-gray-900">{value}</p></div>
+  <div>
+    <label className="text-sm font-medium text-gray-600">{label}</label>
+    <p className="mt-1 text-sm text-gray-900">{value}</p>
+  </div>
 );
