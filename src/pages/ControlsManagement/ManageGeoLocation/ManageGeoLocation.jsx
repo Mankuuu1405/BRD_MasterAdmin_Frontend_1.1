@@ -50,7 +50,6 @@ export default function GeoManagement() {
     if (type === "city") setCities(cities.filter((c) => c.id !== id));
     if (type === "area") setAreas(areas.filter((a) => a.id !== id));
   };
-
   // Tab headers
   const tabs = [
     { key: "country", label: "Countries" },

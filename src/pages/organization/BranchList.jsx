@@ -53,7 +53,7 @@ export default function BranchList() {
     return branches.filter(
       (b) =>
         !search ||
-        b.name?.toLowerCase().includes(search.toLowerCase()) ||
+        b.branch_name?.toLowerCase().includes(search.toLowerCase()) ||
         b.branch_code?.toLowerCase().includes(search.toLowerCase()) ||
         (b.phone || "").includes(search) ||
         (b.address || "").toLowerCase().includes(search.toLowerCase()) ||
@@ -143,7 +143,7 @@ export default function BranchList() {
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-gray-400">Branch Name</p>
-                  <p className="font-semibold">{branch.name}</p>
+                  <p className="font-semibold">{branch.branch_name}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-400">Branch Code</p>
@@ -151,11 +151,11 @@ export default function BranchList() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-400">Phone</p>
-                  <p>{branch.phone || "-"}</p>
+                  <p>{branch.phone_number || "-"}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-400">Address</p>
-                  <p>{branch.address || "-"}</p>
+                  <p>{branch.branch_address || "-"}</p>
                 </div>
               </div>
 

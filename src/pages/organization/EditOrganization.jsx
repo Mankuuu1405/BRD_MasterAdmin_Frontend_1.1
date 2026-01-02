@@ -8,39 +8,35 @@ export default function EditOrganization() {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [tenantId, setTenantId] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [form, setForm] = useState({
     business_name: "",
     email: "",
     mobile_number: "",
+    contact_person: "",
+    gst_number: "",
+    pan_number: "",
+    cin_number: "",
     full_address: "",
-    city: "",
-    state: "",
-    pincode: "",
-    tenant_type: "NBFC",
   });
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  /* ---------------- LOAD DATA ---------------- */
+  /* ================= LOAD DATA ================= */
   useEffect(() => {
     const loadData = async () => {
       try {
         const data = await organizationService.getOrganization(id);
 
-        setTenantId(data.tenant_id || "");
-
         setForm({
           business_name: data.business_name || "",
           email: data.email || "",
-          phone: data.mobile_number || "",
-          address: data.full_address || "",
-          city: data.city || "",
-          state: data.state || "",
-          pincode: data.pincode || "",
-          tenant_type: data.tenant_type || "NBFC",
+          mobile_number: data.mobile_number || "",
+          contact_person: data.contact_person || "",
+          gst_number: data.gst_number || "",
+          pan_number: data.pan_number || "",
+          cin_number: data.cin_number || "",
+          full_address: data.full_address || "",
         });
       } catch (err) {
         setError("Failed to load organization details.");
@@ -52,18 +48,20 @@ export default function EditOrganization() {
     loadData();
   }, [id]);
 
+  /* ================= CHANGE ================= */
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((p) => ({ ...p, [name]: value }));
   };
 
-  /* ---------------- SUBMIT ---------------- */
+  /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
     try {
       await organizationService.updateOrganization(id, form);
-      navigate("/organizations");
+      navigate("/organizations/list");
     } catch (err) {
       setError("Failed to update organization.");
     }
@@ -72,7 +70,9 @@ export default function EditOrganization() {
   if (loading) {
     return (
       <MainLayout>
-        <div className="p-10 text-gray-500">Loading organization details...</div>
+        <div className="p-10 text-gray-500">
+          Loading organization details...
+        </div>
       </MainLayout>
     );
   }
@@ -83,22 +83,20 @@ export default function EditOrganization() {
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={() => navigate(-1)}
-          className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 transition"
+          className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200"
         >
-          <FiArrowLeft className="text-gray-700 text-lg" />
+          <FiArrowLeft />
         </button>
 
         <div>
-          <h1 className="text-[22px] font-semibold text-gray-900">
-            Edit Organization
-          </h1>
+          <h1 className="text-xl font-semibold">Edit Organization</h1>
           <p className="text-gray-500 text-sm">
-            Update company details
+            Update organization details
           </p>
         </div>
       </div>
 
-      {/* FORM CARD */}
+      {/* FORM */}
       <div className="bg-white p-8 rounded-2xl shadow-sm max-w-4xl">
         {error && (
           <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg text-sm">
@@ -106,21 +104,11 @@ export default function EditOrganization() {
           </div>
         )}
 
-        {/* TENANT ID (READ ONLY) */}
-        {tenantId && (
-          <div className="mb-8 bg-gray-50 p-4 rounded-xl">
-            <p className="text-xs text-gray-500">Tenant ID</p>
-            <p className="text-sm font-mono text-gray-800 break-all">
-              {tenantId}
-            </p>
-          </div>
-        )}
-
         <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <InputField
-              label="Business Name"
-              name="name"
+              label="Business Name *"
+              name="business_name"
               placeholder="ABC Finance Pvt Ltd"
               value={form.business_name}
               onChange={handleChange}
@@ -128,82 +116,71 @@ export default function EditOrganization() {
             />
 
             <InputField
-              label="Email Address"
-              name="email"
+              label="Email *"
               type="email"
-              placeholder="example@company.com"
+              name="email"
+              placeholder="info@company.com"
               value={form.email}
               onChange={handleChange}
               required
             />
 
             <InputField
-              label="Mobile Number"
-              name="phone"
-              placeholder="9876543210"
+              label="Mobile Number *"
+              name="mobile_number"
+              placeholder="9988778866"
               value={form.mobile_number}
               onChange={handleChange}
+              required
             />
 
-            <div>
-              <label className="text-gray-700 text-sm font-medium">
-                Organization Type
-              </label>
-              <select
-                name="tenant_type"
-                value={form.tenant_type}
-                onChange={handleChange}
-                className="w-full mt-2 p-3 rounded-xl bg-gray-50 outline-none text-sm"
-              >
-                <option value="NBFC">NBFC</option>
-                <option value="BANK">Bank</option>
-                <option value="FINTECH">FinTech</option>
-              </select>
-            </div>
-
             <InputField
-              label="City"
-              name="city"
-              placeholder="Mumbai"
-              value={form.city}
+              label="Contact Person"
+              name="contact_person"
+              placeholder="John Doe"
+              value={form.contact_person}
               onChange={handleChange}
             />
 
             <InputField
-              label="State"
-              name="state"
-              placeholder="Maharashtra"
-              value={form.state}
+              label="GST Number"
+              name="gst_number"
+              placeholder="24ABCDE1234F1Z5"
+              value={form.gst_number}
               onChange={handleChange}
             />
 
             <InputField
-              label="Pincode"
-              name="pincode"
-              placeholder="400001"
-              value={form.pincode}
+              label="PAN Number"
+              name="pan_number"
+              placeholder="ABCDE1234F"
+              value={form.pan_number}
+              onChange={handleChange}
+            />
+
+            <InputField
+              label="CIN Number"
+              name="cin_number"
+              placeholder="U65990GJ2020PTC112345"
+              value={form.cin_number}
               onChange={handleChange}
             />
           </div>
 
-          <div>
-            <label className="text-gray-700 text-sm font-medium">
-              Address
-            </label>
-            <textarea
-              name="address"
-              value={form.full_address}
-              onChange={handleChange}
-              placeholder="Complete office address"
-              className="w-full mt-2 p-3 rounded-xl bg-gray-50 outline-none text-sm h-24"
-            />
-          </div>
+          <TextAreaField
+            label="Full Address"
+            name="full_address"
+            placeholder="2nd Floor, Shree Complex, Alkapuri, Vadodara..."
+            value={form.full_address}
+            onChange={handleChange}
+            rows={4}
+          />
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-semibold flex justify-center items-center gap-2 hover:bg-blue-700 transition"
+            className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold flex justify-center items-center gap-2 hover:bg-blue-700"
           >
-            <FiSave className="text-lg" />
+            <FiSave />
             Update Organization
           </button>
         </form>
@@ -212,16 +189,32 @@ export default function EditOrganization() {
   );
 }
 
-/* ---------------- INPUT FIELD ---------------- */
+/* ================= SHARED FIELDS ================= */
+
 function InputField({ label, ...props }) {
   return (
-    <div>
-      <label className="text-gray-700 text-sm font-medium">
+    <div className="flex flex-col">
+      <label className="text-sm font-medium text-gray-700">
         {label}
       </label>
       <input
         {...props}
-        className="w-full mt-2 p-3 rounded-xl bg-gray-50 outline-none text-sm"
+        className="mt-2 p-3 rounded-xl bg-gray-50 outline-none text-sm focus:bg-white"
+      />
+    </div>
+  );
+}
+
+function TextAreaField({ label, rows = 3, ...props }) {
+  return (
+    <div className="flex flex-col">
+      <label className="text-sm font-medium text-gray-700">
+        {label}
+      </label>
+      <textarea
+        {...props}
+        rows={rows}
+        className="mt-2 p-3 rounded-xl bg-gray-50 outline-none text-sm focus:bg-white resize-none"
       />
     </div>
   );

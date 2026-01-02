@@ -4,6 +4,11 @@ import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { organizationService } from "../../services/organizationService";
 
+import {
+  InputField,
+  TextAreaField,
+} from "../../components/Controls/SharedUIHelpers";
+
 export default function AddOrganization() {
   const navigate = useNavigate();
 
@@ -25,16 +30,14 @@ export default function AddOrganization() {
 
   /* ---------------- HANDLERS ---------------- */
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   /* ---------------- VALIDATION ---------------- */
   const validateForm = () => {
-    if (!form.business_name.trim())
-      return "Business name is required";
-
-    if (!form.email.trim())
-      return "Email is required";
+    if (!form.business_name.trim()) return "Business name is required";
+    if (!form.email.trim()) return "Email is required";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       return "Enter a valid email address";
 
@@ -52,7 +55,6 @@ export default function AddOrganization() {
     if (!form.loan_products.trim())
       return "Loan products are required";
 
-    // Optional validations
     if (
       form.gst_number &&
       !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(
@@ -63,7 +65,9 @@ export default function AddOrganization() {
 
     if (
       form.pan_number &&
-      !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(form.pan_number.toUpperCase())
+      !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(
+        form.pan_number.toUpperCase()
+      )
     )
       return "Invalid PAN number";
 
@@ -92,20 +96,11 @@ export default function AddOrganization() {
     setLoading(true);
 
     try {
-      const payload = {
-        business_name: form.business_name,
-        email: form.email,
-        mobile_number: form.mobile_number,
-        contact_person: form.contact_person,
-        full_address: form.full_address,
-        loan_products: form.loan_products, // STRING
-        gst_number: form.gst_number || null,
-        pan_number: form.pan_number || null,
-        cin_number: form.cin_number || null,
+      await organizationService.addOrganization({
+        ...form,
         is_active: true,
-      };
+      });
 
-      await organizationService.addOrganization(payload);
       navigate("/organizations/list", { replace: true });
     } catch (err) {
       if (err.response?.data) {
@@ -121,7 +116,7 @@ export default function AddOrganization() {
 
   return (
     <MainLayout>
-      {/* HEADER */}
+      {/* ================= HEADER ================= */}
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={() => navigate(-1)}
@@ -138,7 +133,7 @@ export default function AddOrganization() {
         </div>
       </div>
 
-      {/* FORM */}
+      {/* ================= FORM ================= */}
       <div className="bg-white p-8 rounded-2xl shadow-sm max-w-4xl">
         {errors && (
           <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg text-sm">
@@ -151,6 +146,7 @@ export default function AddOrganization() {
             <InputField
               label="Business Name *"
               name="business_name"
+              placeholder="Enter business name"
               value={form.business_name}
               onChange={handleChange}
             />
@@ -159,6 +155,7 @@ export default function AddOrganization() {
               label="Email *"
               name="email"
               type="email"
+              placeholder="Enter email address"
               value={form.email}
               onChange={handleChange}
             />
@@ -166,6 +163,7 @@ export default function AddOrganization() {
             <InputField
               label="Mobile Number *"
               name="mobile_number"
+              placeholder="10-digit mobile number"
               value={form.mobile_number}
               onChange={handleChange}
             />
@@ -173,6 +171,7 @@ export default function AddOrganization() {
             <InputField
               label="Contact Person *"
               name="contact_person"
+              placeholder="Contact person name"
               value={form.contact_person}
               onChange={handleChange}
             />
@@ -180,6 +179,7 @@ export default function AddOrganization() {
             <InputField
               label="GST Number"
               name="gst_number"
+              placeholder="22AAAAA0000A1Z5"
               value={form.gst_number}
               onChange={handleChange}
             />
@@ -187,6 +187,7 @@ export default function AddOrganization() {
             <InputField
               label="PAN Number"
               name="pan_number"
+              placeholder="ABCDE1234F"
               value={form.pan_number}
               onChange={handleChange}
             />
@@ -194,20 +195,20 @@ export default function AddOrganization() {
             <InputField
               label="CIN Number"
               name="cin_number"
+              placeholder="L12345MH2023PLC123456"
               value={form.cin_number}
               onChange={handleChange}
             />
           </div>
 
-          <div>
-            <label className="text-sm font-medium">Full Address *</label>
-            <textarea
-              name="full_address"
-              value={form.full_address}
-              onChange={handleChange}
-              className="w-full mt-2 p-3 rounded-xl bg-gray-50"
-            />
-          </div>
+          <TextAreaField
+            label="Full Address *"
+            name="full_address"
+            placeholder="Enter complete business address"
+            value={form.full_address}
+            onChange={handleChange}
+            rows={4}
+          />
 
           <InputField
             label="Loan Products *"
@@ -220,7 +221,7 @@ export default function AddOrganization() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold flex justify-center gap-2 hover:bg-blue-700"
+            className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold flex justify-center gap-2 hover:bg-blue-700 disabled:opacity-60"
           >
             <FiSave />
             {loading ? "Saving..." : "Save Organization"}
@@ -228,18 +229,5 @@ export default function AddOrganization() {
         </form>
       </div>
     </MainLayout>
-  );
-}
-
-/* ---------------- INPUT FIELD ---------------- */
-function InputField({ label, ...props }) {
-  return (
-    <div>
-      <label className="text-sm font-medium">{label}</label>
-      <input
-        {...props}
-        className="w-full mt-2 p-3 rounded-xl bg-gray-50 outline-none"
-      />
-    </div>
   );
 }

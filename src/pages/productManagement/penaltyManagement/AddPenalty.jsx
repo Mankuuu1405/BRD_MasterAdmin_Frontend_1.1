@@ -1,283 +1,169 @@
-import React, { useMemo, useState } from "react";
-import MainLayout from "../../../layout/MainLayout";
-import { FiArrowLeft, FiSave } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+// import React, { useMemo, useState } from "react";
+// import MainLayout from "../../../layout/MainLayout";
+// import { FiSave } from "react-icons/fi";
+// import { useNavigate } from "react-router-dom";
 
-// import { penaltyService } from "../../../services/penaltyService";
+// import {
+//   PageHeader,
+//   FormCard,
+//   FormGrid,
+//   Input,
+//   Select,
+//   Button,
+// } from "../../../components/Controls/SharedUIHelpers";
 
-/* ---------------- OPTIONS (DOC BASED) ---------------- */
-const FREQUENCY_OPTIONS = ["Recurring", "One-time"];
-const BASIS_OPTIONS = ["Fixed", "Percentage", "Slab"];
-const RECOVERY_STAGE_OPTIONS = ["Missed EMI", "Post Default"];
-const RECOVERY_MODE_OPTIONS = ["Auto", "Manual"];
+// // import { penaltyService } from "../../../services/penaltyService";
 
-const AddPenalty = () => {
-  const navigate = useNavigate();
+// /* ---------------- OPTIONS ---------------- */
+// const FREQUENCY_OPTIONS = ["Recurring", "One-time"];
+// const BASIS_OPTIONS = ["Fixed", "Percentage", "Slab"];
+// const RECOVERY_STAGE_OPTIONS = ["Missed EMI", "Post Default"];
+// const RECOVERY_MODE_OPTIONS = ["Auto", "Manual"];
 
-  const [form, setForm] = useState({
-    name: "",
-    frequency: "",
-    basis: "",
-    recovery_stage: "",
-    recovery_mode: "",
-    rate: "",
-  });
+// export default function AddPenalty() {
+//   const navigate = useNavigate();
 
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
-  const [submitting, setSubmitting] = useState(false);
+//   const [form, setForm] = useState({
+//     name: "",
+//     frequency: "",
+//     basis: "",
+//     recovery_stage: "",
+//     recovery_mode: "",
+//     rate: "",
+//   });
 
-  /* ---------------- VALIDATION ---------------- */
-  const validate = (v) => {
-    const e = {};
+//   const [submitting, setSubmitting] = useState(false);
 
-    if (!v.name.trim())
-      e.name = "Penalty name is required";
+//   /* ---------------- VALIDATION ---------------- */
+//   const errors = useMemo(() => {
+//     const e = {};
 
-    if (!v.frequency)
-      e.frequency = "Frequency is required";
+//     if (!form.name.trim()) e.name = "Penalty name is required";
+//     if (!form.frequency) e.frequency = "Frequency is required";
+//     if (!form.basis) e.basis = "Basis of recovery is required";
+//     if (!form.recovery_stage) e.recovery_stage = "Recovery stage is required";
+//     if (!form.recovery_mode) e.recovery_mode = "Recovery mode is required";
 
-    if (!v.basis)
-      e.basis = "Basis of recovery is required";
+//     if (form.rate === "") e.rate = "Penalty rate is required";
+//     else if (+form.rate <= 0) e.rate = "Rate must be greater than 0";
 
-    if (!v.recovery_stage)
-      e.recovery_stage = "Recovery stage is required";
+//     return e;
+//   }, [form]);
 
-    if (!v.recovery_mode)
-      e.recovery_mode = "Recovery mode is required";
+//   const hasErrors = Object.keys(errors).length > 0;
 
-    if (v.rate === "")
-      e.rate = "Penalty rate is required";
-    else if (+v.rate <= 0)
-      e.rate = "Rate must be greater than 0";
+//   /* ---------------- HANDLERS ---------------- */
+//   const handleChange = (name, value) => {
+//     setForm((p) => ({ ...p, [name]: value }));
+//   };
 
-    return e;
-  };
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     if (hasErrors) return;
 
-  const hasErrors = useMemo(
-    () => Object.keys(validate(form)).length > 0,
-    [form]
-  );
+//     setSubmitting(true);
+//     try {
+//       /*
+//       await penaltyService.addPenalty({
+//         ...form,
+//         rate: Number(form.rate),
+//       });
+//       */
+//       navigate("/penalties");
+//     } finally {
+//       setSubmitting(false);
+//     }
+//   };
 
-  /* ---------------- HANDLERS ---------------- */
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+//   return (
+//     <MainLayout>
+//       {/* HEADER */}
+//       <PageHeader
+//         title="Add Penalty"
+//         subtitle="Configure penalty rules for non-compliance"
+//         onBack={() => navigate(-1)}
+//       />
 
-    const updated = { ...form, [name]: value };
-    setForm(updated);
+//       {/* FORM */}
+//       <FormCard>
+//         <form onSubmit={handleSubmit}>
+//           <FormGrid>
+//             <Input
+//               label="Penalty Name"
+//               value={form.name}
+//               onChange={(v) => handleChange("name", v)}
+//               error={errors.name}
+//               required
+//             />
 
-    if (touched[name]) {
-      setErrors(validate(updated));
-    }
-  };
+//             <Select
+//               label="Frequency"
+//               value={form.frequency}
+//               options={FREQUENCY_OPTIONS}
+//               onChange={(v) => handleChange("frequency", v)}
+//               error={errors.frequency}
+//               required
+//             />
 
-  const handleBlur = (e) => {
-    setTouched((p) => ({ ...p, [e.target.name]: true }));
-    setErrors(validate(form));
-  };
+//             <Select
+//               label="Basis of Recovery"
+//               value={form.basis}
+//               options={BASIS_OPTIONS}
+//               onChange={(v) => handleChange("basis", v)}
+//               error={errors.basis}
+//               required
+//             />
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+//             <Select
+//               label="Recovery Stage"
+//               value={form.recovery_stage}
+//               options={RECOVERY_STAGE_OPTIONS}
+//               onChange={(v) => handleChange("recovery_stage", v)}
+//               error={errors.recovery_stage}
+//               required
+//             />
 
-    const validationErrors = validate(form);
-    setErrors(validationErrors);
-    setTouched({
-      name: true,
-      frequency: true,
-      basis: true,
-      recovery_stage: true,
-      recovery_mode: true,
-      rate: true,
-    });
+//             <Select
+//               label="Mode of Recovery"
+//               value={form.recovery_mode}
+//               options={RECOVERY_MODE_OPTIONS}
+//               onChange={(v) => handleChange("recovery_mode", v)}
+//               error={errors.recovery_mode}
+//               required
+//             />
 
-    if (Object.keys(validationErrors).length) return;
+//             <Input
+//               label="Rate of Penalties"
+//               type="number"
+//               value={form.rate}
+//               onChange={(v) => handleChange("rate", v)}
+//               error={errors.rate}
+//               required
+//             />
+//           </FormGrid>
 
-    setSubmitting(true);
-    try {
-      /*
-      const payload = {
-        name: form.name,
-        frequency: form.frequency,
-        basis: form.basis,
-        recovery_stage: form.recovery_stage,
-        recovery_mode: form.recovery_mode,
-        rate: Number(form.rate),
-      };
+//           {/* ACTION */}
+//           <div className="mt-6">
+//             <Button
+//               type="submit"
+//               icon={<FiSave />}
+//               disabled={hasErrors || submitting}
+//               loading={submitting}
+//               fullWidth
+//             >
+//               Add Penalty
+//             </Button>
+//           </div>
+//         </form>
+//       </FormCard>
+//     </MainLayout>
+//   );
+// }
 
-      await penaltyService.addPenalty(payload);
-      */
-
-      navigate("/penalties");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <MainLayout>
-      {/* HEADER */}
-      <div className="flex items-center gap-3 mb-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition shadow-sm"
-        >
-          <FiArrowLeft className="text-gray-700 text-xl" />
-        </button>
-
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">
-            Add Penalty
-          </h1>
-          <p className="text-gray-500 text-sm">
-            Configure penalty rules for non-compliance
-          </p>
-        </div>
-      </div>
-
-      {/* FORM */}
-      <div className="bg-white p-8 rounded-2xl shadow-md max-w-3xl">
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-        >
-          {/* NAME */}
-          <InputField
-            label="Penalty Name"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.name}
-          />
-
-          {/* FREQUENCY */}
-          <SelectField
-            label="Frequency"
-            name="frequency"
-            value={form.frequency}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            options={FREQUENCY_OPTIONS}
-            error={errors.frequency}
-          />
-
-          {/* BASIS */}
-          <SelectField
-            label="Basis of Recovery"
-            name="basis"
-            value={form.basis}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            options={BASIS_OPTIONS}
-            error={errors.basis}
-          />
-
-          {/* RECOVERY STAGE */}
-          <SelectField
-            label="Recovery Stage"
-            name="recovery_stage"
-            value={form.recovery_stage}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            options={RECOVERY_STAGE_OPTIONS}
-            error={errors.recovery_stage}
-          />
-
-          {/* RECOVERY MODE */}
-          <SelectField
-            label="Mode of Recovery"
-            name="recovery_mode"
-            value={form.recovery_mode}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            options={RECOVERY_MODE_OPTIONS}
-            error={errors.recovery_mode}
-          />
-
-          {/* RATE */}
-          <InputField
-            label="Rate of Penalties"
-            type="number"
-            name="rate"
-            value={form.rate}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.rate}
-          />
-
-          {/* SUBMIT */}
-          <div className="md:col-span-2 mt-4">
-            <button
-              type="submit"
-              disabled={hasErrors || submitting}
-              className={`w-full py-3 rounded-xl flex items-center justify-center gap-2 text-white shadow-md transition ${
-                hasErrors || submitting
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
-              }`}
-            >
-              <FiSave />
-              {submitting ? "Saving..." : "Add Penalty"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </MainLayout>
-  );
-};
-
-export default AddPenalty;
-
-/* ---------------- REUSABLE UI ---------------- */
-
-const InputField = ({
-  label,
-  type = "text",
-  name,
-  value,
-  onChange,
-  onBlur,
-  error,
-}) => (
-  <div className="flex flex-col">
-    <label className="text-gray-700 text-sm font-medium">{label}</label>
-    <input
-      type={type}
-      name={name}
-      value={value}
-      onChange={onChange}
-      onBlur={onBlur}
-      className="mt-2 p-3 rounded-xl bg-gray-50 focus:bg-white shadow-sm outline-none"
-    />
-    {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
-  </div>
-);
-
-const SelectField = ({
-  label,
-  name,
-  value,
-  onChange,
-  onBlur,
-  options,
-  error,
-}) => (
-  <div className="flex flex-col">
-    <label className="text-gray-700 text-sm font-medium">{label}</label>
-    <select
-      name={name}
-      value={value}
-      onChange={onChange}
-      onBlur={onBlur}
-      className="mt-2 p-3 rounded-xl bg-gray-50 shadow-sm outline-none"
-    >
-      <option value="">Select {label}</option>
-      {options.map((op, i) => (
-        <option key={i} value={op}>
-          {op}
-        </option>
-      ))}
-    </select>
-    {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
-  </div>
-);
+export default function AddPenalty(){
+  return(
+    <>
+      hello
+    </>
+  )
+}

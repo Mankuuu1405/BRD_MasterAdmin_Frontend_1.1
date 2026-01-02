@@ -1,13 +1,13 @@
 import axiosInstance from "../utils/axiosInstance";
 
 // Keep BASE_URL as router path ending with a slash
-const BASE_URL = "/users/users/"; // ✅ trailing slash added
+const BASE_URL = "/adminpanel/user-management"; // ✅ trailing slash added
 
 export const userService = {
   // GET ALL USERS
   async getUsers() {
     try {
-      const res = await axiosInstance.get(BASE_URL);
+      const res = await axiosInstance.get(`${BASE_URL}/list/`);
       return res.data; 
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -23,7 +23,7 @@ export const userService = {
 
   // ADD USER
   async addUser(data) {
-    const res = await axiosInstance.post(BASE_URL, data); // ✅ POST to URL with trailing slash
+    const res = await axiosInstance.post(`${BASE_URL}/create/`, data); // ✅ POST to URL with trailing slash
     return res.data;
   },
 

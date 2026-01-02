@@ -1,14 +1,14 @@
 import { api } from "./api";
 
 // ✅ Fix: '/api/v1' हटा दिया गया है
-const BASE_URL = "/tenants/branches/";
+const BASE_URL = "/adminpanel/organization-management";
 
 export const branchService = {
 
   // GET ALL BRANCHES
   async getBranches() {
     try {
-      const res = await api.get(BASE_URL);
+      const res = await api.get(`${BASE_URL}/branches/`);
       return res.data;
     } catch (error) {
       console.error("Fetch Branches Error:", error);
@@ -19,7 +19,7 @@ export const branchService = {
   // GET SINGLE BRANCH
   async getBranch(id) {
     try {
-      const res = await api.get(`${BASE_URL}${id}`);
+      const res = await api.get(`${BASE_URL}/branches/${id}/`);
       return res.data;
     } catch (error) {
       console.error("Fetch Single Branch Error:", error);
@@ -30,7 +30,7 @@ export const branchService = {
   // GET BRANCHES BY ORGANIZATION
   async getBranchesByOrg(orgId) {
     try {
-      const res = await api.get(BASE_URL, { params: { tenant: orgId } });
+      const res = await api.get(`${BASE_URL}/branches/`, { params: { tenant: orgId } });
       return res.data;
     } catch (error) {
       return [];
@@ -40,7 +40,7 @@ export const branchService = {
   // ADD NEW BRANCH
   async addBranch(data) {
     try {
-      const res = await api.post(BASE_URL, data);
+      const res = await api.post(`${BASE_URL}/branches/`, data);
       return res.data;
     } catch (err) {
       console.error("Add Branch Error:", err.response?.data || err);
@@ -51,7 +51,7 @@ export const branchService = {
   // UPDATE BRANCH
   async updateBranch(id, updatedValues) {
     try {
-      const res = await api.patch(`${BASE_URL}${id}/`, updatedValues);
+      const res = await api.patch(`${BASE_URL}/branches/${id}/`, updatedValues);
       return res.data;
     } catch (error) {
       console.error("Update Branch Error:", error);
@@ -62,7 +62,7 @@ export const branchService = {
   // DELETE BRANCH
   async deleteBranch(id) {
     try {
-      await api.delete(`${BASE_URL}${id}/`);
+      await api.delete(`${BASE_URL}/branches/${id}/`);
       return true;
     } catch (error) {
       return false;

@@ -3,97 +3,115 @@ import MainLayout from "../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 import { organizationService } from "../../services/organizationService";
-import { branchService } from "../../services/branchService"; // ✅ Import BranchService
+import { branchService } from "../../services/branchService";
+
+import {
+  InputField,
+  SelectField,
+  TextAreaField,
+} from "../../components/Controls/SharedUIHelpers";
 
 const UpdateBranch = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // URL se Branch ID milega
+  const { id } = useParams();
 
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const [form, setForm] = useState({
-    organization: "",
+    organization_id: "",
     branchCode: "",
     name: "",
     address: "",
-    contactPerson: "", // Backend mein shayad ye field alag naam se ho, check kar lena
+    contactPerson: "",
     phone: "",
     email: "",
   });
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
-
-  // ✅ Load Data (Organizations + Current Branch Info)
+  /* ================= LOAD DATA ================= */
   useEffect(() => {
     const loadData = async () => {
       try {
-        // 1. Load Orgs for Dropdown
-        const orgs = await organizationService.getOrganizations();
-        setOrganizations(orgs);
+        const orgRes = await organizationService.getOrganizations();
+        const orgList = Array.isArray(orgRes)
+          ? orgRes
+          : orgRes?.results || [];
+        setOrganizations(orgList);
 
-        // 2. Load Current Branch Data from Backend
-        const branchData = await branchService.getBranch(id);
-        
-        // Form ko fill karein
+        const branch = await branchService.getBranch(id);
+
         setForm({
-          organization: branchData.tenant || "", // Backend 'tenant' ID bhejta hai
-          branchCode: branchData.branch_code,
-          name: branchData.name,
-          address: branchData.address || "",
-          phone: branchData.phone || "",
-          email: branchData.email || "",
-          contactPerson: branchData.contact_person || "", // Check backend field name
+          organization_id: branch.tenant_id || branch.tenant || "",
+          branchCode: branch.branch_code || "",
+          name: branch.branch_name || "",
+          address: branch.branch_address || "",
+          contactPerson: branch.contact_person || "",
+          phone: branch.phone_number || "",
+          email: branch.email || "",
         });
-
-      } catch (error) {
-        console.error("Error loading branch data:", error);
-        alert("Failed to load branch details.");
+      } catch (err) {
+        console.error("Load failed", err);
         navigate("/organizations/branches/list");
       } finally {
         setLoading(false);
       }
     };
+
     loadData();
   }, [id, navigate]);
 
-  // ✅ Real Submit Handler
+  /* ================= CHANGE ================= */
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((p) => ({ ...p, [name]: value }));
+    setErrors((p) => ({ ...p, [name]: "" }));
+  };
+
+  /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
 
-    if (!form.organization || !form.name) {
-      alert("Please fill all required fields.");
-      return;
-    }
-
-    // Payload taiyar karein
     const payload = {
-      tenant: form.organization, // Backend expects 'tenant'
-      name: form.name,
+      tenant_id: form.organization_id,
+      organization: form.organization_id,
       branch_code: form.branchCode,
-      address: form.address,
-      phone: form.phone,
-      email: form.email,
-      // Add other fields if backend supports them
+      branch_name: form.name.trim(),
+      branch_address: form.address.trim(),
+      contact_person: form.contactPerson.trim(),
+      phone_number: form.phone.trim(),
+      email: form.email || null,
     };
 
     try {
       await branchService.updateBranch(id, payload);
-      alert("Branch updated successfully!");
-      navigate("/organizations/branches/list");
-    } catch (error) {
-      console.error("Update failed:", error);
-      alert("Failed to update branch. Please try again.");
+      navigate("/organizations/branches/list", { replace: true });
+    } catch (err) {
+      const apiErrors = err?.response?.data || {};
+      const mapped = {};
+
+      if (apiErrors.branch_name) mapped.name = apiErrors.branch_name[0];
+      if (apiErrors.branch_address) mapped.address = apiErrors.branch_address[0];
+      if (apiErrors.phone_number) mapped.phone = apiErrors.phone_number[0];
+      if (apiErrors.tenant_id || apiErrors.organization)
+        mapped.organization_id =
+          apiErrors.tenant_id?.[0] || apiErrors.organization?.[0];
+
+      setErrors(mapped);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  if (loading)
+  if (loading) {
     return (
       <MainLayout>
-        <div className="p-10 text-center text-gray-500">Loading branch details...</div>
+        <p className="text-sm text-gray-500">Loading branch details...</p>
       </MainLayout>
     );
+  }
 
   return (
     <MainLayout>
@@ -101,126 +119,94 @@ const UpdateBranch = () => {
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition shadow-sm"
+          className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200"
         >
-          <FiArrowLeft className="text-xl text-gray-700" />
+          <FiArrowLeft />
         </button>
-
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Update Branch</h1>
-          <p className="text-gray-500 text-sm">Edit branch details below</p>
+          <h1 className="text-xl font-semibold">Update Branch</h1>
+          <p className="text-gray-500 text-sm">Edit branch details</p>
         </div>
       </div>
 
       {/* FORM */}
-      <div className="bg-white p-8 rounded-2xl shadow-md max-w-2xl">
-        <form onSubmit={handleSubmit} className="space-y-7">
+      <div className="bg-white p-8 rounded-2xl shadow-sm max-w-2xl">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <SelectField
-            label="Select Organization *"
-            name="organization"
-            value={form.organization}
+            label="Organization *"
+            name="organization_id"
+            value={form.organization_id}
             onChange={handleChange}
+            error={errors.organization_id}
             options={organizations.map((o) => ({
-              label: o.name,
-              value: o.tenant_id || o.id, // Ensure correct ID usage
+              label: o.business_name,
+              value: o.id,
             }))}
+          />
+
+          <InputField
+            label="Branch Code"
+            value={form.branchCode}
+            readOnly
+            disabled
           />
 
           <InputField
             label="Branch Name *"
             name="name"
-            placeholder="Enter branch name"
+            placeholder="Delhi Head Office"
             value={form.name}
             onChange={handleChange}
+            error={errors.name}
           />
 
-          <InputField
-            label="Branch Code"
-            name="branchCode"
-            value={form.branchCode}
-            readOnly // Code usually change nahi hona chahiye
-            className="bg-gray-100 cursor-not-allowed"
-          />
-
-          <InputField
-            label="Email"
-            name="email"
-            placeholder="Branch email"
-            value={form.email}
+          <TextAreaField
+            label="Branch Address *"
+            name="address"
+            placeholder="Enter full branch address"
+            value={form.address}
             onChange={handleChange}
+            error={errors.address}
+            rows={4}
           />
-
-          <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-medium">
-              Branch Address *
-            </label>
-            <textarea
-              name="address"
-              value={form.address}
-              onChange={handleChange}
-              placeholder="Full branch address"
-              className="mt-2 p-3 h-24 rounded-xl bg-gray-50 shadow-sm focus:bg-white outline-none"
-            />
-          </div>
 
           <InputField
             label="Contact Person"
             name="contactPerson"
+            placeholder="John Doe"
             value={form.contactPerson}
             onChange={handleChange}
-            placeholder="Enter contact name"
           />
 
           <InputField
             label="Phone Number *"
             name="phone"
+            placeholder="9876543210"
             value={form.phone}
             onChange={handleChange}
-            placeholder="+91 XXXXX XXXXX"
+            error={errors.phone}
+          />
+
+          <InputField
+            label="Email"
+            name="email"
+            placeholder="branch@email.com"
+            value={form.email}
+            onChange={handleChange}
           />
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-700 transition shadow-md"
+            disabled={submitting}
+            className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-700 disabled:opacity-50"
           >
-            <FiSave /> Update Changes
+            <FiSave />
+            {submitting ? "Updating..." : "Update Branch"}
           </button>
         </form>
       </div>
     </MainLayout>
   );
 };
-
-// Helper Components (Same as before)
-function InputField({ label, ...props }) {
-  return (
-    <div className="flex flex-col">
-      <label className="text-gray-700 text-sm font-medium">{label}</label>
-      <input
-        {...props}
-        className={`mt-2 p-3 rounded-xl bg-gray-50 shadow-sm focus:bg-white outline-none ${props.className || ''}`}
-      />
-    </div>
-  );
-}
-
-function SelectField({ label, options = [], ...props }) {
-  return (
-    <div className="flex flex-col">
-      <label className="text-gray-700 text-sm font-medium">{label}</label>
-      <select
-        {...props}
-        className="mt-2 p-3 rounded-xl bg-gray-50 shadow-sm outline-none focus:bg-white"
-      >
-        <option value="">Choose option</option>
-        {options.map((op, idx) => (
-          <option key={idx} value={op.value}>
-            {op.label}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-}
 
 export default UpdateBranch;

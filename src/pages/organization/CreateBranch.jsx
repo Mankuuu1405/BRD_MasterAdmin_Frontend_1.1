@@ -5,14 +5,21 @@ import { useNavigate } from "react-router-dom";
 import { organizationService } from "../../services/organizationService";
 import { branchService } from "../../services/branchService";
 
+import {
+  InputField,
+  SelectField,
+  TextAreaField,
+} from "../../components/Controls/SharedUIHelpers";
+
 const CreateBranch = () => {
   const navigate = useNavigate();
 
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState({
-    organization: "",
+    organization_id: "",
     branchCode: "",
     name: "",
     address: "",
@@ -20,12 +27,11 @@ const CreateBranch = () => {
     phone: "",
   });
 
-  const [errors, setErrors] = useState({}); // 🔴 FIELD ERRORS
-  const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
 
   /* ---------------- LOAD ORGANIZATIONS ---------------- */
   useEffect(() => {
-    const load = async () => {
+    const loadOrganizations = async () => {
       try {
         const res = await organizationService.getOrganizations();
         const list = Array.isArray(res)
@@ -34,88 +40,105 @@ const CreateBranch = () => {
           ? res.results
           : [];
         setOrganizations(list);
-      } catch (e) {
-        console.error("Organization load error", e);
+      } catch (err) {
+        console.error("Failed to load organizations", err);
       } finally {
         setLoading(false);
       }
     };
-    load();
+
+    loadOrganizations();
   }, []);
 
   /* ---------------- HANDLE CHANGE ---------------- */
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" }); // clear error on type
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   /* ---------------- VALIDATION ---------------- */
   const validateForm = () => {
     const newErrors = {};
 
-    if (!form.organization)
-      newErrors.organization = "Organization is required";
+    if (!form.organization_id)
+      newErrors.organization_id = "Organization is required";
 
-    if (!form.branchCode || form.branchCode.length < 3)
+    if (!form.branchCode || form.branchCode.trim().length < 3)
       newErrors.branchCode = "Branch code must be at least 3 characters";
     else if (!/^[A-Z0-9-_]+$/i.test(form.branchCode))
       newErrors.branchCode =
-        "Only letters, numbers, - and _ allowed";
+        "Only letters, numbers, hyphen (-) and underscore (_) allowed";
 
-    if (!form.name || form.name.length < 3)
+    if (!form.name || form.name.trim().length < 3)
       newErrors.name = "Branch name must be at least 3 characters";
 
-    if (!form.address || form.address.length < 5)
-      newErrors.address = "Address is required";
+    if (!form.address || form.address.trim().length < 5)
+      newErrors.address = "Branch address is required";
 
     if (!form.contactPerson)
       newErrors.contactPerson = "Contact person is required";
 
-    if (!/^[6-9]\d{9}$/.test(form.phone))
-      newErrors.phone = "Enter valid 10 digit phone number";
+    if (!form.phone)
+      newErrors.phone = "Phone number is required";
+    else if (!/^[6-9]\d{9}$/.test(form.phone))
+      newErrors.phone = "Enter a valid 10-digit mobile number";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   /* ---------------- SUBMIT ---------------- */
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
 
-    setSubmitting(true);
+  setSubmitting(true);
 
-    const payload = {
-      tenant: form.organization,
-      branch_code: form.branchCode.trim(),
-      name: form.name.trim(),
-      address: form.address.trim(),
-      contact_person: form.contactPerson.trim(),
-      phone: form.phone.trim(),
-    };
-
-    try {
-      await branchService.addBranch(payload);
-      navigate("/organizations/branches/list");
-    } catch (err) {
-      const apiErrors = err?.response?.data || {};
-      const mappedErrors = {};
-
-      if (apiErrors.branch_code)
-        mappedErrors.branchCode = apiErrors.branch_code[0];
-      if (apiErrors.tenant)
-        mappedErrors.organization = apiErrors.tenant[0];
-
-      setErrors(mappedErrors);
-    } finally {
-      setSubmitting(false);
-    }
+  const payload = {
+    tenant_id: form.organization_id,        // ✅ REQUIRED
+    organization: form.organization_id,     // ✅ REQUIRED (yes, both)
+    branch_code: form.branchCode.trim(),
+    branch_name: form.name.trim(),           // ✅ FIX
+    branch_address: form.address.trim(),     // ✅ FIX
+    contact_person: form.contactPerson.trim(),
+    phone_number: form.phone.trim(),         // ✅ FIX
   };
 
+  try {
+    await branchService.addBranch(payload);
+    navigate("/organizations/branches/list", { replace: true });
+  } catch (err) {
+    const apiErrors = err?.response?.data || {};
+    const mappedErrors = {};
+
+    if (apiErrors.branch_code)
+      mappedErrors.branchCode = apiErrors.branch_code[0];
+
+    if (apiErrors.branch_name)
+      mappedErrors.name = apiErrors.branch_name[0];
+
+    if (apiErrors.branch_address)
+      mappedErrors.address = apiErrors.branch_address[0];
+
+    if (apiErrors.phone_number)
+      mappedErrors.phone = apiErrors.phone_number[0];
+
+    if (apiErrors.tenant_id || apiErrors.organization)
+      mappedErrors.organization_id =
+        apiErrors.tenant_id?.[0] || apiErrors.organization?.[0];
+
+    setErrors(mappedErrors);
+  } finally {
+    setSubmitting(false);
+  }
+};
+
+  /* ---------------- LOADING ---------------- */
   if (loading) {
     return (
       <MainLayout>
-        <p className="text-gray-600 text-sm">
+        <p className="text-gray-500 text-sm">
           Loading organizations...
         </p>
       </MainLayout>
@@ -128,75 +151,73 @@ const CreateBranch = () => {
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 shadow-sm"
+          className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200"
         >
-          <FiArrowLeft className="text-xl text-gray-700" />
+          <FiArrowLeft />
         </button>
 
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">
-            Create Branch
-          </h1>
+          <h1 className="text-xl font-semibold">Create Branch</h1>
           <p className="text-gray-500 text-sm">
-            Master Admin can create branch
+            Create a new branch under an organization
           </p>
         </div>
       </div>
 
       {/* FORM */}
-      <div className="bg-white p-8 rounded-2xl shadow-md max-w-2xl">
+      <div className="bg-white p-8 rounded-2xl shadow-sm max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* ORGANIZATION */}
           <SelectField
-            label="Select Organization *"
-            name="organization"
-            value={form.organization}
+            label="Organization *"
+            name="organization_id"
+            value={form.organization_id}
             onChange={handleChange}
-            error={errors.organization}
+            error={errors.organization_id}
             options={organizations.map((o) => ({
-              label: o.name,
-              value: o.tenant_id,
+              label: o.business_name,
+              value: o.id, // ✅ correct
             }))}
           />
 
-          {/* TENANT ID (READ ONLY DISPLAY) */}
           <InputField
-            label="Tenant ID"
-            value={form.organization}
+            label="Organization ID"
+            value={form.organization_id}
             readOnly
             disabled
           />
 
-          {/* BRANCH CODE */}
           <InputField
             label="Branch Code *"
             name="branchCode"
+            placeholder="DEL-HQ-001"
             value={form.branchCode}
             onChange={handleChange}
             error={errors.branchCode}
-            placeholder="e.g. DEL-HQ-001"
           />
 
           <InputField
             label="Branch Name *"
             name="name"
+            placeholder="Delhi Head Office"
             value={form.name}
             onChange={handleChange}
             error={errors.name}
           />
 
-          {/* ADDRESS */}
           <TextAreaField
             label="Branch Address *"
             name="address"
+            placeholder="Enter complete branch address"
             value={form.address}
             onChange={handleChange}
             error={errors.address}
+            rows={4}
           />
 
           <InputField
             label="Contact Person *"
             name="contactPerson"
+            placeholder="John Doe"
             value={form.contactPerson}
             onChange={handleChange}
             error={errors.contactPerson}
@@ -205,6 +226,7 @@ const CreateBranch = () => {
           <InputField
             label="Phone Number *"
             name="phone"
+            placeholder="9876543210"
             value={form.phone}
             onChange={handleChange}
             error={errors.phone}
@@ -223,68 +245,5 @@ const CreateBranch = () => {
     </MainLayout>
   );
 };
-
-/* ---------------- FIELD COMPONENTS ---------------- */
-
-function InputField({ label, error, ...props }) {
-  return (
-    <div className="flex flex-col">
-      <label className="text-gray-700 text-sm font-medium">
-        {label}
-      </label>
-      <input
-        {...props}
-        className={`mt-2 p-3 rounded-xl bg-gray-50 shadow-sm outline-none
-          ${error ? "border border-red-500" : "border border-transparent"}`}
-      />
-      {error && (
-        <p className="text-red-600 text-xs mt-1">{error}</p>
-      )}
-    </div>
-  );
-}
-
-function SelectField({ label, options, error, ...props }) {
-  return (
-    <div className="flex flex-col">
-      <label className="text-gray-700 text-sm font-medium">
-        {label}
-      </label>
-      <select
-        {...props}
-        className={`mt-2 p-3 rounded-xl bg-gray-50 shadow-sm outline-none
-          ${error ? "border border-red-500" : "border border-transparent"}`}
-      >
-        <option value="">Choose option</option>
-        {options.map((op, idx) => (
-          <option key={idx} value={op.value}>
-            {op.label}
-          </option>
-        ))}
-      </select>
-      {error && (
-        <p className="text-red-600 text-xs mt-1">{error}</p>
-      )}
-    </div>
-  );
-}
-
-function TextAreaField({ label, error, ...props }) {
-  return (
-    <div className="flex flex-col">
-      <label className="text-gray-700 text-sm font-medium">
-        {label}
-      </label>
-      <textarea
-        {...props}
-        className={`mt-2 p-3 h-24 rounded-xl bg-gray-50 shadow-sm outline-none
-          ${error ? "border border-red-500" : "border border-transparent"}`}
-      />
-      {error && (
-        <p className="text-red-600 text-xs mt-1">{error}</p>
-      )}
-    </div>
-  );
-}
 
 export default CreateBranch;
