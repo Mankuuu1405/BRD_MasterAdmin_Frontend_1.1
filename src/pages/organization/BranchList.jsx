@@ -10,7 +10,7 @@ import {
   FiEdit,
 } from "react-icons/fi";
 import { branchService } from "../../services/branchService";
-import DeleteConfirmButton from "../../components/DeleteConfirmButton"; // ✅ FIX 1
+import DeleteConfirmButton from "../../components/DeleteConfirmButton_1"; // ✅ FIX 1
 
 export default function BranchList() {
   const navigate = useNavigate();

@@ -3,7 +3,7 @@ import MainLayout from "../../../layout/MainLayout";
 import { FiPlus, FiEdit3, FiTrash2, FiEye, FiSearch } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { ruleManagementService } from "../../../services/ruleManagementService";
-import DeleteConfirmButton from "../../../components/DeleteConfirmButton";
+import DeleteConfirmButton from "../../../components/DeleteConfirmButton_1";
 
 export default function InternalVerificationRule() {
   const navigate = useNavigate();

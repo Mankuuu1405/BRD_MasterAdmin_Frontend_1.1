@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiPlus, FiEdit, FiTrash2, FiSearch, FiEye } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import DeleteConfirmButton from "../../../components/DeleteConfirmButton";
+import DeleteConfirmButton from "../../../components/DeleteConfirmButton_1";
 
 export default function StageMasterList() {
   const navigate = useNavigate();

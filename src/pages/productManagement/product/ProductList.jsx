@@ -3,6 +3,7 @@ import MainLayout from "../../../layout/MainLayout";
 import { productManagementService } from "../../../services/productManagementService";
 import { FiPlus, FiEdit, FiTrash2, FiSearch, FiEye } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { Button, PageHeader } from "../../../components/Controls/SharedUIHelpers";
 
 export default function LoanProductList() {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ export default function LoanProductList() {
   return (
     <MainLayout>
       {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+      {/* <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div>
           <h1 className="text-xl font-semibold">Loan Products</h1>
           <p className="text-sm text-gray-500">
@@ -45,13 +46,11 @@ export default function LoanProductList() {
           </p>
         </div>
 
-        <button
-          onClick={() => navigate("/product-management/add")}
-          className="w-full sm:w-auto px-4 py-2 bg-indigo-600 text-white rounded-xl flex items-center justify-center gap-2 text-sm"
-        >
-          <FiPlus /> Add Product
-        </button>
-      </div>
+        
+
+        <Button label={"Add Product"} onClick={() => navigate("/product-management/add")} icon={<FiPlus/>} />
+      </div> */}
+      <PageHeader title={"Loan Products"} subtitle={"View and manage loan products"} actionIcon={<FiPlus/>}  actionLabel={"Add Product"} onAction={() => navigate("/product-management/add")}/>
 
       {/* SEARCH */}
       <div className="bg-white rounded-2xl p-4 mb-6 flex items-center gap-3 shadow-sm">
