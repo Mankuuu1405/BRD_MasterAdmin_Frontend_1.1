@@ -332,7 +332,7 @@ const StatusBadge = ({ status }) => (
     className={`inline-flex items-center justify-center
       px-3 py-1 text-xs font-medium rounded-full
       ${
-        status === "Active"
+        status === "A"
           ? "bg-green-100 text-green-700"
           : "bg-red-100 text-red-600"
       }`}
