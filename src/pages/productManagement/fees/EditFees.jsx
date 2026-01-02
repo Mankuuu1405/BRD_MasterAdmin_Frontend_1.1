@@ -1,15 +1,41 @@
 import React, { useEffect, useMemo, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
-import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
+import { FiSave } from "react-icons/fi";
+
+import {
+  SubPageHeader,
+  InputField,
+  SelectField,
+  Button,
+} from "../../../components/Controls/SharedUIHelpers";
 
 // import { feesService } from "../../../services/feesService";
 
-/* ---------------- OPTIONS (DOC BASED) ---------------- */
-const FEE_FREQUENCY_OPTIONS = ["One-time", "Monthly", "Annually"];
-const FEE_BASIS_OPTIONS = ["Fixed", "Percentage", "Slab-based"];
-const RECOVERY_STAGE_OPTIONS = ["Disbursement", "Ongoing", "Closure"];
-const RECOVERY_MODE_OPTIONS = ["Direct Debit", "Auto-debit", "Cash"];
+/* ================= OPTIONS (DOC BASED) ================= */
+const FEE_FREQUENCY_OPTIONS = [
+  { label: "One-time", value: "One-time" },
+  { label: "Monthly", value: "Monthly" },
+  { label: "Annually", value: "Annually" },
+];
+
+const FEE_BASIS_OPTIONS = [
+  { label: "Fixed", value: "Fixed" },
+  { label: "Percentage", value: "Percentage" },
+  { label: "Slab-based", value: "Slab-based" },
+];
+
+const RECOVERY_STAGE_OPTIONS = [
+  { label: "Disbursement", value: "Disbursement" },
+  { label: "Ongoing", value: "Ongoing" },
+  { label: "Closure", value: "Closure" },
+];
+
+const RECOVERY_MODE_OPTIONS = [
+  { label: "Direct Debit", value: "Direct Debit" },
+  { label: "Auto-debit", value: "Auto-debit" },
+  { label: "Cash", value: "Cash" },
+];
 
 const EditFees = () => {
   const navigate = useNavigate();
@@ -30,13 +56,12 @@ const EditFees = () => {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
-  /* ---------------- LOAD FEE ---------------- */
+  /* ================= LOAD FEE ================= */
   useEffect(() => {
     (async () => {
       try {
         /*
         const data = await feesService.getFeeById(id);
-
         setForm({
           name: data.name,
           frequency: data.fees_frequency,
@@ -62,22 +87,16 @@ const EditFees = () => {
     })();
   }, [id]);
 
-  /* ---------------- VALIDATION ---------------- */
+  /* ================= VALIDATION ================= */
   const validate = (v) => {
     const e = {};
-
     if (!v.name.trim()) e.name = "Fee name is required";
     if (!v.frequency) e.frequency = "Fees frequency is required";
     if (!v.basis) e.basis = "Basis of fees is required";
     if (!v.recovery_stage) e.recovery_stage = "Recovery stage is required";
     if (!v.recovery_mode) e.recovery_mode = "Recovery mode is required";
-
-    if (v.rate === "") {
-      e.rate = "Fees rate is required";
-    } else if (Number(v.rate) < 0) {
-      e.rate = "Fees rate cannot be negative";
-    }
-
+    if (v.rate === "") e.rate = "Fees rate is required";
+    else if (Number(v.rate) < 0) e.rate = "Fees rate cannot be negative";
     return e;
   };
 
@@ -86,7 +105,7 @@ const EditFees = () => {
     [form]
   );
 
-  /* ---------------- HANDLERS ---------------- */
+  /* ================= HANDLERS ================= */
   const handleChange = (e) => {
     const { name, value } = e.target;
     const updated = { ...form, [name]: value };
@@ -98,7 +117,8 @@ const EditFees = () => {
   };
 
   const handleBlur = (e) => {
-    setTouched((p) => ({ ...p, [e.target.name]: true }));
+    const { name } = e.target;
+    setTouched((p) => ({ ...p, [name]: true }));
     setErrors(validate(form));
   };
 
@@ -129,10 +149,8 @@ const EditFees = () => {
           recovery_mode: form.recovery_mode,
           fees_rate: Number(form.rate),
         };
-
         await feesService.updateFee(id, payload);
       */
-
       navigate(-1);
     } finally {
       setSubmitting(false);
@@ -142,170 +160,131 @@ const EditFees = () => {
   if (loading) {
     return (
       <MainLayout>
-        <p className="text-gray-500">Loading fee details...</p>
+        <p className="text-gray-500 text-sm">Loading fee details...</p>
       </MainLayout>
     );
   }
 
   return (
     <MainLayout>
-      {/* HEADER (CONSISTENT UI) */}
-      <div className="flex items-center gap-3 mb-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition shadow-sm"
-        >
-          <FiArrowLeft className="text-gray-700 text-xl" />
-        </button>
+      {/* ================= HEADER ================= */}
+      <SubPageHeader
+        title="Edit Fee"
+        subtitle="Update fee configuration and recovery rules"
+        onBack={() => navigate(-1)}
+      />
 
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">
-            Edit Fee
-          </h1>
-          <p className="text-gray-500 text-sm">
-            Update fee configuration and recovery rules
-          </p>
-        </div>
-      </div>
-
-      {/* FORM CARD */}
+      {/* ================= FORM ================= */}
       <div className="bg-white p-8 rounded-2xl shadow-md max-w-3xl">
         <form
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-2 gap-6"
         >
-          <InputField
-            label="Fee Name"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.name}
-          />
+          <div>
+            <InputField
+              label="Fee Name"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              onBlur={handleBlur}
+            />
+            {touched.name && errors.name && (
+              <p className="text-xs text-red-600 mt-1">{errors.name}</p>
+            )}
+          </div>
 
-          <SelectField
-            label="Fees Frequency"
-            name="frequency"
-            value={form.frequency}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            options={FEE_FREQUENCY_OPTIONS}
-            error={errors.frequency}
-          />
+          <div>
+            <SelectField
+              label="Fees Frequency"
+              name="frequency"
+              value={form.frequency}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              options={FEE_FREQUENCY_OPTIONS}
+              placeholder="Select Frequency"
+            />
+            {touched.frequency && errors.frequency && (
+              <p className="text-xs text-red-600 mt-1">{errors.frequency}</p>
+            )}
+          </div>
 
-          <SelectField
-            label="Basis of Fees Frequency"
-            name="basis"
-            value={form.basis}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            options={FEE_BASIS_OPTIONS}
-            error={errors.basis}
-          />
+          <div>
+            <SelectField
+              label="Basis of Fees"
+              name="basis"
+              value={form.basis}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              options={FEE_BASIS_OPTIONS}
+              placeholder="Select Basis"
+            />
+            {touched.basis && errors.basis && (
+              <p className="text-xs text-red-600 mt-1">{errors.basis}</p>
+            )}
+          </div>
 
-          <SelectField
-            label="Fees Recovery Stage"
-            name="recovery_stage"
-            value={form.recovery_stage}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            options={RECOVERY_STAGE_OPTIONS}
-            error={errors.recovery_stage}
-          />
+          <div>
+            <SelectField
+              label="Fees Recovery Stage"
+              name="recovery_stage"
+              value={form.recovery_stage}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              options={RECOVERY_STAGE_OPTIONS}
+              placeholder="Select Stage"
+            />
+            {touched.recovery_stage && errors.recovery_stage && (
+              <p className="text-xs text-red-600 mt-1">
+                {errors.recovery_stage}
+              </p>
+            )}
+          </div>
 
-          <SelectField
-            label="Fees Recovery Mode"
-            name="recovery_mode"
-            value={form.recovery_mode}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            options={RECOVERY_MODE_OPTIONS}
-            error={errors.recovery_mode}
-          />
+          <div>
+            <SelectField
+              label="Fees Recovery Mode"
+              name="recovery_mode"
+              value={form.recovery_mode}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              options={RECOVERY_MODE_OPTIONS}
+              placeholder="Select Mode"
+            />
+            {touched.recovery_mode && errors.recovery_mode && (
+              <p className="text-xs text-red-600 mt-1">
+                {errors.recovery_mode}
+              </p>
+            )}
+          </div>
 
-          <InputField
-            label="Fees Rate"
-            type="number"
-            name="rate"
-            value={form.rate}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.rate}
-          />
+          <div>
+            <InputField
+              label="Fees Rate"
+              type="number"
+              name="rate"
+              value={form.rate}
+              onChange={handleChange}
+              onBlur={handleBlur}
+            />
+            {touched.rate && errors.rate && (
+              <p className="text-xs text-red-600 mt-1">{errors.rate}</p>
+            )}
+          </div>
 
-          {/* SUBMIT */}
-          <div className="md:col-span-2">
-            <button
+          {/* ================= SUBMIT ================= */}
+          <div className="md:col-span-2 pt-4">
+            <Button
               type="submit"
+              fullWidth
+              icon={<FiSave />}
+              label={submitting ? "Updating..." : "Update Fee"}
               disabled={hasErrors || submitting}
-              className={`w-full py-3 rounded-xl flex items-center justify-center gap-2 text-white shadow-md transition ${
-                hasErrors || submitting
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
-              }`}
-            >
-              <FiSave />
-              {submitting ? "Updating..." : "Update Fee"}
-            </button>
+            />
           </div>
         </form>
       </div>
     </MainLayout>
   );
 };
-
-/* ---------------- REUSABLE INPUTS (SAME AS ADD USER) ---------------- */
-
-const InputField = ({
-  label,
-  type = "text",
-  name,
-  value,
-  onChange,
-  onBlur,
-  error,
-}) => (
-  <div className="flex flex-col">
-    <label className="text-gray-700 text-sm font-medium">{label}</label>
-    <input
-      type={type}
-      name={name}
-      value={value}
-      onChange={onChange}
-      onBlur={onBlur}
-      className="mt-2 p-3 rounded-xl bg-gray-50 focus:bg-white shadow-sm outline-none"
-    />
-    {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
-  </div>
-);
-
-const SelectField = ({
-  label,
-  name,
-  value,
-  onChange,
-  onBlur,
-  options,
-  error,
-}) => (
-  <div className="flex flex-col">
-    <label className="text-gray-700 text-sm font-medium">{label}</label>
-    <select
-      name={name}
-      value={value}
-      onChange={onChange}
-      onBlur={onBlur}
-      className="mt-2 p-3 rounded-xl bg-gray-50 shadow-sm outline-none"
-    >
-      <option value="">Select {label}</option>
-      {options.map((op, i) => (
-        <option key={i} value={op}>
-          {op}
-        </option>
-      ))}
-    </select>
-    {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
-  </div>
-);
 
 export default EditFees;

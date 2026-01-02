@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
-import { FiArrowLeft, FiEdit } from "react-icons/fi";
+import { FiEdit } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
+
+import {
+  SubPageHeader,
+  Button,
+} from "../../../components/Controls/SharedUIHelpers";
 
 // import { interestService } from "../../../services/interestService";
 
@@ -64,75 +69,86 @@ const InterestDetail = () => {
   return (
     <MainLayout>
       {/* HEADER */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition shadow-sm"
-          >
-            <FiArrowLeft className="text-gray-700 text-xl" />
-          </button>
+      <div className="flex items-center justify-between mb-6">
+        <SubPageHeader
+          title="Interest Configuration Details"
+          subtitle="View benchmark, interest rules and APR"
+          onBack={() => navigate(-1)}
+        />
 
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">
-              Interest Configuration Details
-            </h1>
-            <p className="text-gray-500 text-sm">
-              View benchmark, interest rules and APR
-            </p>
-          </div>
-        </div>
-
-        <button
+        <Button
+          label="Edit"
+          icon={<FiEdit />}
           onClick={() => navigate(`/interest/${id}/edit`)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm flex items-center gap-2 hover:bg-blue-700 transition"
-        >
-          <FiEdit /> Edit
-        </button>
+        />
       </div>
 
       {/* CONTENT */}
       <div className="bg-white p-8 rounded-2xl shadow-md max-w-4xl space-y-8">
-        {/* -------- BENCHMARK SECTION -------- */}
-        <Section title="Benchmark Configuration">
-          <DetailItem label="Benchmark Type" value={data.benchmark.type} />
-          <DetailItem
-            label="Frequency"
-            value={data.benchmark.frequency}
-          />
-          <DetailItem
-            label="Benchmark Rate"
-            value={`${data.benchmark.rate}%`}
-          />
-          <DetailItem
-            label="Mark Up"
-            value={`${data.benchmark.mark_up}%`}
-          />
-        </Section>
+        {/* BENCHMARK */}
+        <div>
+          <h3 className="text-sm font-semibold text-gray-700 uppercase mb-4">
+            Benchmark Configuration
+          </h3>
 
-        {/* -------- INTEREST SECTION -------- */}
-        <Section title="Interest Configuration">
-          <DetailItem label="Interest Type" value={data.interest.type} />
-          <DetailItem
-            label="Stage of Accrual"
-            value={data.interest.accrual_stage}
-          />
-          <DetailItem
-            label="Method of Accrual"
-            value={data.interest.accrual_method}
-          />
-          <DetailItem
-            label="Interest Rate"
-            value={`${data.interest.rate}% p.a.`}
-          />
-        </Section>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+            <div>
+              <p className="text-gray-500">Benchmark Type</p>
+              <p className="font-medium">{data.benchmark.type}</p>
+            </div>
 
-        {/* -------- APR -------- */}
+            <div>
+              <p className="text-gray-500">Frequency</p>
+              <p className="font-medium">{data.benchmark.frequency}</p>
+            </div>
+
+            <div>
+              <p className="text-gray-500">Benchmark Rate</p>
+              <p className="font-medium">{data.benchmark.rate}%</p>
+            </div>
+
+            <div>
+              <p className="text-gray-500">Mark Up</p>
+              <p className="font-medium">{data.benchmark.mark_up}%</p>
+            </div>
+          </div>
+        </div>
+
+        {/* INTEREST */}
+        <div>
+          <h3 className="text-sm font-semibold text-gray-700 uppercase mb-4">
+            Interest Configuration
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+            <div>
+              <p className="text-gray-500">Interest Type</p>
+              <p className="font-medium">{data.interest.type}</p>
+            </div>
+
+            <div>
+              <p className="text-gray-500">Stage of Accrual</p>
+              <p className="font-medium">{data.interest.accrual_stage}</p>
+            </div>
+
+            <div>
+              <p className="text-gray-500">Method of Accrual</p>
+              <p className="font-medium">{data.interest.accrual_method}</p>
+            </div>
+
+            <div>
+              <p className="text-gray-500">Interest Rate</p>
+              <p className="font-medium">{data.interest.rate}% p.a.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* APR */}
         <div className="border-t pt-6 flex justify-between items-center">
           <h3 className="text-lg font-semibold text-gray-800">
             Average Percentage Rate (APR)
           </h3>
-          <span className="text-2xl font-bold text-blue-600">
+          <span className="text-2xl font-bold text-indigo-600">
             {apr.toFixed(2)}%
           </span>
         </div>
@@ -149,23 +165,3 @@ const InterestDetail = () => {
 };
 
 export default InterestDetail;
-
-/* ---------------- SMALL UI HELPERS ---------------- */
-
-const Section = ({ title, children }) => (
-  <div>
-    <h3 className="text-sm font-semibold text-gray-700 uppercase mb-4">
-      {title}
-    </h3>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {children}
-    </div>
-  </div>
-);
-
-const DetailItem = ({ label, value }) => (
-  <div>
-    <p className="text-xs text-gray-500">{label}</p>
-    <p className="text-sm font-medium text-gray-800">{value}</p>
-  </div>
-);

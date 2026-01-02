@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
-import { FiPlus, FiEdit, FiTrash2, FiSearch } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { FiPlus, FiEdit, FiTrash2 } from "react-icons/fi";
 
 import { productMixService } from "../../../services/productManagementService";
+import {
+  PageHeader,
+  SearchFilterBar,
+  ListView,
+  DeleteConfirmButton,
+} from "../../../components/Controls/SharedUIHelpers";
 
 const ProductMixList = () => {
   const navigate = useNavigate();
@@ -12,14 +18,15 @@ const ProductMixList = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deleteId, setDeleteId] = useState(null);
 
-  // Load product mixes
+  /* ================= FETCH ================= */
   const loadMixes = async () => {
     setLoading(true);
     setError("");
     try {
       const data = await productMixService.getProductMixes();
-      setMixes(data || []);
+      setMixes(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
       setError("Failed to load product mixes.");
@@ -32,134 +39,89 @@ const ProductMixList = () => {
     loadMixes();
   }, []);
 
-  // Delete product mix
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product mix?")) return;
-
+  /* ================= DELETE ================= */
+  const confirmDelete = async () => {
     try {
-      await productMixService.deleteProductMix(id);
-      setMixes((prev) => prev.filter((mix) => mix.id !== id));
+      await productMixService.deleteProductMix(deleteId);
+      setDeleteId(null);
+      loadMixes();
     } catch (err) {
       console.error(err);
       alert("Failed to delete the product mix.");
     }
   };
 
-  // Filtered list
+  /* ================= FILTER ================= */
   const filteredMixes = mixes.filter((m) =>
-    m.name.toLowerCase().includes(search.toLowerCase())
+    m.name?.toLowerCase().includes(search.toLowerCase())
   );
+
+  /* ================= LIST CONFIG ================= */
+  const columns = [
+    { key: "name", label: "Mix Name" },
+    { key: "product_category", label: "Category" },
+    { key: "product_type", label: "Type" },
+    { key: "amount", label: "Amount" },
+    { key: "period", label: "Period" },
+    { key: "facilities", label: "Facilities" },
+    { key: "is_active", label: "Status", type: "status" },
+  ];
+
+  const actions = [
+    {
+      icon: <FiEdit />,
+      color: "blue",
+      onClick: (row) => navigate(`/product-mix/${row.id}/edit`),
+    },
+    {
+      icon: <FiTrash2 />,
+      color: "red",
+      onClick: (row) => setDeleteId(row.id),
+    },
+  ];
 
   return (
     <MainLayout>
-      {/* HEADER */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-xl font-semibold">Product Mix Management</h1>
-          <p className="text-sm text-gray-500">
-            Manage bundled product offerings
-          </p>
-        </div>
+      {/* ================= HEADER ================= */}
+      <PageHeader
+        title="Product Mix Management"
+        subtitle="Manage bundled product offerings"
+        actionLabel="Add Product Mix"
+        actionIcon={<FiPlus />}
+        onAction={() => navigate("/product-mix/add")}
+      />
 
-        <button
-          onClick={() => navigate("/product-mix/add")}
-          className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm flex items-center gap-2 hover:bg-blue-700 transition"
-        >
-          <FiPlus /> Add Product Mix
-        </button>
-      </div>
+      {/* ================= SEARCH ================= */}
+      <SearchFilterBar
+        search={search}
+        onSearchChange={setSearch}
+        placeholder="Search product mix..."
+      />
 
-      {/* SEARCH BAR */}
-      <div className="bg-white rounded-2xl p-4 mb-6 flex items-center gap-3 shadow-sm">
-        <FiSearch className="text-gray-400" />
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search product mix..."
-          className="w-full outline-none text-sm"
-        />
-      </div>
-
-      {/* LIST */}
+      {/* ================= LIST ================= */}
       {loading ? (
-        <p className="text-gray-500">Loading product mixes...</p>
+        <p className="text-gray-500 text-sm">Loading product mixes...</p>
       ) : error ? (
-        <p className="text-red-500">{error}</p>
+        <p className="text-red-500 text-sm">{error}</p>
       ) : filteredMixes.length === 0 ? (
         <p className="text-gray-500 text-sm">No product mixes found.</p>
       ) : (
-        <div className="space-y-3">
-          {/* COLUMN HEADER */}
-          <div className="hidden md:grid grid-cols-8 bg-gray-100 rounded-xl px-5 py-3 text-xs font-semibold text-gray-600">
-            <div>Mix Name</div>
-            <div>Category</div>
-            <div>Type</div>
-            <div>Amount</div>
-            <div>Period</div>
-            <div>Facilities</div>
-            <div>Status</div>
-            <div className="text-right">Actions</div>
-          </div>
+        <ListView
+          data={filteredMixes}
+          columns={columns}
+          actions={actions}
+          rowKey="id"
+        />
+      )}
 
-          {/* ROWS */}
-          {filteredMixes.map((mix) => (
-            <div
-              key={mix.id}
-              className="bg-white rounded-2xl px-5 py-4 shadow-sm grid grid-cols-2 md:grid-cols-8 gap-y-2 items-center text-sm"
-            >
-              {/* Mix Name */}
-              <div className="font-medium text-gray-900">
-                {mix.name}
-                <div className="text-xs text-gray-400 md:hidden">
-                  {mix.product_category} • {mix.product_type}
-                </div>
-              </div>
-
-              {/* Category */}
-              <div className="text-gray-600 hidden md:block">{mix.product_category}</div>
-
-              {/* Type */}
-              <div className="text-gray-600 hidden md:block">{mix.product_type}</div>
-
-              {/* Amount */}
-              <div className="font-medium text-gray-700">-</div>
-
-              {/* Period */}
-              <div className="text-gray-600">-</div>
-
-              {/* Facilities */}
-              <div className="text-gray-600 text-xs hidden md:block">-</div>
-
-              {/* Status */}
-              <div>
-                <span
-                  className={`px-3 py-1 text-xs rounded-full ${
-                    mix.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  {mix.is_active ? "Active" : "Inactive"}
-                </span>
-              </div>
-
-              {/* Actions */}
-              <div className="flex justify-end gap-2 col-span-2 md:col-span-1">
-                <button
-                  onClick={() => navigate(`/product-mix/${mix.id}/edit`)}
-                  className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200"
-                >
-                  <FiEdit />
-                </button>
-
-                <button
-                  onClick={() => handleDelete(mix.id)}
-                  className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200"
-                >
-                  <FiTrash2 />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* ================= DELETE CONFIRM ================= */}
+      {deleteId && (
+        <DeleteConfirmButton
+          title="Delete Product Mix"
+          message="Are you sure you want to delete this product mix?"
+          onCancel={() => setDeleteId(null)}
+          onConfirm={confirmDelete}
+        />
       )}
     </MainLayout>
   );

@@ -11,7 +11,9 @@ import {
   DeleteConfirmButton,
 } from "../../../components/Controls/SharedUIHelpers";
 
-export default function LoanProductList() {
+
+
+export default function ProductList() {
   const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
@@ -21,10 +23,10 @@ export default function LoanProductList() {
 
   /* ================= FETCH ================= */
   useEffect(() => {
-    fetchProducts();
+    loadProducts();
   }, []);
 
-  const fetchProducts = async () => {
+  const loadProducts = async () => {
     try {
       setLoading(true);
       const data = await productManagementService.getProducts();

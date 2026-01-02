@@ -15,6 +15,8 @@ export default function ApprovalList() {
 
   const [approvals, setApprovals] = useState([]);
   const [search, setSearch] = useState("");
+  const [deleteId, setDeleteId] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   /* ---------------- LOAD DATA ---------------- */
   useEffect(() => {
@@ -22,8 +24,13 @@ export default function ApprovalList() {
   }, []);
 
   const loadApprovals = async () => {
-    const data = await approvalMasterService.getApprovalList();
-    setApprovals(Array.isArray(data) ? data : []);
+    try {
+      setLoading(true);
+      const data = await approvalMasterService.getApprovalList();
+      setApprovals(Array.isArray(data) ? data : []);
+    } finally {
+      setLoading(false);
+    }
   };
 
   /* ---------------- FILTER ---------------- */
