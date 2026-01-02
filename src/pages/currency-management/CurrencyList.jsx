@@ -109,7 +109,7 @@ const actions = [
 
 
       {deleteId && (
-        <DeleteConfirmButton onConfirm={handleDelete}/>
+        <DeleteConfirmButton onConfirm={handleDelete} onCancel={()=>{setDeleteId(false)}}/>
       )}
     </MainLayout>
   );
