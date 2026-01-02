@@ -1,5 +1,3 @@
-// src/pages/users/AddUser.jsx
-
 import React, { useEffect, useState } from "react";
 import MainLayout from "../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
@@ -9,26 +7,26 @@ import { organizationService } from "../../services/organizationService";
 import { branchService } from "../../services/branchService";
 import { userService } from "../../services/userService";
 
+import { InputField, SelectField } from "../../components/Controls/SharedUIHelpers";
+
 const AddUser = () => {
   const navigate = useNavigate();
 
   const [organizations, setOrganizations] = useState([]);
   const [branches, setBranches] = useState([]);
 
-  // FORM DATA
   const [form, setForm] = useState({
     email: "",
     phone: "",
     password: "",
     role: "",
-    organization: "",
-    branch: "",
+    organization: "", // UUID string
+    branch: "",       // UUID string
     status: "Active",
     employee_id: "",
     approval_limit: "",
   });
 
-  // ✅ ROLE MAP → EXACTLY AS IN User.ROLE_CHOICES
   const ROLE_MAP = {
     Admin: "ADMIN",
     "Loan Officer": "LOAN_OFFICER",
@@ -38,75 +36,74 @@ const AddUser = () => {
     Borrower: "BORROWER",
   };
 
-  // 🔁 LOAD ORGANIZATIONS
+  // Load organizations once
   useEffect(() => {
     (async () => {
-      const orgs = await organizationService.getOrganizations();
-      setOrganizations(orgs || []);
+      try {
+        const orgs = await organizationService.getOrganizations();
+        console.log(orgs)
+        setOrganizations(Array.isArray(orgs) ? orgs : []);
+      } catch (e) {
+        console.error("Failed to load organizations:", e);
+      }
     })();
   }, []);
 
-  // 🔁 HANDLE CHANGE
-  const handleChange = async (e) => {
-    const { name, value } = e.target;
-
-    setForm((prev) => ({ ...prev, [name]: value }));
-
-    if (name === "organization") {
-      // yaha value tenant/organization identifier hoga
-      const br = await branchService.getBranchesByOrg(value);
-      setBranches(br || []);
+  // Load branches whenever organization changes
+  useEffect(() => {
+    if (!form.organization) {
+      setBranches([]);
       setForm((prev) => ({ ...prev, branch: "" }));
+      return;
     }
+
+    (async () => {
+      try {
+        const br = await branchService.getBranchesByOrg(form.organization);
+        setBranches(Array.isArray(br) ? br : []);
+        setForm((prev) => ({ ...prev, branch: "" })); // reset branch
+      } catch (e) {
+        console.error("Failed to load branches:", e);
+      }
+    })();
+  }, [form.organization]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ✅ SIMPLE, CLEAR VALIDATION
   const validateForm = () => {
-    if (!form.email) return "Email is required.";
-    if (!form.email.endsWith("@gmail.com")) {
-      return "Email must be a valid Gmail address (example@gmail.com).";
-    }
+    if (!form.email?.trim()) return "Email is required.";
+    if (!form.email.endsWith("@gmail.com")) return "Email must be a Gmail address.";
 
-    if (!form.phone) return "Phone number is required.";
-    if (!/^\d{10}$/.test(form.phone)) {
-      return "Phone number must be exactly 10 digits.";
-    }
+    if (!form.phone?.trim()) return "Phone number is required.";
+    if (!/^\d{10}$/.test(form.phone)) return "Phone must be exactly 10 digits.";
 
-    if (!form.password) return "Password is required.";
+    if (!form.password?.trim()) return "Password is required.";
+    if (!form.role) return "Role is required.";
 
-    if (!form.role) return "Please select a role.";
-
-    // Organization & Branch OPTIONAL from backend POV.
-    // Agar tum chaho to yaha role-based required bana sakte ho.
+    if (!form.organization) return "Organization is required.";
+    if (!form.branch) return "Branch is required.";
 
     return null;
   };
 
-  // 📨 SUBMIT
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const error = validateForm();
-    if (error) {
-      alert(error);
-      return;
-    }
+    if (error) return alert(error);
 
     const payload = {
       email: form.email,
       phone: form.phone,
       password: form.password,
-      role: ROLE_MAP[form.role],          // map to backend enum
-
-      // ✅ FIX: Tenant (Organization) bhejna zaroori hai
-      tenant: form.organization ? Number(form.organization) : null,
-
-      branch: form.branch ? Number(form.branch) : null,
-
+      role: ROLE_MAP[form.role] || null,
+      organization: form.organization, // UUID string
+      branch: form.branch,             // UUID string
       employee_id: form.employee_id || "",
-      approval_limit:
-        form.approval_limit !== "" ? Number(form.approval_limit) : null,
-
+      approval_limit: form.approval_limit ? Number(form.approval_limit) : null,
       is_active: form.status === "Active",
       is_staff: false,
       is_superuser: false,
@@ -115,12 +112,12 @@ const AddUser = () => {
     try {
       await userService.addUser(payload);
       alert("User added successfully!");
-      navigate("/users/list");
+      navigate("/users");
     } catch (err) {
       console.error("ADD USER ERROR:", err.response?.data || err);
       alert(
-        "Error: Unable to add user.\n" +
-          JSON.stringify(err.response?.data || {}, null, 2)
+        "Failed to add user:\n" +
+        JSON.stringify(err.response?.data || {}, null, 2)
       );
     }
   };
@@ -131,71 +128,39 @@ const AddUser = () => {
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition shadow-sm"
+          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 shadow-sm"
         >
-          <FiArrowLeft className="text-gray-700 text-xl" />
+          <FiArrowLeft className="text-xl" />
         </button>
-
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Add New User</h1>
-          <p className="text-gray-500 text-sm">
-            Enter user details and assign role & permissions
-          </p>
+          <h1 className="text-2xl font-bold">Add New User</h1>
+          <p className="text-gray-500 text-sm">Enter user details and assign role</p>
         </div>
       </div>
 
       {/* FORM */}
       <div className="bg-white p-8 rounded-2xl shadow-md max-w-3xl">
-        <form
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-          onSubmit={handleSubmit}
-        >
-          <InputField
-            name="email"
-            label="Email (Gmail only)"
-            value={form.email}
-            onChange={handleChange}
-          />
-
-          <InputField
-            name="phone"
-            label="Phone Number (10 digits)"
-            value={form.phone}
-            onChange={handleChange}
-          />
-
-          <InputField
-            name="password"
-            label="Password"
-            type="password"
-            value={form.password}
-            onChange={handleChange}
-          />
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <InputField name="email" label="Email" value={form.email} onChange={handleChange} />
+          <InputField name="phone" label="Phone" value={form.phone} onChange={handleChange} />
+          <InputField name="password" label="Password" type="password" value={form.password} onChange={handleChange} />
 
           <SelectField
             name="role"
             label="User Role"
             value={form.role}
             onChange={handleChange}
-            options={[
-              "Admin",
-              "Loan Officer",
-              "Underwriter",
-              "Finance Staff",
-              "Sales Executive",
-              "Borrower",
-            ]}
+            options={Object.keys(ROLE_MAP).map((k) => ({ label: k, value: k }))}
           />
 
           <SelectField
             name="organization"
             label="Organization"
-            value={form.organization}
+            value={form.organization || ""}
             onChange={handleChange}
             options={organizations.map((o) => ({
-              // depends on your org API; keeping value as o.tenant_id if available
-              label: o.name,
-              value: o.tenant_id || o.id || "",
+              label: o.business_name, // correct field
+              value: o.tenant_id || o.id, // backend expects tenant_id
             }))}
           />
 
@@ -205,36 +170,28 @@ const AddUser = () => {
             value={form.branch}
             onChange={handleChange}
             options={branches.map((b) => ({
-              label: b.name,
-              value: b.id,
+              label: b.branch_name, // correct field
+              value: b.id,          // branch UUID
             }))}
           />
 
-          <InputField
-            name="employee_id"
-            label="Employee ID"
-            value={form.employee_id}
-            onChange={handleChange}
-          />
 
-          <InputField
-            name="approval_limit"
-            label="Approval Limit"
-            type="number"
-            value={form.approval_limit}
-            onChange={handleChange}
-          />
+          <InputField name="employee_id" label="Employee ID" value={form.employee_id} onChange={handleChange} />
+          <InputField name="approval_limit" label="Approval Limit" type="number" value={form.approval_limit} onChange={handleChange} />
 
           <SelectField
             name="status"
             label="Status"
             value={form.status}
             onChange={handleChange}
-            options={["Active", "Inactive"]}
+            options={[
+              { label: "Active", value: "Active" },
+              { label: "Inactive", value: "Inactive" },
+            ]}
           />
 
           <div className="md:col-span-2">
-            <button className="w-full bg-blue-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition shadow-md">
+            <button className="w-full bg-blue-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700">
               <FiSave /> Add User
             </button>
           </div>
@@ -243,39 +200,5 @@ const AddUser = () => {
     </MainLayout>
   );
 };
-
-// INPUT FIELD
-const InputField = ({ label, type = "text", name, value, onChange }) => (
-  <div className="flex flex-col">
-    <label className="text-gray-700 text-sm font-medium">{label}</label>
-    <input
-      type={type}
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="mt-2 p-3 rounded-xl bg-gray-50 focus:bg-white shadow-sm outline-none"
-    />
-  </div>
-);
-
-// SELECT FIELD
-const SelectField = ({ label, name, value, onChange, options }) => (
-  <div className="flex flex-col">
-    <label className="text-gray-700 text-sm font-medium">{label}</label>
-    <select
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="mt-2 p-3 rounded-xl bg-gray-50 shadow-sm outline-none"
-    >
-      <option value="">Select {label}</option>
-      {options.map((op, i) => (
-        <option key={i} value={op.value || op}>
-          {op.label || op}
-        </option>
-      ))}
-    </select>
-  </div>
-);
 
 export default AddUser;

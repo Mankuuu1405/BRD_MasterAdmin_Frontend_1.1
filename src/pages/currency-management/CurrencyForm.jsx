@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import MainLayout from "../../layout/MainLayout";
 import { FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
-import { FiSave } from "react-icons/fi";
 
 import {
   SubPageHeader,
@@ -10,6 +9,8 @@ import {
   SelectField,
   Button,
 } from "../../components/Controls/SharedUIHelpers";
+
+import currencyManagementService from "../../services/currencyManagementService";
 
 /* ================= CONSTANTS ================= */
 

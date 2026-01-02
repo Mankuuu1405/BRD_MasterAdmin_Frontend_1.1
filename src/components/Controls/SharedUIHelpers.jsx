@@ -127,6 +127,7 @@ export const SubPageHeader = ({
 
 export const InputField = ({
   label,
+  name,
   value,
   onChange,
   placeholder,
@@ -135,39 +136,86 @@ export const InputField = ({
   className = "",
 }) => (
   <div className="flex flex-col gap-2 w-full">
-    {label && <label className="text-sm font-medium text-gray-700">{label}</label>}
+    {label && (
+      <label className="text-sm font-medium text-gray-700">
+        {label}
+      </label>
+    )}
+
     <input
       type={type}
-      value={value}
+      name={name}
+      value={value ?? ""}  
       onChange={onChange}
       placeholder={placeholder}
       disabled={disabled}
-      className={`w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none ${className}`}
+      className={`w-full rounded-xl border border-gray-200 px-4 py-2 text-sm
+        focus:ring-2 focus:ring-indigo-500 focus:outline-none ${className}`}
     />
   </div>
 );
 
+
 export const SelectField = ({
   label,
+  name,
   value,
   onChange,
   options = [],
-  placeholder,
-}) => (
-  <div className="flex flex-col gap-2 w-full">
-    {label && <label className="text-sm font-medium text-gray-700">{label}</label>}
-    <select
-      value={value}
-      onChange={onChange}
-      className="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-    >
-      {placeholder && <option value="">{placeholder}</option>}
-      {options.map((opt) => (
-        <option key={opt.value} value={opt.value}>{opt.label}</option>
-      ))}
-    </select>
-  </div>
-);
+  placeholder = "Select",
+  required = false,
+  disabled = false,
+  error = "",
+  className = "",
+}) => {
+  return (
+    <div className={`flex flex-col gap-1 ${className}`}>
+      {label && (
+        <label className="text-sm font-medium text-gray-700">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+      )}
+
+      <select
+        name={name}
+        value={value ?? ""}
+        onChange={onChange}
+        disabled={disabled}
+        className={`
+          w-full p-3 text-sm rounded-xl border
+          bg-gray-50 text-gray-900
+          focus:outline-none focus:ring-2 focus:ring-blue-500
+          transition
+          ${
+            error
+              ? "border-red-500 focus:ring-red-400"
+              : "border-gray-300"
+          }
+          ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}
+        `}
+      >
+        <option value="" disabled>
+          {placeholder}
+        </option>
+
+        {options.map((opt) => {
+          const value = typeof opt === "string" ? opt : opt.value;
+          const label = typeof opt === "string" ? opt : opt.label;
+
+          return (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          );
+        })}
+      </select>
+
+      {error && <span className="text-xs text-red-600">{error}</span>}
+    </div>
+  );
+};
+
 
 export const MultiSelectField = ({
   label,
@@ -331,19 +379,27 @@ const MobileRow = ({ label, value }) => (
   </div>
 );
 
-const StatusBadge = ({ status }) => (
-  <span
-    className={`inline-flex items-center justify-center
-      px-3 py-1 text-xs font-medium rounded-full
-      ${
-        status === true
-          ? "bg-green-100 text-green-700"
-          : "bg-red-100 text-red-600"
-      }`}
-  >
-    {status ? "Active" : "Inactive"}
-  </span>
-);
+const StatusBadge = ({ status }) => {
+  const isActive =
+    status === true ||
+    status === 1 ||
+    String(status).toLowerCase() === "active";
+
+  return (
+    <span
+      className={`inline-flex items-center justify-center
+        px-3 py-1 text-xs font-medium rounded-full
+        ${
+          isActive
+            ? "bg-green-100 text-green-700"
+            : "bg-red-100 text-red-600"
+        }`}
+    >
+      {isActive ? "Active" : "Inactive"}
+    </span>
+  );
+};
+
 
 const IconButton = ({ children, color, onClick }) => {
   const map = {
@@ -572,6 +628,13 @@ export function TextAreaField({
   );
 }
 
+export const FormCard = ({ children, className = "" }) => (
+  <div className={`bg-white rounded-2xl shadow-sm p-6 ${className}`}>
+    {children}
+  </div>
+);
+
+
 
 export default {
   Button,
@@ -583,4 +646,7 @@ export default {
   CheckboxGroup,
   ListView,
   DeleteConfirmButton,
+  IconButton,
+  StatusBadge,
+  FormCard,
 };
