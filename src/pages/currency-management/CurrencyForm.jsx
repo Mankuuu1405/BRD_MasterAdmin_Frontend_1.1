@@ -1,15 +1,35 @@
 import React, { useEffect, useState } from "react";
 import MainLayout from "../../layout/MainLayout";
-import { FiArrowLeft, FiSave } from "react-icons/fi";
+import { FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 import currencyManagementService from "../../services/currencyManagementService";
 
-const STATUS = ["Active", "Inactive"];
-const CURRENCIES = ["INR", "USD", "EUR", "GBP"];
+import {
+  SubPageHeader,
+  InputField,
+  SelectField,
+  Button,
+} from "../../components/Controls/SharedUIHelpers";
+
+/* ================= CONSTANTS ================= */
+
+const STATUS_OPTIONS = [
+  { label: "Active", value: "Active" },
+  { label: "Inactive", value: "Inactive" },
+];
+
+const CURRENCY_OPTIONS = [
+  { label: "INR", value: "INR" },
+  { label: "USD", value: "USD" },
+  { label: "EUR", value: "EUR" },
+  { label: "GBP", value: "GBP" },
+];
+
+/* ================= COMPONENT ================= */
 
 export default function CurrencyForm({ isEdit = false }) {
   const navigate = useNavigate();
-  const { uuid } = useParams(); // For edit mode
+  const { uuid } = useParams();
 
   const [form, setForm] = useState({
     currency_code: "",
@@ -21,27 +41,28 @@ export default function CurrencyForm({ isEdit = false }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Load existing currency if editing
+  /* ---------------- LOAD (EDIT MODE) ---------------- */
   useEffect(() => {
-    if (isEdit && uuid) {
-      setLoading(true);
-      currencyManagementService
-        .getOne(uuid)
-        .then((res) => setForm(res))
-        .catch((err) => {
-          console.error("Failed to load currency:", err.response?.data || err);
-          setError("Failed to load currency details");
-        })
-        .finally(() => setLoading(false));
-    }
+    if (!isEdit || !uuid) return;
+
+    setLoading(true);
+    currencyManagementService
+      .getOne(uuid)
+      .then((res) => {
+        setForm({
+          currency_code: res.currency_code || "",
+          currency_symbol: res.currency_symbol || "",
+          conversion_value_to_inr: res.conversion_value_to_inr || "",
+          status: res.status || "Active",
+        });
+      })
+      .catch(() => setError("Failed to load currency details"))
+      .finally(() => setLoading(false));
   }, [isEdit, uuid]);
 
-  const handleChange = (e, isNumber = false) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: isNumber ? Number(value) : value,
-    }));
+  /* ---------------- HANDLERS ---------------- */
+  const handleChange = (name, value) => {
+    setForm((p) => ({ ...p, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -50,15 +71,13 @@ export default function CurrencyForm({ isEdit = false }) {
     setError("");
 
     try {
-      if (isEdit && uuid) {
-        await currencyManagementService.update(uuid, form);
-      } else {
-        await currencyManagementService.create(form);
-      }
+      isEdit
+        ? await currencyManagementService.update(uuid, form)
+        : await currencyManagementService.create(form);
+
       navigate("/currency-management");
-    } catch (err) {
-      console.error("API error:", err.response?.data || err);
-      setError("Failed to save currency. Please check your inputs.");
+    } catch {
+      setError("Failed to save currency. Please check inputs.");
     } finally {
       setLoading(false);
     }
@@ -66,112 +85,75 @@ export default function CurrencyForm({ isEdit = false }) {
 
   return (
     <MainLayout>
-      {/* HEADER */}
-      <div className="flex items-center gap-3 mb-8">
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100"
-        >
-          <FiArrowLeft />
-        </button>
-        <div>
-          <h1 className="text-2xl font-bold">
-            {isEdit ? "Edit Currency" : "Add Currency"}
-          </h1>
-          <p className="text-gray-500 text-sm">
-            Configure currency conversion values
-          </p>
-        </div>
-      </div>
+      {/* ================= HEADER ================= */}
+      <SubPageHeader
+        title={isEdit ? "Edit Currency" : "Add Currency"}
+        subtitle="Configure currency conversion values"
+        onBack={() => navigate(-1)}
+      />
 
-      {/* FORM */}
+      {/* ================= FORM ================= */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow-md max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6"
+        className="bg-white p-8 rounded-2xl shadow-md max-w-4xl
+                   grid grid-cols-1 md:grid-cols-2 gap-6"
       >
-        <Select
+        <SelectField
           label="Currency Code"
-          name="currency_code"
           value={form.currency_code}
-          onChange={handleChange}
-          options={CURRENCIES}
-          required
+          onChange={(e) =>
+            handleChange("currency_code", e.target.value)
+          }
+          options={CURRENCY_OPTIONS}
+          placeholder="Select currency"
         />
 
-        <Input
+        <InputField
           label="Currency Symbol"
-          name="currency_symbol"
           value={form.currency_symbol}
-          onChange={handleChange}
+          onChange={(e) =>
+            handleChange("currency_symbol", e.target.value)
+          }
           placeholder="₹, $, €"
-          required
         />
 
-        <NumberInput
+        <InputField
           label="Conversion Value to INR"
-          name="conversion_value_to_inr"
+          type="number"
           value={form.conversion_value_to_inr}
-          onChange={(e) => handleChange(e, true)}
-          required
+          onChange={(e) =>
+            handleChange("conversion_value_to_inr", Number(e.target.value))
+          }
+          placeholder="0.00"
         />
 
-        <Select
+        <SelectField
           label="Status"
-          name="status"
           value={form.status}
-          onChange={handleChange}
-          options={STATUS}
-          required
+          onChange={(e) =>
+            handleChange("status", e.target.value)
+          }
+          options={STATUS_OPTIONS}
         />
 
         {error && (
-          <div className="md:col-span-2 text-sm text-red-600">{error}</div>
+          <div className="md:col-span-2 text-sm text-red-600">
+            {error}
+          </div>
         )}
 
-        <div className="md:col-span-2 flex justify-end mt-4">
-          <button
+        {/* ================= ACTION ================= */}
+        <div className="md:col-span-2 flex justify-end pt-4">
+          <Button
             type="submit"
+            label={loading ? "Saving..." : "Save Currency"}
+            icon={<FiSave />}
             disabled={loading}
-            className={`px-5 py-3 rounded-xl text-white flex items-center gap-2 ${
-              loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-            }`}
-          >
-            <FiSave /> {loading ? "Saving..." : "Save Currency"}
-          </button>
+            variant="primary"
+            size="lg"
+          />
         </div>
       </form>
     </MainLayout>
   );
 }
-
-/* ---------- INPUTS ---------- */
-
-const Input = ({ label, ...props }) => (
-  <div>
-    <label className="text-sm font-medium text-gray-700">{label}</label>
-    <input
-      {...props}
-      className="mt-2 w-full p-3 bg-gray-50 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500"
-    />
-  </div>
-);
-
-const NumberInput = (props) => <Input {...props} type="number" min="0" />;
-
-const Select = ({ label, options, ...props }) => (
-  <div>
-    <label className="text-sm font-medium text-gray-700">{label}</label>
-    <select
-      {...props}
-      className="mt-2 w-full p-3 bg-gray-50 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500"
-    >
-      <option value="">Select</option>
-      {options.map((o) => (
-        <option key={o} value={o}>
-          {o}
-        </option>
-      ))}
-    </select>
-  </div>
-);
