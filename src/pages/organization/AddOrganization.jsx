@@ -11,100 +11,72 @@ export default function AddOrganization() {
   const [form, setForm] = useState({
     business_name: "",
     email: "",
-    mobile_no: "",
-    address: "",
+    mobile_number: "",
     contact_person: "",
-    loan_product: [],
-    gst_in: "",
-    pan: "",
-    cin: "",
+    full_address: "",
+    loan_products: "",
+    gst_number: "",
+    pan_number: "",
+    cin_number: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
-
-  // success popup
-  const [successData, setSuccessData] = useState(null);
-  const [showSuccess, setShowSuccess] = useState(false);
 
   /* ---------------- HANDLERS ---------------- */
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleLoanProducts = (e) => {
-    const value = e.target.value
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
-
-    setForm({ ...form, loan_product: value });
-  };
-
   /* ---------------- VALIDATION ---------------- */
-const validateForm = () => {
-  // Business Name
-  if (!form.business_name.trim())
-    return "Business name is required";
-  if (form.business_name.trim().length < 3)
-    return "Business name must be at least 3 characters";
+  const validateForm = () => {
+    if (!form.business_name.trim())
+      return "Business name is required";
 
-  // Email
-  if (!form.email.trim())
-    return "Email is required";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
-    return "Enter a valid email address";
+    if (!form.email.trim())
+      return "Email is required";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      return "Enter a valid email address";
 
-  // Mobile Number
-  if (!form.mobile_no.trim())
-    return "Mobile number is required";
-  if (!/^[0-9]{10}$/.test(form.mobile_no))
-    return "Mobile number must be exactly 10 digits";
+    if (!form.mobile_number.trim())
+      return "Mobile number is required";
+    if (!/^[0-9]{10}$/.test(form.mobile_number))
+      return "Mobile number must be exactly 10 digits";
 
-  // Contact Person
-  if (!form.contact_person.trim())
-    return "Contact person is required";
-  if (form.contact_person.trim().length < 3)
-    return "Contact person must be at least 3 characters";
+    if (!form.contact_person.trim())
+      return "Contact person is required";
 
-  // Address
-  if (!form.address.trim())
-    return "Address is required";
-  if (form.address.trim().length < 10)
-    return "Address must be at least 10 characters";
+    if (!form.full_address.trim())
+      return "Full address is required";
 
-  // Loan Products
-  if (!form.loan_product || form.loan_product.length === 0)
-    return "At least one loan product is required";
+    if (!form.loan_products.trim())
+      return "Loan products are required";
 
-  // GST (optional but validated if present)
-  if (
-    form.gst_in &&
-    !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(
-      form.gst_in.toUpperCase()
+    // Optional validations
+    if (
+      form.gst_number &&
+      !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(
+        form.gst_number.toUpperCase()
+      )
     )
-  )
-    return "Invalid GST number format";
+      return "Invalid GST number";
 
-  // PAN (optional but validated if present)
-  if (
-    form.pan &&
-    !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(form.pan.toUpperCase())
-  )
-    return "PAN must be in format ABCDE1234F";
-
-  // CIN (optional but validated if present)
-  if (
-    form.cin &&
-    !/^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/.test(
-      form.cin.toUpperCase()
+    if (
+      form.pan_number &&
+      !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(form.pan_number.toUpperCase())
     )
-  )
-    return "Invalid CIN number format";
+      return "Invalid PAN number";
 
-  return null;
-};
+    if (
+      form.cin_number &&
+      !/^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/.test(
+        form.cin_number.toUpperCase()
+      )
+    )
+      return "Invalid CIN number";
 
+    return null;
+  };
 
   /* ---------------- SUBMIT ---------------- */
   const handleSubmit = async (e) => {
@@ -121,29 +93,20 @@ const validateForm = () => {
 
     try {
       const payload = {
-        name: form.business_name,
-        tenant_type: "NBFC",
+        business_name: form.business_name,
         email: form.email,
-        phone: form.mobile_no,
-        address: form.address,
-        city: "",
-        state: "",
-        pincode: "",
+        mobile_number: form.mobile_number,
+        contact_person: form.contact_person,
+        full_address: form.full_address,
+        loan_products: form.loan_products, // STRING
+        gst_number: form.gst_number || null,
+        pan_number: form.pan_number || null,
+        cin_number: form.cin_number || null,
         is_active: true,
       };
 
-      const response = await organizationService.addOrganization(payload);
-
-      // ✅ confirm tenant_id received
-      if (response?.data?.tenant_id) {
-        setSuccessData(response.data);
-        setShowSuccess(true);
-
-        // ✅ auto redirect after 2 seconds
-       navigate("/organizations/list", { replace: true });
-      } else {
-        setErrors("Tenant added but tenant ID not received from server.");
-      }
+      await organizationService.addOrganization(payload);
+      navigate("/organizations/list", { replace: true });
     } catch (err) {
       if (err.response?.data) {
         const firstError = Object.values(err.response.data)[0];
@@ -162,17 +125,15 @@ const validateForm = () => {
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={() => navigate(-1)}
-          className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 transition"
+          className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200"
         >
-          <FiArrowLeft className="text-gray-700 text-lg" />
+          <FiArrowLeft />
         </button>
 
         <div>
-          <h1 className="text-[22px] font-semibold text-gray-900">
-            Add New Organization
-          </h1>
+          <h1 className="text-xl font-semibold">Add New Organization</h1>
           <p className="text-gray-500 text-sm">
-            Enter company details to register a new organization
+            Register a new organization
           </p>
         </div>
       </div>
@@ -185,114 +146,87 @@ const validateForm = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <InputField
               label="Business Name *"
               name="business_name"
-              placeholder="ABC Finance Pvt Ltd"
               value={form.business_name}
               onChange={handleChange}
             />
 
             <InputField
-              label="Email Address *"
+              label="Email *"
               name="email"
               type="email"
-              placeholder="example@company.com"
               value={form.email}
               onChange={handleChange}
             />
 
             <InputField
               label="Mobile Number *"
-              name="mobile_no"
-              placeholder="9876543210"
-              value={form.mobile_no}
+              name="mobile_number"
+              value={form.mobile_number}
               onChange={handleChange}
             />
 
             <InputField
               label="Contact Person *"
               name="contact_person"
-              placeholder="Rahul Sharma"
               value={form.contact_person}
               onChange={handleChange}
             />
 
             <InputField
               label="GST Number"
-              name="gst_in"
-              placeholder="22AAAAA0000A1Z5"
-              value={form.gst_in}
+              name="gst_number"
+              value={form.gst_number}
               onChange={handleChange}
             />
 
             <InputField
               label="PAN Number"
-              name="pan"
-              placeholder="ABCDE1234F"
-              value={form.pan}
+              name="pan_number"
+              value={form.pan_number}
               onChange={handleChange}
             />
 
             <InputField
               label="CIN Number"
-              name="cin"
-              placeholder="U12345MH2020PTC123456"
-              value={form.cin}
+              name="cin_number"
+              value={form.cin_number}
               onChange={handleChange}
             />
           </div>
 
           <div>
-            <label className="text-gray-700 text-sm font-medium">
-              Full Address *
-            </label>
+            <label className="text-sm font-medium">Full Address *</label>
             <textarea
-              name="address"
-              value={form.address}
+              name="full_address"
+              value={form.full_address}
               onChange={handleChange}
-              placeholder="Head office complete address"
-              className="w-full mt-2 p-3 rounded-xl bg-gray-50 outline-none text-sm"
+              className="w-full mt-2 p-3 rounded-xl bg-gray-50"
             />
           </div>
 
           <InputField
-            label="Loan Products"
-            placeholder="Gold Loan, Personal Loan"
-            onChange={handleLoanProducts}
+            label="Loan Products *"
+            name="loan_products"
+            placeholder="Home Loan, Personal Loan"
+            value={form.loan_products}
+            onChange={handleChange}
           />
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-semibold flex justify-center gap-2 hover:bg-blue-700 transition"
+            className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold flex justify-center gap-2 hover:bg-blue-700"
           >
-            <FiSave className="text-lg" />
+            <FiSave />
             {loading ? "Saving..." : "Save Organization"}
           </button>
         </form>
       </div>
-
-      {/* SUCCESS POPUP (AUTO REDIRECT) */}
-      {showSuccess && (
-        <div className="fixed top-6 right-6 z-50">
-          <div className="bg-green-600 text-white px-6 py-4 rounded-xl shadow-lg">
-            <p className="font-semibold">
-              ✅ Organization added successfully
-            </p>
-            {successData?.tenant_id && (
-              <p className="text-xs mt-1 opacity-90">
-                Tenant ID: {successData.tenant_id}
-              </p>
-            )}
-            <p className="text-xs mt-1 opacity-80">
-              Redirecting to organizations...
-            </p>
-          </div>
-        </div>
-      )}
     </MainLayout>
   );
 }
@@ -301,10 +235,10 @@ const validateForm = () => {
 function InputField({ label, ...props }) {
   return (
     <div>
-      <label className="text-gray-700 text-sm font-medium">{label}</label>
+      <label className="text-sm font-medium">{label}</label>
       <input
         {...props}
-        className="w-full mt-2 p-3 rounded-xl bg-gray-50 outline-none text-sm"
+        className="w-full mt-2 p-3 rounded-xl bg-gray-50 outline-none"
       />
     </div>
   );

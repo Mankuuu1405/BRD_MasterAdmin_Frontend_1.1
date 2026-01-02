@@ -7,7 +7,7 @@ import {
   FiEye,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import DeleteConfirmButton from "../../../components/DeleteConfirmButton";
+import DeleteConfirmButton from "../../../components/DeleteConfirmButton_1";
 
 /* ---------------- COMPONENT ---------------- */
 

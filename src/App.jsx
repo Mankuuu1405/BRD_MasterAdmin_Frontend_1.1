@@ -287,34 +287,34 @@ import JointApplicantList from "./pages/ControlsManagement/ManageJointApplicant/
 import AddJointApplicant from "./pages/ControlsManagement/ManageJointApplicant/AddJointApplicant";
 import EditJointApplicant from "./pages/ControlsManagement/ManageJointApplicant/EditJointApplicant";
 import ViewJointApplicant from "./pages/ControlsManagement/ManageJointApplicant/ViewJointApplicant";
-import ReferenceList from "./pages/ControlsManagement/ManageReferences/ReferenceList";
-import AddReference from "./pages/ControlsManagement/ManageReferences/AddReference";
-import EditReference from "./pages/ControlsManagement/ManageReferences/EditReference";
-import ViewReference from "./pages/ControlsManagement/ManageReferences/ViewReference";
-import ApplicationProcessList from "./pages/ControlsManagement/ManageApplicationProcess/ApplicationProcessList";
-import UpdateProcessingMode from "./pages/ControlsManagement/ManageApplicationProcess/UpdateProcessingMode";
-import UpdateApplication from "./pages/ControlsManagement/ManageApplicationProcess/UpdateApplication";
-import ApplicationSettings from "./pages/ControlsManagement/ManageApplicationProcess/ApplicationSettings";
-import UpdateActionType from "./pages/ControlsManagement/ManageApplicationProcess/UpdateActionType";
-import ReferenceCheckList from "./pages/ControlsManagement/ManageScoreCardRating/ReferenceCheck/ReferenceCheckList";
-import AddReferenceCheck from "./pages/ControlsManagement/ManageScoreCardRating/ReferenceCheck/AddReferenceCheck";
-import EditReferenceCheck from "./pages/ControlsManagement/ManageScoreCardRating/ReferenceCheck/EditReferenceCheck";
+// import ReferenceList from "./pages/ControlsManagement/ManageReferences/ReferenceList";
+// import AddReference from "./pages/ControlsMa1nagement/ManageReferences/AddReference";
+// import EditReference from "./pages/ControlsManagement/ManageReferences/EditReference";
+// import ViewReference from "./pages/ControlsManagement/ManageReferences/ViewReference";
+// import ApplicationProcessList from "./pages/ControlsManagement/ManageApplicationProcess/ApplicationProcessList";
+// import UpdateProcessingMode from "./pages/ControlsManagement/ManageApplicationProcess/UpdateProcessingMode";
+// import UpdateApplication from "./pages/ControlsManagement/ManageApplicationProcess/UpdateApplication";
+// import ApplicationSettings from "./pages/ControlsManagement/ManageApplicationProcess/ApplicationSettings";
+// import UpdateActionType from "./pages/ControlsManagement/ManageApplicationProcess/UpdateActionType";
+// import ReferenceCheckList from "./pages/ControlsManagement/ManageScoreCardRating/ReferenceCheck/ReferenceCheckList";
+// import AddReferenceCheck from "./pages/ControlsManagement/ManageScoreCardRating/ReferenceCheck/AddReferenceCheck";
+// import EditReferenceCheck from "./pages/ControlsManagement/ManageScoreCardRating/ReferenceCheck/EditReferenceCheck";
 import ScoreCardRatingHome from "./pages/ControlsManagement/ManageScoreCardRating/ScoreCardRatingHome";
-import CreditHistoryList from "./pages/ControlsManagement/ManageScoreCardRating/CreditHistory/CreditHistoryList";
-import AddCreditHistory from "./pages/ControlsManagement/ManageScoreCardRating/CreditHistory/AddCreditHistory";
-import EditCreditHistory from "./pages/ControlsManagement/ManageScoreCardRating/CreditHistory/EditCreditHistory";
-import AddInvestigationReport from "./pages/ControlsManagement/ManageScoreCardRating/InvastigationReport/AddInvestigationReport";
-import EditInvestigationReport from "./pages/ControlsManagement/ManageScoreCardRating/InvastigationReport/EditInvestigationReport";
-import InvestigationReportList from "./pages/ControlsManagement/ManageScoreCardRating/InvastigationReport/InvestigationReportList";
-import TeleVerificationList from "./pages/ControlsManagement/ManageVerification/TeleVerification/TeleVerificationList";
-import MeetingList from "./pages/ControlsManagement/ManageVerification/CreditPersonalMeetings/MeetingList";
+// import CreditHistoryList from "./pages/ControlsManagement/ManageScoreCardRating/CreditHistory/CreditHistoryList";
+// import AddCreditHistory from "./pages/ControlsManagement/ManageScoreCardRating/CreditHistory/AddCreditHistory";
+// import EditCreditHistory from "./pages/ControlsManagement/ManageScoreCardRating/CreditHistory/EditCreditHistory";
+// import AddInvestigationReport from "./pages/ControlsManagement/ManageScoreCardRating/InvastigationReport/AddInvestigationReport";
+// import EditInvestigationReport from "./pages/ControlsManagement/ManageScoreCardRating/InvastigationReport/EditInvestigationReport";
+// import InvestigationReportList from "./pages/ControlsManagement/ManageScoreCardRating/InvastigationReport/InvestigationReportList";
+// import TeleVerificationList from "./pages/ControlsManagement/ManageVerification/TeleVerification/TeleVerificationList";
+// import MeetingList from "./pages/ControlsManagement/ManageVerification/CreditPersonalMeetings/MeetingList";
 import VerificationHome from "./pages/ControlsManagement/ManageVerification/VerificationHome";
-import AddTeleVerification from "./pages/ControlsManagement/ManageVerification/TeleVerification/AddTeleVerification";
-import EditTeleVerification from "./pages/ControlsManagement/ManageVerification/TeleVerification/EditTeleVerification";
-import ViewTeleVerification from "./pages/ControlsManagement/ManageVerification/TeleVerification/ViewTeleVerification";
-import AddMeeting from "./pages/ControlsManagement/ManageVerification/CreditPersonalMeetings/AddMeeting";
-import EditMeeting from "./pages/ControlsManagement/ManageVerification/CreditPersonalMeetings/EditMeeting";
-import ViewMeeting from "./pages/ControlsManagement/ManageVerification/CreditPersonalMeetings/ViewMeeting";
+// import AddTeleVerification from "./pages/ControlsManagement/ManageVerification/TeleVerification/AddTeleVerification";
+// import EditTeleVerification from "./pages/ControlsManagement/ManageVerification/TeleVerification/EditTeleVerification";
+// import ViewTeleVerification from "./pages/ControlsManagement/ManageVerification/TeleVerification/ViewTeleVerification";
+// import AddMeeting from "./pages/ControlsManagement/ManageVerification/CreditPersonalMeetings/AddMeeting";
+// import EditMeeting from "./pages/ControlsManagement/ManageVerification/CreditPersonalMeetings/EditMeeting";
+// import ViewMeeting from "./pages/ControlsManagement/ManageVerification/CreditPersonalMeetings/ViewMeeting";
 import DisbursementList from "./pages/disbursment-management/disbursement/DisbursementList";
 import DisbursementForm from "./pages/disbursment-management/disbursement/DisbursementForm";
 import DisbursementDetail from "./pages/disbursment-management/disbursement/DisbursementDetail";
@@ -981,7 +981,7 @@ function App() {
           path="/controls/joint-applicant/view/:id"
           element={<ViewJointApplicant />}
         />
-        <Route path="/controls/references" element={<ReferenceList />} />
+        {/* <Route path="/controls/references" element={<ReferenceList />} />
         <Route path="/controls/references/add" element={<AddReference />} />
         <Route
           path="/controls/references/edit/:id"
@@ -1010,9 +1010,9 @@ function App() {
         <Route
           path="/controls/application-process/action-type"
           element={<UpdateActionType />}
-        />
+        /> */}
         <Route path="/controls/score-card" element={<ScoreCardRatingHome />} />
-        <Route
+        {/* <Route
           path="/controls/score-card/reference-check"
           element={<ReferenceCheckList />}
         />
@@ -1047,9 +1047,9 @@ function App() {
         <Route
           path="/controls/score-card/investigation-report/edit/:id"
           element={<EditInvestigationReport />}
-        />
+        /> */}
         <Route path="/controls/verification" element={<VerificationHome />} />
-        <Route
+        {/* <Route
           path="/controls/verification/tele-verification"
           element={<TeleVerificationList />}
         />
@@ -1080,7 +1080,7 @@ function App() {
         <Route
           path="/controls/verification/credit-personal-meetings/view/:id"
           element={<ViewMeeting />}
-        />
+        /> */}
         <Route path="/collection-management">
           <Route index element={<CollectionManagement />} />
 

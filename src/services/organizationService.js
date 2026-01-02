@@ -1,7 +1,7 @@
 import axiosInstance from "../utils/axiosInstance";
 
 // ✅ Fix: '/api/v1' hata diya, sirf endpoint ka naam rakha
-const BASE_URL = "/tenants/";
+const BASE_URL = "/adminpanel/organization-management";
 
 
 export const organizationService = {
@@ -9,7 +9,7 @@ export const organizationService = {
   // GET ALL
   async getOrganizations() {
     try {
-      const res = await axiosInstance.get(BASE_URL);
+      const res = await axiosInstance.get(`${BASE_URL}/organizations/`);
       return res.data;
     } catch (error) {
       console.error("Fetch Org Error:", error);
@@ -20,7 +20,7 @@ export const organizationService = {
   // GET SINGLE ORG (For Edit Page)
   async getOrganization(id) {
     try {
-      const res = await axiosInstance.get(`${BASE_URL}${id}/`);
+      const res = await axiosInstance.get(`${BASE_URL}/organizations/${id}/`);
       return res.data;
     } catch (error) {
       console.error("Fetch Single Org Error:", error);
@@ -31,7 +31,7 @@ export const organizationService = {
   // ADD NEW
   async addOrganization(payload) {
     try {
-      const res = await axiosInstance.post(BASE_URL, payload);
+      const res = await axiosInstance.post(`${BASE_URL}/organizations/`, payload);
       return res.data;
     } catch (error) {
       console.error("Add Org Error:", error);
@@ -42,7 +42,7 @@ export const organizationService = {
   // UPDATE ORG
   async updateOrganization(id, payload) {
     try {
-      const res = await axiosInstance.patch(`${BASE_URL}${id}/`, payload);
+      const res = await axiosInstance.patch(`${BASE_URL}/organizations/${id}/`, payload);
       return res.data;
     } catch (error) {
       console.error("Update Org Error:", error);
@@ -53,7 +53,7 @@ export const organizationService = {
   // DELETE
   async deleteOrganization(id) {
     try {
-      await axiosInstance.delete(`${BASE_URL}${id}/`);
+      await axiosInstance.delete(`${BASE_URL}/organizations/${id}/`);
       return true;
     } catch (error) {
       console.error("Delete failed:", error);

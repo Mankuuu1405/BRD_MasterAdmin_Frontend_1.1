@@ -1,55 +1,417 @@
-const Header = ({ title, subtitle }) => (
-  <div className="flex items-center gap-3 mb-8">
-    <button onClick={() => window.history.back()} className="p-2 bg-gray-50 rounded-xl">
-      ←
-    </button>
-    <div>
-      <h1 className="text-2xl font-bold">{title}</h1>
-      <p className="text-gray-500 text-sm">{subtitle}</p>
-    </div>
-  </div>
-);
+import React from "react";
 
-const Toggle = ({ label, checked, onChange }) => (
-  <div className="flex justify-between items-center border rounded-xl p-4">
-    <span className="font-medium">{label}</span>
+/**
+ * Shared Button Component
+ * Usage:
+ * <Button
+ *   label="Add Product"
+ *   icon={<FiPlus />}
+ *   onClick={() => navigate("/product-management/add")}
+ * />
+ */
+
+export const Button = ({
+  label,
+  children,
+  onClick,
+  icon,
+  type = "button",
+  fullWidth = false,
+  size = "md", // sm | md | lg
+  variant = "primary", // primary | secondary | danger | outline
+  disabled = false,
+  className = "",
+}) => {
+  const baseStyles =
+    "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2";
+
+  const sizeStyles = {
+    sm: "px-3 py-1.5 text-xs",
+    md: "px-4 py-2 text-sm",
+    lg: "px-5 py-3 text-base",
+  };
+
+  const variantStyles = {
+    primary: "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500",
+    secondary: "bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500",
+    danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
+    outline:
+      "border border-gray-300 text-gray-700 hover:bg-gray-100 focus:ring-gray-400",
+  };
+
+  const widthStyle = fullWidth ? "w-full" : "w-auto";
+  const disabledStyle = disabled
+    ? "opacity-50 cursor-not-allowed"
+    : "cursor-pointer";
+
+  return (
     <button
-      onClick={onChange}
-      className={`w-12 h-6 rounded-full ${
-        checked ? "bg-blue-600" : "bg-gray-300"
-      } relative`}
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={
+        `${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]} ${widthStyle} ${disabledStyle} ${className}`
+      }
     >
-      <span
-        className={`absolute top-1 w-4 h-4 bg-white rounded-full transition ${
-          checked ? "right-1" : "left-1"
-        }`}
-      />
+      {icon && <span className="text-base">{icon}</span>}
+      {label || children}
     </button>
+  );
+};
+
+/**
+ * Shared Page Header Component
+ * Uses shared Button
+ */
+export const PageHeader = ({
+  title,
+  subtitle,
+  actionLabel,
+  actionIcon,
+  onAction,
+  showAction = true,
+}) => {
+  return (
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+      <div>
+        <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
+        {subtitle && (
+          <p className="text-sm text-gray-500 mt-1">{subtitle}</p>
+        )}
+      </div>
+
+      {showAction && actionLabel && (
+        <Button
+          label={actionLabel}
+          icon={actionIcon}
+          onClick={onAction}
+          variant="primary"
+        />
+      )}
+    </div>
+  );
+};
+
+/**
+ * Shared Sub Page Header
+ * Used for Add / Edit / Detail pages
+ */
+export const SubPageHeader = ({
+  title,
+  subtitle,
+  onBack,
+}) => {
+  return (
+    <div className="flex items-start gap-4 mb-6">
+      {/* Back Button */}
+      <button
+        onClick={onBack}
+        className="mt-1 flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-sm border hover:bg-gray-50"
+      >
+        ←
+      </button>
+
+      {/* Title Section */}
+      <div>
+        <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
+        {subtitle && (
+          <p className="text-sm text-gray-500 mt-1">{subtitle}</p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+
+/** ================= FORM COMPONENTS ================= */
+
+export const InputField = ({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  disabled = false,
+  className = "",
+}) => (
+  <div className="flex flex-col gap-2 w-full">
+    {label && <label className="text-sm font-medium text-gray-700">{label}</label>}
+    <input
+      type={type}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      disabled={disabled}
+      className={`w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none ${className}`}
+    />
   </div>
 );
 
-const Select = ({ label, options, ...props }) => (
-  <div>
-    <label className="text-sm font-medium">{label}</label>
-    <select {...props} className="mt-2 w-full p-3 border rounded-xl">
-      {options.map((o) => (
-        <option key={o}>{o}</option>
+export const SelectField = ({
+  label,
+  value,
+  onChange,
+  options = [],
+  placeholder,
+}) => (
+  <div className="flex flex-col gap-2 w-full">
+    {label && <label className="text-sm font-medium text-gray-700">{label}</label>}
+    <select
+      value={value}
+      onChange={onChange}
+      className="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+    >
+      {placeholder && <option value="">{placeholder}</option>}
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value}>{opt.label}</option>
       ))}
     </select>
   </div>
 );
 
-const SaveBtn = ({ onClick }) => (
-  <button
-    onClick={onClick}
-    className="px-6 py-3 bg-blue-600 text-white rounded-xl"
-  >
-    Save
-  </button>
+export const MultiSelectField = ({
+  label,
+  values = [],
+  onChange,
+  options = [],
+}) => {
+  const toggleValue = (val) => {
+    onChange(values.includes(val)
+      ? values.filter(v => v !== val)
+      : [...values, val]
+    );
+  };
+
+  return (
+    <div className="flex flex-col gap-2 w-full">
+      {label && <label className="text-sm font-medium text-gray-700">{label}</label>}
+      <div className="border border-gray-200 rounded-xl p-3 space-y-2">
+        {options.map(opt => (
+          <label key={opt.value} className="flex items-center gap-2 text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              checked={values.includes(opt.value)}
+              onChange={() => toggleValue(opt.value)}
+              className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            {opt.label}
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export const CheckboxGroup = ({
+  label,
+  options = [],
+  values = [],
+  onChange,
+}) => (
+  <div className="flex flex-col gap-2">
+    {label && <label className="text-sm font-medium text-gray-700">{label}</label>}
+    <div className="flex flex-wrap gap-4">
+      {options.map(opt => (
+        <label key={opt.value} className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={values.includes(opt.value)}
+            onChange={() => onChange(opt.value)}
+            className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+          />
+          {opt.label}
+        </label>
+      ))}
+    </div>
+  </div>
 );
 
-export {
-  Header,
-  Select,
-  SaveBtn
+export function ListView({
+  data = [],
+  columns = [],
+  actions = [],
+  rowKey = "uuid",
+}) {
+  return (
+    <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+
+      {/* ================= DESKTOP HEADER ================= */}
+      <div className="hidden md:grid bg-gray-100 rounded-xl px-5 py-3 text-xs font-semibold text-gray-600 sticky top-0 z-10"
+        style={{ gridTemplateColumns: `repeat(${columns.length + 1}, minmax(0, 1fr))` }}
+      >
+        {columns.map((col) => (
+          <div key={col.key}>{col.label}</div>
+        ))}
+        <div className="text-right">Actions</div>
+      </div>
+
+      {data.map((row) => (
+        <React.Fragment key={row[rowKey]}>
+
+          {/* ================= DESKTOP ROW ================= */}
+          <div
+            className="hidden md:grid bg-white rounded-2xl px-5 py-4 shadow-sm items-center text-sm"
+            style={{ gridTemplateColumns: `repeat(${columns.length + 1}, minmax(0, 1fr))` }}
+          >
+            {columns.map((col) => (
+              <div key={col.key} className="truncate">
+                {col.type === "status" ? (
+                  <StatusBadge status={row[col.key]} />
+                ) : (
+                  row[col.key] ?? "-"
+                )}
+              </div>
+            ))}
+
+            <div className="flex justify-end gap-2">
+              {actions.map((action, i) => (
+                <IconButton
+                  key={i}
+                  color={action.color || "gray"}
+                  onClick={() => action.onClick(row)}
+                >
+                  {action.icon}
+                </IconButton>
+              ))}
+            </div>
+          </div>
+
+          {/* ================= MOBILE CARD ================= */}
+          <div className="md:hidden bg-white rounded-2xl shadow-sm divide-y">
+
+            {/* TOP */}
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="font-semibold text-sm">
+                {columns[0] ? row[columns[0].key] : "—"}
+              </span>
+
+              <div className="flex items-center gap-3 text-gray-600">
+                {actions.map((action, i) => (
+                  <span key={i} onClick={() => action.onClick(row)}>
+                    {action.icon}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* BODY */}
+            <div className="px-4 py-3 space-y-3 text-sm">
+              {columns.slice(1).map((col) => (
+                <MobileRow
+                  key={col.key}
+                  label={col.label}
+                  value={
+                    col.type === "status"
+                      ? <StatusBadge status={row[col.key]} />
+                      : row[col.key]
+                  }
+                />
+              ))}
+            </div>
+          </div>
+
+        </React.Fragment>
+      ))}
+    </div>
+  );
 }
+
+/* ================= SUB COMPONENTS ================= */
+
+const MobileRow = ({ label, value }) => (
+  <div className="flex justify-between gap-4">
+    <span className="text-gray-400 text-xs">{label}</span>
+    <span className="font-medium text-gray-800 text-right">
+      {value || "-"}
+    </span>
+  </div>
+);
+
+const StatusBadge = ({ status }) => (
+  <span
+    className={`inline-flex items-center justify-center
+      px-3 py-1 text-xs font-medium rounded-full
+      ${
+        status === "Active"
+          ? "bg-green-100 text-green-700"
+          : "bg-red-100 text-red-600"
+      }`}
+  >
+    {status}
+  </span>
+);
+
+const IconButton = ({ children, color, onClick }) => {
+  const map = {
+    gray: "bg-gray-100 hover:bg-gray-200 text-gray-600",
+    blue: "bg-blue-100 hover:bg-blue-200 text-blue-600",
+    red: "bg-red-100 hover:bg-red-200 text-red-600",
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      className={`p-2 rounded-full transition ${map[color]}`}
+    >
+      {children}
+    </button>
+  );
+};
+
+
+export function DeleteConfirmButton({
+  title = "Delete",
+  message = "Are you sure you want to delete this item?",
+  onConfirm,
+  onCancel,
+  confirmText = "Delete",
+  loading = false,
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+        
+        <h3 className="text-lg font-semibold text-gray-900">
+          {title}
+        </h3>
+
+        <p className="mt-2 text-sm text-gray-600">
+          {message}
+        </p>
+
+        <div className="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 transition"
+            disabled={loading}
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={loading}
+            className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition disabled:opacity-60"
+          >
+            {loading ? "Deleting..." : confirmText}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+export default {
+  Button,
+  PageHeader,
+  SubPageHeader,
+  InputField,
+  SelectField,
+  MultiSelectField,
+  CheckboxGroup,
+  ListView,
+  DeleteConfirmButton,
+};

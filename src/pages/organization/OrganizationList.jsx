@@ -3,7 +3,7 @@ import MainLayout from "../../layout/MainLayout";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiPlus, FiSearch, FiTrash2, FiEdit } from "react-icons/fi";
 import { organizationService } from "../../services/organizationService";
-import DeleteConfirmButton from "../../components/DeleteConfirmButton";
+import DeleteConfirmButton from "../../components/DeleteConfirmButton_1";
 
 export default function OrganizationList() {
   const navigate = useNavigate();
@@ -48,10 +48,10 @@ export default function OrganizationList() {
     return organizations.filter(
       (org) =>
         !search ||
-        org.name?.toLowerCase().includes(search.toLowerCase()) ||
+        org.business_name?.toLowerCase().includes(search.toLowerCase()) ||
         org.email?.toLowerCase().includes(search.toLowerCase()) ||
-        (org.phone || "").includes(search) ||
-        (org.address || "").toLowerCase().includes(search.toLowerCase())
+        (org.mobile_number || "").includes(search) ||
+        (org.full_address || "").toLowerCase().includes(search.toLowerCase())
     );
   }, [organizations, search]);
 
@@ -130,14 +130,14 @@ export default function OrganizationList() {
         ) : (
           filteredOrgs.map((org) => (
             <div
-              key={org.tenant_id}
+              key={org.id}
               className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-5 rounded-2xl bg-white shadow hover:shadow-md transition"
             >
               {/* INFO */}
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-gray-400 text-xs">Name</p>
-                  <p className="font-semibold text-gray-800">{org.name}</p>
+                  <p className="font-semibold text-gray-800">{org.business_name}</p>
                 </div>
                 <div>
                   <p className="text-gray-400 text-xs">Email</p>
@@ -145,11 +145,11 @@ export default function OrganizationList() {
                 </div>
                 <div>
                   <p className="text-gray-400 text-xs">Phone</p>
-                  <p className="text-sm text-gray-700">{org.phone || "-"}</p>
+                  <p className="text-sm text-gray-700">{org.mobile_number || "-"}</p>
                 </div>
                 <div>
                   <p className="text-gray-400 text-xs">Address</p>
-                  <p className="text-sm text-gray-700">{org.address || "-"}</p>
+                  <p className="text-sm text-gray-700">{org.full_address || "-"}</p>
                 </div>
               </div>
 
@@ -157,7 +157,7 @@ export default function OrganizationList() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() =>
-                    navigate(`/organizations/edit/${org.tenant_id}`)
+                    navigate(`/organizations/edit/${org.id}`)
                   }
                   className="p-2 rounded-full bg-gray-100 hover:bg-gray-200"
                 >
@@ -165,7 +165,7 @@ export default function OrganizationList() {
                 </button>
 
                 <button
-                  onClick={() => openDeleteModal(org.tenant_id)}
+                  onClick={() => openDeleteModal(org.id)}
                   className="p-2 rounded-full bg-red-100 hover:bg-red-200"
                 >
                   <FiTrash2 className="text-red-600" />

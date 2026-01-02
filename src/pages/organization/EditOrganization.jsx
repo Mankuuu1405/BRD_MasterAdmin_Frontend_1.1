@@ -11,10 +11,10 @@ export default function EditOrganization() {
   const [tenantId, setTenantId] = useState("");
 
   const [form, setForm] = useState({
-    name: "",
+    business_name: "",
     email: "",
-    phone: "",
-    address: "",
+    mobile_number: "",
+    full_address: "",
     city: "",
     state: "",
     pincode: "",
@@ -33,10 +33,10 @@ export default function EditOrganization() {
         setTenantId(data.tenant_id || "");
 
         setForm({
-          name: data.name || "",
+          business_name: data.business_name || "",
           email: data.email || "",
-          phone: data.phone || "",
-          address: data.address || "",
+          phone: data.mobile_number || "",
+          address: data.full_address || "",
           city: data.city || "",
           state: data.state || "",
           pincode: data.pincode || "",
@@ -122,7 +122,7 @@ export default function EditOrganization() {
               label="Business Name"
               name="name"
               placeholder="ABC Finance Pvt Ltd"
-              value={form.name}
+              value={form.business_name}
               onChange={handleChange}
               required
             />
@@ -141,7 +141,7 @@ export default function EditOrganization() {
               label="Mobile Number"
               name="phone"
               placeholder="9876543210"
-              value={form.phone}
+              value={form.mobile_number}
               onChange={handleChange}
             />
 
@@ -192,7 +192,7 @@ export default function EditOrganization() {
             </label>
             <textarea
               name="address"
-              value={form.address}
+              value={form.full_address}
               onChange={handleChange}
               placeholder="Complete office address"
               className="w-full mt-2 p-3 rounded-xl bg-gray-50 outline-none text-sm h-24"

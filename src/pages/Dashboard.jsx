@@ -3,8 +3,6 @@ import MainLayout from "../layout/MainLayout";
 
 import ActiveUserChart from "../components/ActiveUserChart";
 import LoanTrendChart from "../components/LoanTrendChart";
-import ReactiveActivity from "../components/RecentActivity";
-import AlertsPage from "../components/AlertsPage";
 import useDashboard from "../hooks/useDashboard";
 import { dashboardService } from "../services/dashboardService";
 
@@ -53,8 +51,6 @@ const Dashboard = () => {
         <ActiveUserChart usersPerBranch={usersPerBranch} />
         <LoanTrendChart data={loanTrendData} />
       </div>
-
-      {/* ACTIVITY + ALERTS */}
    
     </MainLayout>
   );
