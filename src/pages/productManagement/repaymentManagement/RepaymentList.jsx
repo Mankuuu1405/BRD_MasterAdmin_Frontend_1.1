@@ -1,22 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
-import { FiEye, FiEdit, FiTrash2 } from "react-icons/fi";
+import { FiPlus, FiEdit, FiTrash2, FiSearch, FiEye } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-
-import {
-  PageHeader,
-  SearchFilterBar,
-  DataTable,
-  StatusBadge,
-  IconButton,
-} from "../../../components/Controls/SharedUIHelpers";
 
 // import { repaymentService } from "../../../services/repaymentService";
 
-export default function RepaymentList() {
+const RepaymentList = () => {
   const navigate = useNavigate();
 
-  const [data, setData] = useState([]);
+  const [repayments, setRepayments] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -25,12 +17,12 @@ export default function RepaymentList() {
     (async () => {
       try {
         /*
-        const res = await repaymentService.getRepayments();
-        setData(res || []);
+        const data = await repaymentService.getRepayments();
+        setRepayments(data || []);
         */
 
-        // TEMP MOCK
-        setData([
+        // TEMP MOCK DATA
+        setRepayments([
           {
             id: 1,
             type: "EMI",
@@ -56,68 +48,127 @@ export default function RepaymentList() {
     })();
   }, []);
 
-  /* ---------------- FILTER ---------------- */
-  const filtered = useMemo(() => {
-    return data.filter((r) =>
-      r.type.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [data, search]);
-
-  /* ---------------- TABLE CONFIG ---------------- */
-  const columns = [
-    { key: "type", label: "Type" },
-    { key: "frequency", label: "Frequency" },
-    { key: "tenure", label: "Tenure (Months)" },
-    { key: "no_of_repayments", label: "No. of Repayments" },
-    { key: "collection_mode", label: "Collection Mode" },
-    {
-      key: "status",
-      label: "Status",
-      render: (row) => <StatusBadge value={row.status} />,
-    },
-  ];
-
-  const actions = [
-    {
-      icon: <FiEye />,
-      onClick: (row) => navigate(`/repayment/${row.id}`),
-    },
-    {
-      icon: <FiEdit />,
-      onClick: (row) => navigate(`/repayment/${row.id}/edit`),
-    },
-    {
-      icon: <FiTrash2 />,
-      danger: true,
-      onClick: (row) => console.log("Delete", row.id),
-    },
-  ];
+  /* ---------------- SEARCH ---------------- */
+  const filteredRepayments = repayments.filter((r) =>
+    r.type.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <MainLayout>
       {/* HEADER */}
-      <PageHeader
-        title="Repayment Management"
-        subtitle="Manage loan repayment rules and schedules"
-        actionLabel="Add Repayment Rule"
-        onAction={() => navigate("/repayment/add")}
-      />
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-xl font-semibold">Repayment Management</h1>
+          <p className="text-sm text-gray-500">
+            Manage loan repayment rules and schedules
+          </p>
+        </div>
+
+        <button
+          onClick={() => navigate("/repayment/add")}
+          className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm flex items-center gap-2 hover:bg-blue-700 transition"
+        >
+          <FiPlus /> Add Repayment Rule
+        </button>
+      </div>
 
       {/* SEARCH */}
-      <SearchFilterBar
-        search={search}
-        onSearchChange={setSearch}
-        placeholder="Search by repayment type..."
-      />
+      <div className="bg-white rounded-2xl p-4 mb-6 flex items-center gap-3 shadow-sm">
+        <FiSearch className="text-gray-400" />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by repayment type..."
+          className="w-full outline-none text-sm"
+        />
+      </div>
 
-      {/* TABLE */}
-      <DataTable
-        loading={loading}
-        columns={columns}
-        data={filtered}
-        actions={actions}
-        emptyText="No repayment rules found."
-      />
+      {/* LIST */}
+      {loading ? (
+        <p className="text-gray-500">Loading repayment rules...</p>
+      ) : (
+        <div className="space-y-3">
+          {/* COLUMN HEADER */}
+          <div className="hidden md:grid grid-cols-7 bg-gray-100 rounded-xl px-5 py-3 text-xs font-semibold text-gray-600">
+            <div>Type</div>
+            <div>Frequency</div>
+            <div>Tenure (Months)</div>
+            <div>No. of Repayments</div>
+            <div>Collection Mode</div>
+            <div>Status</div>
+            <div className="text-right">Actions</div>
+          </div>
+
+          {/* ROWS */}
+          {filteredRepayments.map((repay) => (
+            <div
+              key={repay.id}
+              className="bg-white rounded-2xl px-5 py-4 shadow-sm grid grid-cols-2 md:grid-cols-7 gap-y-2 items-center text-sm"
+            >
+              <div className="font-medium text-gray-900">
+                {repay.type}
+              </div>
+
+              <div className="text-gray-600">
+                {repay.frequency}
+              </div>
+
+              <div className="text-gray-600">
+                {repay.tenure}
+              </div>
+
+              <div className="text-gray-600">
+                {repay.no_of_repayments}
+              </div>
+
+              <div className="text-gray-600">
+                {repay.collection_mode}
+              </div>
+
+              <div>
+                <span className="px-3 py-1 text-xs rounded-full bg-green-100 text-green-700">
+                  {repay.status}
+                </span>
+              </div>
+
+              <div className="flex justify-end gap-2 col-span-2 md:col-span-1">
+                <button
+                  onClick={() => navigate(`/repayment/${repay.id}`)}
+                  className="p-2 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  title="View"
+                >
+                  <FiEye />
+                </button>
+
+                <button
+                  onClick={() =>
+                    navigate(`/repayment/${repay.id}/edit`)
+                  }
+                  className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200"
+                  title="Edit"
+                >
+                  <FiEdit />
+                </button>
+
+                <button
+                  className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200"
+                  title="Delete"
+                >
+                  <FiTrash2 />
+                </button>
+              </div>
+            </div>
+          ))}
+
+          {filteredRepayments.length === 0 && (
+            <p className="text-gray-500 text-sm">
+              No repayment rules found.
+            </p>
+          )}
+        </div>
+      )}
     </MainLayout>
   );
-}
+};
+
+export default RepaymentList;
