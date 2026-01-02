@@ -403,6 +403,68 @@ export function DeleteConfirmButton({
   );
 }
 
+import { FiSearch, FiFilter } from "react-icons/fi";
+import { useState } from "react";
+
+export function SearchFilterBar({
+  search,
+  onSearchChange,
+  filter,
+  onFilterChange,
+  placeholder = "Search...",
+}) {
+  const [open, setOpen] = useState(false);
+
+  const FILTERS = ["Week", "Month", "Year"];
+
+  return (
+    <div className="flex flex-col sm:flex-row gap-3 mb-6">
+      
+      {/* SEARCH */}
+      <div className="flex items-center gap-3 bg-white rounded-2xl px-4 py-3 shadow-sm w-full sm:w-full">
+        <FiSearch className="text-gray-400" />
+        <input
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          placeholder={placeholder}
+          className="w-full bg-transparent outline-none text-sm"
+        />
+      </div>
+
+      {/* FILTER */}
+      <div className="relative w-full sm:w-auto">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="w-full sm:w-auto px-4 py-3 bg-white rounded-2xl shadow-sm flex items-center gap-2 text-sm hover:bg-gray-50"
+        >
+          <FiFilter />
+          {filter || "Filter"}
+        </button>
+
+        {open && (
+          <div className="absolute right-0 mt-2 bg-white rounded-xl shadow-lg w-32 z-20 overflow-hidden">
+            {FILTERS.map((f) => (
+              <button
+                key={f}
+                onClick={() => {
+                  onFilterChange(f);
+                  setOpen(false);
+                }}
+                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100
+                  ${filter === f ? "bg-gray-100 font-medium" : ""}
+                `}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
 
 export default {
   Button,
