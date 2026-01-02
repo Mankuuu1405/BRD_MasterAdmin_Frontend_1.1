@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import MainLayout from "../../layout/MainLayout";
+import { FiPlus, FiEdit3, FiTrash2, FiEye } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import { FiPlus, FiEye, FiEdit3, FiTrash2 } from "react-icons/fi";
 
 import { approvalMasterService } from "../../services/approvalMasterService";
 import {
   PageHeader,
   SearchFilterBar,
   ListView,
-  DeleteConfirmButton,
 } from "../../components/Controls/SharedUIHelpers";
 
 export default function ApprovalList() {
@@ -19,7 +18,7 @@ export default function ApprovalList() {
   const [deleteId, setDeleteId] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  /* ================= FETCH ================= */
+  /* ---------------- LOAD DATA ---------------- */
   useEffect(() => {
     loadApprovals();
   }, []);
@@ -34,33 +33,33 @@ export default function ApprovalList() {
     }
   };
 
-  /* ================= DELETE ================= */
-  const confirmDelete = async () => {
-    await approvalMasterService.deleteApproval(deleteId);
-    setDeleteId(null);
-    loadApprovals();
-  };
-
-  /* ================= FILTER ================= */
-  const filtered = approvals.filter(
+  /* ---------------- FILTER ---------------- */
+  const filteredData = approvals.filter(
     (a) =>
       a.product_name?.toLowerCase().includes(search.toLowerCase()) ||
       a.sanction_name?.toLowerCase().includes(search.toLowerCase())
   );
 
-  /* ================= LIST CONFIG ================= */
+  /* ---------------- TABLE CONFIG ---------------- */
   const columns = [
     { key: "product_name", label: "Product" },
     { key: "level", label: "Level" },
     { key: "type", label: "Type" },
     {
-      key: "sanction_name",
+      key: "sanction_display",
       label: "Sanction",
-      render: (_, row) =>
-        `${row.sanction_name} (${row.approval_range})`,
     },
-    { key: "status", label: "Status", type: "status" },
+    {
+      key: "status",
+      label: "Status",
+      type: "status",
+    },
   ];
+
+  const tableData = filteredData.map((a) => ({
+    ...a,
+    sanction_display: `${a.sanction_name} (${a.approval_range})`,
+  }));
 
   const actions = [
     {
@@ -76,13 +75,16 @@ export default function ApprovalList() {
     {
       icon: <FiTrash2 />,
       color: "red",
-      onClick: (row) => setDeleteId(row.id),
+      onClick: async (row) => {
+        await approvalMasterService.deleteApproval(row.id);
+        loadApprovals();
+      },
     },
   ];
 
+  /* ---------------- UI ---------------- */
   return (
     <MainLayout>
-      {/* ================= HEADER ================= */}
       <PageHeader
         title="Approval Master"
         subtitle="Manage approval rules and sanction levels"
@@ -91,38 +93,18 @@ export default function ApprovalList() {
         onAction={() => navigate("/approvals/add")}
       />
 
-      {/* ================= SEARCH ================= */}
       <SearchFilterBar
         search={search}
         onSearchChange={setSearch}
         placeholder="Search product or sanction..."
       />
 
-      {/* ================= LIST ================= */}
-      {loading ? (
-        <p className="text-center py-6 text-gray-500">Loading...</p>
-      ) : filtered.length === 0 ? (
-        <p className="text-center py-6 text-gray-500">
-          No approvals found
-        </p>
-      ) : (
-        <ListView
-          data={filtered}
-          columns={columns}
-          actions={actions}
-          rowKey="id"
-        />
-      )}
-
-      {/* ================= DELETE CONFIRM ================= */}
-      {deleteId && (
-        <DeleteConfirmButton
-          title="Delete Approval"
-          message="Are you sure you want to delete this approval rule?"
-          onCancel={() => setDeleteId(null)}
-          onConfirm={confirmDelete}
-        />
-      )}
+      <ListView
+        data={tableData}
+        columns={columns}
+        actions={actions}
+        rowKey="id"
+      />
     </MainLayout>
   );
 }

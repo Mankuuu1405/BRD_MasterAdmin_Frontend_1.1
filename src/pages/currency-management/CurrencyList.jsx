@@ -4,19 +4,24 @@ import {
   FiPlus,
   FiEdit3,
   FiTrash2,
-  FiSearch,
   FiEye,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import currencyManagementService from "../../services/currencyManagementService";
-import {ListView, DeleteConfirmButton} from "../../components/Controls/SharedUIHelpers"
+import {
+  ListView,
+  DeleteConfirmButton,
+  SearchFilterBar,
+} from "../../components/Controls/SharedUIHelpers";
 
 export default function CurrencyList() {
   const navigate = useNavigate();
+
   const [currencies, setCurrencies] = useState([]);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState(null);
 
+  /* ---------------- FETCH ---------------- */
   useEffect(() => {
     fetchCurrencies();
   }, []);
@@ -25,41 +30,46 @@ export default function CurrencyList() {
     try {
       const res = await currencyManagementService.getAll();
       setCurrencies(Array.isArray(res) ? res : []);
-    } catch (error) {
-      console.error("Failed to fetch currencies", error);
+    } catch (err) {
+      console.error("Failed to fetch currencies", err);
     }
   };
 
-const columns = [
-  { key: "currency_code", label: "Code" },
-  { key: "currency_symbol", label: "Symbol" },
-  { key: "conversion_value_to_inr", label: "Conversion (INR)" },
-  { key: "status", label: "Status", type: "status" },
-];
+  /* ---------------- TABLE CONFIG ---------------- */
+  const columns = [
+    { key: "currency_code", label: "Code" },
+    { key: "currency_symbol", label: "Symbol" },
+    { key: "conversion_value_to_inr", label: "Conversion (INR)" },
+    { key: "status", label: "Status", type: "status" },
+  ];
 
-const actions = [
-  {
-    icon: <FiEye />,
-    onClick: (row) => navigate(`/currency-management/view/${row.uuid}`),
-  },
-  {
-    icon: <FiEdit3 />,
-    color: "blue",
-    onClick: (row) => navigate(`/currency-management/edit/${row.uuid}`),
-  },
-  {
-    icon: <FiTrash2 />,
-    color: "red",
-    onClick: (row) => setDeleteId(row.uuid),
-  },
-];
+  const actions = [
+    {
+      icon: <FiEye />,
+      onClick: (row) =>
+        navigate(`/currency-management/view/${row.uuid}`),
+    },
+    {
+      icon: <FiEdit3 />,
+      color: "blue",
+      onClick: (row) =>
+        navigate(`/currency-management/edit/${row.uuid}`),
+    },
+    {
+      icon: <FiTrash2 />,
+      color: "red",
+      onClick: (row) => setDeleteId(row.uuid),
+    },
+  ];
 
-  const filtered = currencies.filter(
+  /* ---------------- FILTER ---------------- */
+  const filteredData = currencies.filter(
     (c) =>
       c.currency_code?.toLowerCase().includes(search.toLowerCase()) ||
-      c.currency_symbol?.includes(search)
+      c.currency_symbol?.toLowerCase().includes(search.toLowerCase())
   );
 
+  /* ---------------- DELETE ---------------- */
   const handleDelete = async () => {
     if (!deleteId) return;
     await currencyManagementService.delete(deleteId);
@@ -69,8 +79,8 @@ const actions = [
 
   return (
     <MainLayout>
-      {/* ================= HEADER ================= */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+      {/* ================= PAGE HEADER ================= */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-xl font-semibold">Currency Management</h1>
           <p className="text-sm text-gray-500">
@@ -80,36 +90,36 @@ const actions = [
 
         <button
           onClick={() => navigate("/currency-management/add")}
-          className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-xl flex items-center justify-center gap-2 text-sm"
+          className="px-4 py-2 bg-blue-600 text-white rounded-xl flex items-center gap-2 text-sm shadow-sm hover:bg-blue-700"
         >
-          <FiPlus /> Add Currency
+          <FiPlus />
+          Add Currency
         </button>
       </div>
 
       {/* ================= SEARCH ================= */}
-      <div className="bg-white rounded-2xl p-4 mb-6 flex items-center gap-3 shadow-sm">
-        <FiSearch className="text-gray-400" />
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by currency code or symbol..."
-          className="w-full outline-none text-sm bg-transparent"
-        />
-      </div>
+      <SearchFilterBar
+        search={search}
+        onSearchChange={setSearch}
+        placeholder="Search by currency code or symbol"
+      />
 
       {/* ================= LIST ================= */}
-
-
       <ListView
-        data={filtered}
+        data={filteredData}
         columns={columns}
         actions={actions}
         rowKey="uuid"
       />
 
-
+      {/* ================= DELETE CONFIRM ================= */}
       {deleteId && (
-        <DeleteConfirmButton onConfirm={handleDelete} onCancel={()=>{setDeleteId(false)}}/>
+        <DeleteConfirmButton
+          title="Delete Currency"
+          message="Are you sure you want to delete this currency?"
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteId(null)}
+        />
       )}
     </MainLayout>
   );

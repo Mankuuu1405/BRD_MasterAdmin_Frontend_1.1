@@ -32,7 +32,7 @@ export const Button = ({
   };
 
   const variantStyles = {
-    primary: "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500",
+    primary: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500",
     secondary: "bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500",
     danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
     outline:
@@ -497,6 +497,80 @@ export function SearchFilterBar({
 }
 
 
+export function TextAreaField({
+  label,
+  name,
+  value,
+  onChange,
+  placeholder = "",
+  rows = 4,
+  required = false,
+  disabled = false,
+  error = "",
+  helperText = "",
+  maxLength,
+  className = "",
+}) {
+  return (
+    <div className={`w-full ${className}`}>
+      {/* LABEL */}
+      {label && (
+        <label
+          htmlFor={name}
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+      )}
+
+      {/* TEXTAREA */}
+      <textarea
+        id={name}
+        name={name}
+        rows={rows}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        disabled={disabled}
+        maxLength={maxLength}
+        className={`
+          w-full rounded-xl border px-4 py-3 text-sm resize-none
+          transition-all duration-150
+          focus:outline-none focus:ring-2
+          ${
+            error
+              ? "border-red-300 focus:ring-red-400"
+              : "border-gray-300 focus:ring-blue-500"
+          }
+          ${
+            disabled
+              ? "bg-gray-100 cursor-not-allowed text-gray-400"
+              : "bg-white"
+          }
+        `}
+      />
+
+      {/* FOOTER */}
+      <div className="flex justify-between mt-1">
+        <div>
+          {error && (
+            <p className="text-xs text-red-600">{error}</p>
+          )}
+          {!error && helperText && (
+            <p className="text-xs text-gray-400">{helperText}</p>
+          )}
+        </div>
+
+        {maxLength && (
+          <p className="text-xs text-gray-400">
+            {value?.length || 0}/{maxLength}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 
 export default {

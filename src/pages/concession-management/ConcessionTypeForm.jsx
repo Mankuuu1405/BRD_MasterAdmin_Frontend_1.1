@@ -1,15 +1,31 @@
 import React, { useState, useEffect } from "react";
 import MainLayout from "../../layout/MainLayout";
-import { FiArrowLeft, FiSave } from "react-icons/fi";
+import { FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 import concessionManagementService from "../../services/concessionManagementService";
 
-const APPLICABLE_ON = ["Sanction", "Disbursement", "Repayment"];
-const STATUS = ["Active", "Inactive"];
+import {
+  SubPageHeader,
+  InputField,
+  SelectField,
+  TextAreaField,
+  Button,
+} from "../../components/Controls/SharedUIHelpers";
+
+const APPLICABLE_ON = [
+  { label: "Sanction", value: "Sanction" },
+  { label: "Disbursement", value: "Disbursement" },
+  { label: "Repayment", value: "Repayment" },
+];
+
+const STATUS = [
+  { label: "Active", value: "Active" },
+  { label: "Inactive", value: "Inactive" },
+];
 
 export default function ConcessionTypeForm() {
   const navigate = useNavigate();
-  const { id } = useParams(); // UUID for edit mode
+  const { id } = useParams();
 
   const [form, setForm] = useState({
     concession_type_name: "",
@@ -22,7 +38,7 @@ export default function ConcessionTypeForm() {
   const [error, setError] = useState("");
   const [fetching, setFetching] = useState(false);
 
-  // Load existing data if editing
+  /* ---------- LOAD (EDIT MODE) ---------- */
   useEffect(() => {
     if (!id) return;
 
@@ -36,7 +52,7 @@ export default function ConcessionTypeForm() {
           description: res.description || "",
           status: res.status || "Active",
         });
-      } catch (err) {
+      } catch {
         setError("Failed to load concession type.");
       } finally {
         setFetching(false);
@@ -46,24 +62,24 @@ export default function ConcessionTypeForm() {
     fetchConcessionType();
   }, [id]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  /* ---------- CHANGE HANDLER ---------- */
+  const handleChange = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  /* ---------- SUBMIT ---------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      if (id) {
-        await concessionManagementService.updateType(id, form);
-      } else {
-        await concessionManagementService.createType(form);
-      }
+      id
+        ? await concessionManagementService.updateType(id, form)
+        : await concessionManagementService.createType(form);
+
       navigate("/concession-management");
-    } catch (err) {
+    } catch {
       setError("Failed to save concession type. Please try again.");
     } finally {
       setLoading(false);
@@ -72,65 +88,51 @@ export default function ConcessionTypeForm() {
 
   return (
     <MainLayout>
-      {/* HEADER */}
-      <div className="flex items-center gap-3 mb-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-gray-50"
-        >
-          <FiArrowLeft />
-        </button>
-        <div>
-          <h1 className="text-2xl font-bold">
-            {id ? "Edit Concession Type" : "Add Concession Type"}
-          </h1>
-          <p className="text-sm text-gray-500">
-            Define where and how concessions apply
-          </p>
-        </div>
-      </div>
+      <SubPageHeader
+        title={id ? "Edit Concession Type" : "Add Concession Type"}
+        subtitle="Define where and how concessions apply"
+        onBack={() => navigate(-1)}
+      />
 
       {fetching ? (
-        <p>Loading data...</p>
+        <p className="text-gray-500">Loading data...</p>
       ) : (
         <form
           onSubmit={handleSubmit}
           className="bg-white p-8 rounded-2xl shadow-md max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6"
         >
-          <Input
+          <InputField
             label="Concession Type Name"
-            name="concession_type_name"
             value={form.concession_type_name}
-            onChange={handleChange}
+            onChange={(e) =>
+              handleChange("concession_type_name", e.target.value)
+            }
             placeholder="e.g. Interest Rate"
-            required
           />
 
-          <Select
+          <SelectField
             label="Applicable On"
-            name="applicable_on"
             value={form.applicable_on}
-            onChange={handleChange}
+            onChange={(e) => handleChange("applicable_on", e.target.value)}
             options={APPLICABLE_ON}
-            required
+            placeholder="Select stage"
           />
 
-          <Textarea
-            label="Description"
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            rows={3}
-            className="md:col-span-2"
-          />
-
-          <Select
+          <SelectField
             label="Status"
-            name="status"
             value={form.status}
-            onChange={handleChange}
+            onChange={(e) => handleChange("status", e.target.value)}
             options={STATUS}
-            required
+          />
+
+          <TextAreaField
+            label="Description"
+            value={form.description}
+            onChange={(e) => handleChange("description", e.target.value)}
+            rows={4}
+            maxLength={300}
+            helperText="Brief description of concession type"
+            className="md:col-span-2"
           />
 
           {error && (
@@ -138,56 +140,16 @@ export default function ConcessionTypeForm() {
           )}
 
           <div className="md:col-span-2 flex justify-end">
-            <button
+            <Button
+              type="submit"
+              label={loading ? "Saving..." : "Save Type"}
+              icon={<FiSave />}
               disabled={loading}
-              className={`px-5 py-3 rounded-xl flex items-center gap-2 text-white ${
-                loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-              }`}
-            >
-              <FiSave /> {loading ? "Saving..." : "Save Type"}
-            </button>
+              variant="primary"
+            />
           </div>
         </form>
       )}
     </MainLayout>
   );
 }
-
-/* ---------- INPUT COMPONENTS ---------- */
-
-const Input = ({ label, ...props }) => (
-  <div>
-    <label className="text-sm font-medium">{label}</label>
-    <input
-      {...props}
-      className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm"
-    />
-  </div>
-);
-
-const Select = ({ label, options, ...props }) => (
-  <div>
-    <label className="text-sm font-medium">{label}</label>
-    <select
-      {...props}
-      className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm"
-    >
-      <option value="">Select</option>
-      {options.map((o) => (
-        <option key={o} value={o}>
-          {o}
-        </option>
-      ))}
-    </select>
-  </div>
-);
-
-const Textarea = ({ label, ...props }) => (
-  <div>
-    <label className="text-sm font-medium">{label}</label>
-    <textarea
-      {...props}
-      className="mt-2 w-full p-3 bg-gray-50 rounded-xl border text-sm"
-    />
-  </div>
-);

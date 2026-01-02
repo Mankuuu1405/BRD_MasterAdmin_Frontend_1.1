@@ -1,22 +1,32 @@
 import React, { useState } from "react";
 import MainLayout from "../../layout/MainLayout";
-import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { FiSave } from "react-icons/fi";
+
+import {
+  SubPageHeader,
+  SelectField,
+  MultiSelectField,
+  Button,
+} from "../../components/Controls/SharedUIHelpers";
 
 export function ManageApprovalPage() {
   const navigate = useNavigate();
 
   /* MOCK DATA (API LATER) */
-  const tenants = ["TENANT_001", "TENANT_002"];
+  const tenants = [
+    { label: "TENANT_001", value: "TENANT_001" },
+    { label: "TENANT_002", value: "TENANT_002" },
+  ];
 
   const tenantUsers = {
     TENANT_001: [
-      { id: "u1", name: "John Doe" },
-      { id: "u2", name: "Risk Manager" },
+      { value: "u1", label: "John Doe" },
+      { value: "u2", label: "Risk Manager" },
     ],
     TENANT_002: [
-      { id: "u3", name: "Admin User" },
-      { id: "u4", name: "Finance Head" },
+      { value: "u3", label: "Admin User" },
+      { value: "u4", label: "Finance Head" },
     ],
   };
 
@@ -28,12 +38,13 @@ export function ManageApprovalPage() {
     status: "Active",
   });
 
-  const users = form.tenant_id ? tenantUsers[form.tenant_id] : [];
+  const users = form.tenant_id ? tenantUsers[form.tenant_id] || [] : [];
+
+  /* ---------------- HANDLERS ---------------- */
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Reset dependent fields if tenant changes
     if (name === "tenant_id") {
       setForm({
         tenant_id: value,
@@ -45,27 +56,17 @@ export function ManageApprovalPage() {
       return;
     }
 
-    // Reset user selections if approver type changes
     if (name === "approver_type") {
-      setForm({
-        ...form,
+      setForm((prev) => ({
+        ...prev,
         approver_type: value,
         user_id: "",
         group_users: [],
-      });
+      }));
       return;
     }
 
-    setForm({ ...form, [name]: value });
-  };
-
-  const toggleGroupUser = (userId) => {
-    setForm((prev) => ({
-      ...prev,
-      group_users: prev.group_users.includes(userId)
-        ? prev.group_users.filter((id) => id !== userId)
-        : [...prev.group_users, userId],
-    }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
@@ -85,152 +86,116 @@ export function ManageApprovalPage() {
     navigate(-1);
   };
 
+  /* ---------------- UI ---------------- */
+
   return (
     <MainLayout>
-      {/* HEADER */}
-      <div className="flex items-center gap-3 mb-8">
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="p-2.5 rounded-xl bg-gray-100 border"
-        >
-          <FiArrowLeft />
-        </button>
+      <SubPageHeader
+        title="Manage Approval"
+        subtitle="Tenant → Approver Type → User / Group"
+        onBack={() => navigate(-1)}
+      />
 
-        <div>
-          <h1 className="text-[22px] font-semibold">Manage Approval</h1>
-          <p className="text-sm text-gray-500">
-            Tenant → Approver Type → User/Group
-          </p>
-        </div>
-      </div>
+      <div className="max-w-3xl rounded-2xl bg-white p-8 shadow-sm">
+        <form onSubmit={handleSubmit} className="space-y-8">
 
-      {/* FORM */}
-      <div className="bg-white border rounded-2xl p-8 max-w-3xl">
-        <form onSubmit={handleSubmit} className="space-y-10">
-          <Section title="Assignment Details">
-            {/* TENANT */}
-            <SelectField
-              label="Tenant *"
-              name="tenant_id"
-              value={form.tenant_id}
-              onChange={handleChange}
-              options={tenants}
-            />
+          {/* ================= ASSIGNMENT DETAILS ================= */}
+          <div>
+            <h3 className="mb-4 text-sm font-semibold text-gray-700">
+              Assignment Details
+            </h3>
 
-            {/* APPROVER TYPE */}
-            <SelectField
-              label="Approver Type *"
-              name="approver_type"
-              value={form.approver_type}
-              onChange={handleChange}
-              options={["Individual", "Group"]}
-              disabled={!form.tenant_id}
-              hint={!form.tenant_id && "Select tenant first"}
-            />
-
-            {/* INDIVIDUAL USER */}
-            {form.approver_type === "Individual" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* TENANT */}
               <SelectField
-                label="Select User *"
-                name="user_id"
-                value={form.user_id}
-                onChange={handleChange}
-                options={users.map((u) => u.name)}
-                disabled={!form.tenant_id}
+                label="Tenant *"
+                value={form.tenant_id}
+                onChange={(e) =>
+                  handleChange({
+                    target: { name: "tenant_id", value: e.target.value },
+                  })
+                }
+                options={tenants}
+                placeholder="Select tenant"
               />
-            )}
 
-            {/* GROUP USERS */}
-            {form.approver_type === "Group" && (
-              <GroupChecklist
-                label="Select Group Members *"
-                users={users}
-                selected={form.group_users}
-                onToggle={toggleGroupUser}
-                disabled={!form.tenant_id}
+              {/* APPROVER TYPE */}
+              <SelectField
+                label="Approver Type *"
+                value={form.approver_type}
+                onChange={(e) =>
+                  handleChange({
+                    target: { name: "approver_type", value: e.target.value },
+                  })
+                }
+                options={[
+                  { label: "Individual", value: "Individual" },
+                  { label: "Group", value: "Group" },
+                ]}
+                placeholder="Select type"
               />
-            )}
 
-            {/* STATUS */}
-            <SelectField
-              label="Status *"
-              name="status"
-              value={form.status}
-              onChange={handleChange}
-              options={["Active", "Inactive"]}
-            />
-          </Section>
+              {/* INDIVIDUAL USER */}
+              {form.approver_type === "Individual" && (
+                <SelectField
+                  label="Select User *"
+                  value={form.user_id}
+                  onChange={(e) =>
+                    handleChange({
+                      target: { name: "user_id", value: e.target.value },
+                    })
+                  }
+                  options={users}
+                  placeholder="Select user"
+                />
+              )}
 
-          <button
+              {/* GROUP USERS */}
+              {form.approver_type === "Group" && (
+                <div className="md:col-span-2">
+                  <MultiSelectField
+                    label="Select Group Members *"
+                    values={form.group_users}
+                    options={users}
+                    onChange={(vals) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        group_users: vals,
+                      }))
+                    }
+                  />
+                </div>
+              )}
+
+              {/* STATUS */}
+              <SelectField
+                label="Status *"
+                value={form.status}
+                onChange={(e) =>
+                  handleChange({
+                    target: { name: "status", value: e.target.value },
+                  })
+                }
+                options={[
+                  { label: "Active", value: "Active" },
+                  { label: "Inactive", value: "Inactive" },
+                ]}
+              />
+            </div>
+          </div>
+
+          {/* ================= ACTION ================= */}
+          <Button
             type="submit"
+            fullWidth
+            icon={<FiSave />}
+            label="Save Assignment"
             disabled={!form.tenant_id || !form.approver_type}
-            className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            <FiSave />
-            Save Assignment
-          </button>
+          />
         </form>
       </div>
     </MainLayout>
   );
 }
 
-/* ================= UI HELPERS ================= */
-
-const Section = ({ title, children }) => (
-  <div>
-    <h3 className="font-semibold mb-4">{title}</h3>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      {children}
-    </div>
-  </div>
-);
-
-function SelectField({ label, options, hint, ...props }) {
-  return (
-    <div>
-      <label className="text-sm font-medium">{label}</label>
-      <select
-        {...props}
-        className="w-full mt-2 p-3 rounded-xl bg-gray-50 border text-sm disabled:opacity-50"
-      >
-        <option value="">Select</option>
-        {options.map((op) => (
-          <option key={op} value={op}>
-            {op}
-          </option>
-        ))}
-      </select>
-      {hint && (
-        <p className="text-xs text-gray-400 mt-1">{hint}</p>
-      )}
-    </div>
-  );
-}
-
-function GroupChecklist({ label, users, selected, onToggle, disabled }) {
-  return (
-    <div className="md:col-span-2">
-      <label className="text-sm font-medium">{label}</label>
-      <div className="mt-3 space-y-2 border rounded-xl p-4 bg-gray-50">
-        {users.map((user) => (
-          <label
-            key={user.id}
-            className={`flex items-center gap-3 text-sm ${
-              disabled ? "opacity-50" : ""
-            }`}
-          >
-            <input
-              type="checkbox"
-              disabled={disabled}
-              checked={selected.includes(user.id)}
-              onChange={() => onToggle(user.id)}
-            />
-            {user.name}
-          </label>
-        ))}
-      </div>
-    </div>
-  );
-}
+export default ManageApprovalPage;

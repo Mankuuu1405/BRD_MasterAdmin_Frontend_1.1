@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import MainLayout from "../../layout/MainLayout";
+import { FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 import { FiSave } from "react-icons/fi";
 
-import currencyManagementService from "../../services/currencyManagementService";
 import {
   SubPageHeader,
   InputField,
@@ -11,7 +11,8 @@ import {
   Button,
 } from "../../components/Controls/SharedUIHelpers";
 
-/* ================= OPTIONS ================= */
+/* ================= CONSTANTS ================= */
+
 const STATUS_OPTIONS = [
   { label: "Active", value: "Active" },
   { label: "Inactive", value: "Inactive" },
@@ -23,6 +24,8 @@ const CURRENCY_OPTIONS = [
   { label: "EUR", value: "EUR" },
   { label: "GBP", value: "GBP" },
 ];
+
+/* ================= COMPONENT ================= */
 
 export default function CurrencyForm({ isEdit = false }) {
   const navigate = useNavigate();
@@ -38,22 +41,28 @@ export default function CurrencyForm({ isEdit = false }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  /* ================= FETCH ================= */
+  /* ---------------- LOAD (EDIT MODE) ---------------- */
   useEffect(() => {
-    if (isEdit && uuid) {
-      setLoading(true);
-      currencyManagementService
-        .getOne(uuid)
-        .then((res) => setForm(res))
-        .catch(() => setError("Failed to load currency details"))
-        .finally(() => setLoading(false));
-    }
+    if (!isEdit || !uuid) return;
+
+    setLoading(true);
+    currencyManagementService
+      .getOne(uuid)
+      .then((res) => {
+        setForm({
+          currency_code: res.currency_code || "",
+          currency_symbol: res.currency_symbol || "",
+          conversion_value_to_inr: res.conversion_value_to_inr || "",
+          status: res.status || "Active",
+        });
+      })
+      .catch(() => setError("Failed to load currency details"))
+      .finally(() => setLoading(false));
   }, [isEdit, uuid]);
 
-  /* ================= HANDLERS ================= */
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+  /* ---------------- HANDLERS ---------------- */
+  const handleChange = (name, value) => {
+    setForm((p) => ({ ...p, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -62,14 +71,13 @@ export default function CurrencyForm({ isEdit = false }) {
     setError("");
 
     try {
-      if (isEdit && uuid) {
-        await currencyManagementService.update(uuid, form);
-      } else {
-        await currencyManagementService.create(form);
-      }
+      isEdit
+        ? await currencyManagementService.update(uuid, form)
+        : await currencyManagementService.create(form);
+
       navigate("/currency-management");
     } catch {
-      setError("Failed to save currency. Please check your inputs.");
+      setError("Failed to save currency. Please check inputs.");
     } finally {
       setLoading(false);
     }
@@ -85,61 +93,67 @@ export default function CurrencyForm({ isEdit = false }) {
       />
 
       {/* ================= FORM ================= */}
-      <div className="bg-white p-8 rounded-2xl shadow-md max-w-4xl">
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-        >
-          <SelectField
-            label="Currency Code"
-            name="currency_code"
-            value={form.currency_code}
-            onChange={handleChange}
-            options={CURRENCY_OPTIONS}
-            placeholder="Select Currency"
-          />
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-8 rounded-2xl shadow-md max-w-4xl
+                   grid grid-cols-1 md:grid-cols-2 gap-6"
+      >
+        <SelectField
+          label="Currency Code"
+          value={form.currency_code}
+          onChange={(e) =>
+            handleChange("currency_code", e.target.value)
+          }
+          options={CURRENCY_OPTIONS}
+          placeholder="Select currency"
+        />
 
-          <InputField
-            label="Currency Symbol"
-            name="currency_symbol"
-            value={form.currency_symbol}
-            onChange={handleChange}
-            placeholder="₹, $, €"
-          />
+        <InputField
+          label="Currency Symbol"
+          value={form.currency_symbol}
+          onChange={(e) =>
+            handleChange("currency_symbol", e.target.value)
+          }
+          placeholder="₹, $, €"
+        />
 
-          <InputField
-            label="Conversion Value to INR"
-            name="conversion_value_to_inr"
-            type="number"
-            value={form.conversion_value_to_inr}
-            onChange={handleChange}
-          />
+        <InputField
+          label="Conversion Value to INR"
+          type="number"
+          value={form.conversion_value_to_inr}
+          onChange={(e) =>
+            handleChange("conversion_value_to_inr", Number(e.target.value))
+          }
+          placeholder="0.00"
+        />
 
-          <SelectField
-            label="Status"
-            name="status"
-            value={form.status}
-            onChange={handleChange}
-            options={STATUS_OPTIONS}
-          />
+        <SelectField
+          label="Status"
+          value={form.status}
+          onChange={(e) =>
+            handleChange("status", e.target.value)
+          }
+          options={STATUS_OPTIONS}
+        />
 
-          {error && (
-            <div className="md:col-span-2 text-sm text-red-600">
-              {error}
-            </div>
-          )}
-
-          <div className="md:col-span-2 pt-4">
-            <Button
-              type="submit"
-              fullWidth
-              icon={<FiSave />}
-              label={loading ? "Saving..." : "Save Currency"}
-              disabled={loading}
-            />
+        {error && (
+          <div className="md:col-span-2 text-sm text-red-600">
+            {error}
           </div>
-        </form>
-      </div>
+        )}
+
+        {/* ================= ACTION ================= */}
+        <div className="md:col-span-2 flex justify-end pt-4">
+          <Button
+            type="submit"
+            label={loading ? "Saving..." : "Save Currency"}
+            icon={<FiSave />}
+            disabled={loading}
+            variant="primary"
+            size="lg"
+          />
+        </div>
+      </form>
     </MainLayout>
   );
 }
