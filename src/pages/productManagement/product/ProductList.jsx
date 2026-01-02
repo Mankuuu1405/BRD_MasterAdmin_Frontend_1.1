@@ -3,7 +3,7 @@ import MainLayout from "../../../layout/MainLayout";
 import { productManagementService } from "../../../services/productManagementService";
 import { FiPlus, FiEdit, FiTrash2, FiSearch, FiEye } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import { Button, PageHeader } from "../../../components/Controls/SharedUIHelpers";
+import { Button, PageHeader, SearchFilterBar } from "../../../components/Controls/SharedUIHelpers";
 
 export default function LoanProductList() {
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ export default function LoanProductList() {
       <PageHeader title={"Loan Products"} subtitle={"View and manage loan products"} actionIcon={<FiPlus/>}  actionLabel={"Add Product"} onAction={() => navigate("/product-management/add")}/>
 
       {/* SEARCH */}
-      <div className="bg-white rounded-2xl p-4 mb-6 flex items-center gap-3 shadow-sm">
+      {/* <div className="bg-white rounded-2xl p-4 mb-6 flex items-center gap-3 shadow-sm">
         <FiSearch className="text-gray-400" />
         <input
           value={search}
@@ -61,7 +61,9 @@ export default function LoanProductList() {
           placeholder="Search product..."
           className="w-full outline-none text-sm bg-transparent"
         />
-      </div>
+      </div> */}
+
+    <SearchFilterBar   />
 
       {/* LIST */}
       <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
