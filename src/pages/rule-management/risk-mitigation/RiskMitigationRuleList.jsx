@@ -3,7 +3,7 @@ import MainLayout from "../../../layout/MainLayout";
 import { FiPlus, FiEdit3, FiTrash2, FiSearch, FiEye } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { ruleManagementService } from "../../../services/ruleManagementService";
-import DeleteConfirmButton from "../../../components/DeleteConfirmButton_1";
+import {DeleteConfirmButton} from "../../../components/Controls/SharedUIHelpers";
 
 export default function RiskMitigationRuleList() {
   const navigate = useNavigate();

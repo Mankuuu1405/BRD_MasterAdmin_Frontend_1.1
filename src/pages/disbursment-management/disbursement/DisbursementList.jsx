@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiPlus, FiEdit, FiTrash2, FiSearch, FiEye } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import DeleteConfirmButton from "../../../components/DeleteConfirmButton_1";
+import {DeleteConfirmButton} from "../../../components/Controls/SharedUIHelpers";
 // import { disbursementMasterService } from "../../../services/disbursementMasterService";
 
 export default function DisbursementList() {

@@ -3,7 +3,7 @@ import MainLayout from "../../layout/MainLayout";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiPlus, FiSearch, FiTrash2, FiEdit } from "react-icons/fi";
 import { organizationService } from "../../services/organizationService";
-import DeleteConfirmButton from "../../components/DeleteConfirmButton_1";
+import {DeleteConfirmButton} from "../../components/Controls/SharedUIHelpers";
 
 export default function OrganizationList() {
   const navigate = useNavigate();
