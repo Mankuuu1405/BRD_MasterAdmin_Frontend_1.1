@@ -102,13 +102,13 @@ export const SubPageHeader = ({
   onBack,
 }) => {
   return (
-    <div className="flex items-start gap-4 mb-6">
+    <div className="flex items-center gap-4 mb-6">
       {/* Back Button */}
       <button
         onClick={onBack}
-        className="mt-1 flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-sm border hover:bg-gray-50"
+        className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition shadow-sm"
       >
-        ←
+        <FiArrowLeft className="text-gray-700 text-xl" />
       </button>
 
       {/* Title Section */}
@@ -287,9 +287,13 @@ export function ListView({
 
               <div className="flex items-center gap-3 text-gray-600">
                 {actions.map((action, i) => (
-                  <span key={i} onClick={() => action.onClick(row)}>
-                    {action.icon}
-                  </span>
+                  <IconButton
+                  key={i}
+                  color={action.color || "gray"}
+                  onClick={() => action.onClick(row)}
+                >
+                  {action.icon}
+                </IconButton>
                 ))}
               </div>
             </div>
@@ -332,12 +336,12 @@ const StatusBadge = ({ status }) => (
     className={`inline-flex items-center justify-center
       px-3 py-1 text-xs font-medium rounded-full
       ${
-        status === "Active"
+        status === true
           ? "bg-green-100 text-green-700"
           : "bg-red-100 text-red-600"
       }`}
   >
-    {status}
+    {status ? "Active" : "Inactive"}
   </span>
 );
 
@@ -403,66 +407,95 @@ export function DeleteConfirmButton({
   );
 }
 
-import { FiSearch, FiFilter } from "react-icons/fi";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { FiSearch, FiChevronDown, FiArrowDown, FiAlignLeft, FiArrowLeft } from "react-icons/fi";
 
 export function SearchFilterBar({
-  search,
+  search = "",
   onSearchChange,
-  filter,
+  filter = "",
   onFilterChange,
+  filters = [],
   placeholder = "Search...",
 }) {
   const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-  const FILTERS = ["Week", "Month", "Year"];
+  /* ---------------- CLOSE ON OUTSIDE CLICK ---------------- */
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <div className="flex flex-col sm:flex-row gap-3 mb-6">
-      
-      {/* SEARCH */}
-      <div className="flex items-center gap-3 bg-white rounded-2xl px-4 py-3 shadow-sm w-full sm:w-full">
-        <FiSearch className="text-gray-400" />
+    <div className="mb-6">
+      <div className="flex items-center bg-white rounded-2xl shadow-sm px-4 py-3 gap-3">
+
+        {/* SEARCH ICON */}
+        <FiSearch className="text-gray-400 shrink-0" />
+
+        {/* SEARCH INPUT */}
         <input
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full bg-transparent outline-none text-sm"
+          className="flex-1 bg-transparent outline-none text-sm"
         />
-      </div>
 
-      {/* FILTER */}
-      <div className="relative w-full sm:w-auto">
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="w-full sm:w-auto px-4 py-3 bg-white rounded-2xl shadow-sm flex items-center gap-2 text-sm hover:bg-gray-50"
-        >
-          <FiFilter />
-          {filter || "Filter"}
-        </button>
+        {/* FILTER DROPDOWN */}
+        {filters.length > 0 && (
+          <div className="relative" ref={dropdownRef}>
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 px-2"
+            >
+              {filter || "All"}
+              <FiChevronDown className="text-xs" />
+            </button>
 
-        {open && (
-          <div className="absolute right-0 mt-2 bg-white rounded-xl shadow-lg w-32 z-20 overflow-hidden">
-            {FILTERS.map((f) => (
-              <button
-                key={f}
-                onClick={() => {
-                  onFilterChange(f);
-                  setOpen(false);
-                }}
-                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100
-                  ${filter === f ? "bg-gray-100 font-medium" : ""}
-                `}
-              >
-                {f}
-              </button>
-            ))}
+            {open && (
+              <div className="absolute right-0 mt-2 w-36 bg-white rounded-xl shadow-lg z-20 overflow-hidden">
+                <button
+                  onClick={() => {
+                    onFilterChange("");
+                    setOpen(false);
+                  }}
+                  className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100
+                    ${!filter ? "bg-gray-100 font-medium" : ""}
+                  `}
+                >
+                  All
+                </button>
+
+                {filters.map((f) => (
+                  <button
+                    key={f.value ?? f}
+                    onClick={() => {
+                      onFilterChange(f.value ?? f);
+                      setOpen(false);
+                    }}
+                    className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100
+                      ${filter === (f.value ?? f) ? "bg-gray-100 font-medium" : ""}
+                    `}
+                  >
+                    {f.label ?? f}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
     </div>
   );
 }
+
 
 
 
