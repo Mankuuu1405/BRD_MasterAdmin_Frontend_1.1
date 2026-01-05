@@ -1,34 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiEye, FiPlus, FiEdit3, FiSearch } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import profileManagementService from "../../../services/profileManagementService";
+
+// Mappings for IDs to labels (hardcoded for now; ideally fetch from API)
+const AGENT_TYPES = { 1: "DSA", 2: "Sourcing", 3: "Field", 4: "Collection" };
+const AGENT_CATEGORIES = { 1: "Freelance", 2: "Company", 3: "Employee" };
+const AGENT_LEVELS = { 1: "Tier 1", 2: "Tier 2", 3: "Tier 3" };
+const AGENT_CONSTITUTIONS = { 1: "Individual", 2: "Firm", 3: "Company" };
+const AGENT_SERVICES = { 1: "Lead Gen", 2: "Documentation", 3: "Verification" };
+const AGENT_RESPONSIBILITIES = { 1: "Sourcing", 2: "Collection", 3: "Support" };
 
 export default function AgentList() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [agents, setAgents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const agents = [
-    {
-      id: 1,
-      type: "DSA",
-      category: "Freelance",
-      level: "Tier 1",
-      service: "Lead Generation",
-    },
-    {
-      id: 2,
-      type: "Collection",
-      category: "Company",
-      level: "Tier 2",
-      service: "Collection",
-    },
-  ];
+  // Fetch agents from API
+  useEffect(() => {
+    const fetchAgents = async () => {
+      try {
+        const data = await profileManagementService.getAllAgents();
+        setAgents(data);
+      } catch (error) {
+        console.error("❌ Failed to fetch agents:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAgents();
+  }, []);
 
-  const filteredAgents = agents.filter(
-    (a) =>
-      a.type.toLowerCase().includes(search.toLowerCase()) ||
-      a.service.toLowerCase().includes(search.toLowerCase())
-  );
+  // Filter agents based on search (search by readable labels)
+  const filteredAgents = agents.filter((a) => {
+    const typeLabel = AGENT_TYPES[a.agent_type] || "";
+    const serviceLabel = AGENT_SERVICES[a.agent_service_type] || "";
+    return (
+      typeLabel.toLowerCase().includes(search.toLowerCase()) ||
+      serviceLabel.toLowerCase().includes(search.toLowerCase())
+    );
+  });
 
   return (
     <MainLayout>
@@ -70,39 +83,43 @@ export default function AgentList() {
           <div className="text-right">Action</div>
         </div>
 
-        {filteredAgents.map((a) => (
-          <div
-            key={a.id}
-            className="bg-white rounded-xl px-4 py-3 shadow-sm grid grid-cols-1 md:grid-cols-5 items-center gap-2 text-sm"
-          >
-            <div className="font-medium">{a.type}</div>
-            <div className="text-gray-600">{a.category}</div>
-            <div className="text-gray-600">{a.level}</div>
-            <div className="text-gray-600">{a.service}</div>
-
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() =>
-                  navigate(`/profile-management/agent/view/${a.id}`)
-                }
-                className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200"
-              >
-                <FiEye />
-              </button>
-
-              <button
-                onClick={() =>
-                  navigate(`/profile-management/agent/edit/${a.id}`)
-                }
-                className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200"
-              >
-                <FiEdit3 />
-              </button>
-            </div>
+        {loading ? (
+          <div className="text-center text-sm text-gray-500 py-6">
+            Loading agents...
           </div>
-        ))}
+        ) : filteredAgents.length > 0 ? (
+          filteredAgents.map((a) => (
+            <div
+              key={a.id}
+              className="bg-white rounded-xl px-4 py-3 shadow-sm grid grid-cols-1 md:grid-cols-5 items-center gap-2 text-sm"
+            >
+              <div className="font-medium">{AGENT_TYPES[a.agent_type]}</div>
+              <div className="text-gray-600">{AGENT_CATEGORIES[a.agent_category]}</div>
+              <div className="text-gray-600">{AGENT_LEVELS[a.agent_level]}</div>
+              <div className="text-gray-600">{AGENT_SERVICES[a.agent_service_type]}</div>
 
-        {filteredAgents.length === 0 && (
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() =>
+                    navigate(`/profile-management/agent/view/${a.id}`)
+                  }
+                  className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200"
+                >
+                  <FiEye />
+                </button>
+
+                <button
+                  onClick={() =>
+                    navigate(`/profile-management/agent/edit/${a.id}`)
+                  }
+                  className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200"
+                >
+                  <FiEdit3 />
+                </button>
+              </div>
+            </div>
+          ))
+        ) : (
           <div className="text-center text-sm text-gray-500 py-6">
             No agents found
           </div>

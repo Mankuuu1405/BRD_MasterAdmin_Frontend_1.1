@@ -17,7 +17,7 @@ export const userService = {
 
   // GET SINGLE USER
   async getUser(id) {
-    const res = await axiosInstance.get(`${BASE_URL}${id}/`); // ✅ id with trailing slash
+    const res = await axiosInstance.get(`${BASE_URL}/${id}/`); // ✅ id with trailing slash
     return res.data;
   },
 
