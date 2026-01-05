@@ -20,8 +20,6 @@ const AddUser = () => {
     phone: "",
     password: "",
     role: "",
-    organization: "", // UUID string
-    branch: "",       // UUID string
     status: "Active",
     employee_id: "",
     approval_limit: "",
@@ -36,37 +34,8 @@ const AddUser = () => {
     Borrower: "BORROWER",
   };
 
-  // Load organizations once
-  useEffect(() => {
-    (async () => {
-      try {
-        const orgs = await organizationService.getOrganizations();
-        console.log(orgs)
-        setOrganizations(Array.isArray(orgs) ? orgs : []);
-      } catch (e) {
-        console.error("Failed to load organizations:", e);
-      }
-    })();
-  }, []);
 
-  // Load branches whenever organization changes
-  useEffect(() => {
-    if (!form.organization) {
-      setBranches([]);
-      setForm((prev) => ({ ...prev, branch: "" }));
-      return;
-    }
-
-    (async () => {
-      try {
-        const br = await branchService.getBranchesByOrg(form.organization);
-        setBranches(Array.isArray(br) ? br : []);
-        setForm((prev) => ({ ...prev, branch: "" })); // reset branch
-      } catch (e) {
-        console.error("Failed to load branches:", e);
-      }
-    })();
-  }, [form.organization]);
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -83,9 +52,6 @@ const AddUser = () => {
     if (!form.password?.trim()) return "Password is required.";
     if (!form.role) return "Role is required.";
 
-    if (!form.organization) return "Organization is required.";
-    if (!form.branch) return "Branch is required.";
-
     return null;
   };
 
@@ -100,8 +66,6 @@ const AddUser = () => {
       phone: form.phone,
       password: form.password,
       role: ROLE_MAP[form.role] || null,
-      organization: form.organization, // UUID string
-      branch: form.branch,             // UUID string
       employee_id: form.employee_id || "",
       approval_limit: form.approval_limit ? Number(form.approval_limit) : null,
       is_active: form.status === "Active",
@@ -153,27 +117,6 @@ const AddUser = () => {
             options={Object.keys(ROLE_MAP).map((k) => ({ label: k, value: k }))}
           />
 
-          <SelectField
-            name="organization"
-            label="Organization"
-            value={form.organization || ""}
-            onChange={handleChange}
-            options={organizations.map((o) => ({
-              label: o.business_name, // correct field
-              value: o.tenant_id || o.id, // backend expects tenant_id
-            }))}
-          />
-
-          <SelectField
-            name="branch"
-            label="Branch"
-            value={form.branch}
-            onChange={handleChange}
-            options={branches.map((b) => ({
-              label: b.branch_name, // correct field
-              value: b.id,          // branch UUID
-            }))}
-          />
 
 
           <InputField name="employee_id" label="Employee ID" value={form.employee_id} onChange={handleChange} />
