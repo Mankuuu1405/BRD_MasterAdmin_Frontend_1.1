@@ -10,7 +10,10 @@ import {
   FiEdit,
 } from "react-icons/fi";
 import { branchService } from "../../services/branchService";
-import {DeleteConfirmButton} from "../../components/Controls/SharedUIHelpers";
+import {
+  DeleteConfirmButton,
+  SearchFilterBar,
+} from "../../components/Controls/SharedUIHelpers";
 
 export default function BranchList() {
   const navigate = useNavigate();
@@ -18,6 +21,12 @@ export default function BranchList() {
   const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("");
+
+  const filters = [
+    { label: "Active", value: "active" },
+    { label: "Inactive", value: "inactive" },
+  ];
 
   // delete modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -50,16 +59,23 @@ export default function BranchList() {
   const filteredBranches = useMemo(() => {
     if (!Array.isArray(branches)) return [];
 
-    return branches.filter(
-      (b) =>
+    return branches.filter((b) => {
+      const matchesSearch =
         !search ||
         b.branch_name?.toLowerCase().includes(search.toLowerCase()) ||
         b.branch_code?.toLowerCase().includes(search.toLowerCase()) ||
-        (b.phone || "").includes(search) ||
-        (b.address || "").toLowerCase().includes(search.toLowerCase()) ||
-        (b.tenant?.name || "").toLowerCase().includes(search.toLowerCase())
-    );
-  }, [branches, search]);
+        (b.phone_number || "").includes(search) ||
+        (b.branch_address || "").toLowerCase().includes(search.toLowerCase()) ||
+        (b.tenant?.name || "").toLowerCase().includes(search.toLowerCase());
+
+      const matchesFilter =
+        !filter ||
+        (filter === "active" && b.is_active === true) ||
+        (filter === "inactive" && b.is_active === false);
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [branches, search, filter]);
 
   /* ---------------- DELETE FLOW ---------------- */
   const openDeleteModal = (id) => {
@@ -112,16 +128,14 @@ export default function BranchList() {
       </div>
 
       {/* SEARCH */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm mb-6 flex items-center gap-2">
-        <FiSearch className="text-gray-400" />
-        <input
-          type="text"
-          placeholder="Search by branch name, code, phone or address..."
-          className="flex-1 bg-gray-50 rounded-xl px-3 py-2 outline-none text-sm"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
+      <SearchFilterBar
+        search={search}
+        onSearchChange={setSearch}
+        filter={filter}
+        onFilterChange={setFilter}
+        filters={filters}
+        placeholder="Search by branch name, code, phone or address..."
+      />
 
       {/* LIST */}
       <div className="space-y-4">

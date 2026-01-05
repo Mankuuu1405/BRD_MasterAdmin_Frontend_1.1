@@ -1,15 +1,30 @@
 import React, { useMemo, useState, useEffect } from "react";
 import MainLayout from "../../layout/MainLayout";
 import { useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiPlus, FiSearch, FiTrash2, FiEdit } from "react-icons/fi";
+import {
+  FiArrowLeft,
+  FiPlus,
+  FiSearch,
+  FiTrash2,
+  FiEdit,
+} from "react-icons/fi";
 import { organizationService } from "../../services/organizationService";
-import {DeleteConfirmButton} from "../../components/Controls/SharedUIHelpers";
+import {
+  DeleteConfirmButton,
+  SearchFilterBar,
+} from "../../components/Controls/SharedUIHelpers";
 
 export default function OrganizationList() {
   const navigate = useNavigate();
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("");
+
+  const filters = [
+    { label: "Active", value: "active" },
+    { label: "Inactive", value: "inactive" },
+  ];
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteOrgId, setDeleteOrgId] = useState(null);
@@ -45,15 +60,22 @@ export default function OrganizationList() {
   const filteredOrgs = useMemo(() => {
     if (!Array.isArray(organizations)) return [];
 
-    return organizations.filter(
-      (org) =>
+    return organizations.filter((org) => {
+      const matchesSearch =
         !search ||
         org.business_name?.toLowerCase().includes(search.toLowerCase()) ||
         org.email?.toLowerCase().includes(search.toLowerCase()) ||
         (org.mobile_number || "").includes(search) ||
-        (org.full_address || "").toLowerCase().includes(search.toLowerCase())
-    );
-  }, [organizations, search]);
+        (org.full_address || "").toLowerCase().includes(search.toLowerCase());
+
+      const matchesFilter =
+        !filter ||
+        (filter === "active" && org.is_active === true) ||
+        (filter === "inactive" && org.is_active === false);
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [organizations, search, filter]);
 
   /* ---------------- DELETE FLOW ---------------- */
   const openDeleteModal = (id) => {
@@ -106,16 +128,14 @@ export default function OrganizationList() {
       </div>
 
       {/* SEARCH */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm mb-6 flex items-center gap-2">
-        <FiSearch className="text-gray-400" />
-        <input
-          type="text"
-          placeholder="Search by name, email, phone or address..."
-          className="flex-1 bg-gray-50 rounded-xl px-3 py-2 outline-none text-sm"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
+      <SearchFilterBar
+        search={search}
+        onSearchChange={setSearch}
+        filter={filter}
+        onFilterChange={setFilter}
+        filters={filters}
+        placeholder="Search by name, email, phone or address..."
+      />
 
       {/* LIST */}
       <div className="space-y-4">
@@ -137,7 +157,9 @@ export default function OrganizationList() {
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-gray-400 text-xs">Name</p>
-                  <p className="font-semibold text-gray-800">{org.business_name}</p>
+                  <p className="font-semibold text-gray-800">
+                    {org.business_name}
+                  </p>
                 </div>
                 <div>
                   <p className="text-gray-400 text-xs">Email</p>
@@ -145,20 +167,22 @@ export default function OrganizationList() {
                 </div>
                 <div>
                   <p className="text-gray-400 text-xs">Phone</p>
-                  <p className="text-sm text-gray-700">{org.mobile_number || "-"}</p>
+                  <p className="text-sm text-gray-700">
+                    {org.mobile_number || "-"}
+                  </p>
                 </div>
                 <div>
                   <p className="text-gray-400 text-xs">Address</p>
-                  <p className="text-sm text-gray-700">{org.full_address || "-"}</p>
+                  <p className="text-sm text-gray-700">
+                    {org.full_address || "-"}
+                  </p>
                 </div>
               </div>
 
               {/* ACTIONS */}
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() =>
-                    navigate(`/organizations/edit/${org.id}`)
-                  }
+                  onClick={() => navigate(`/organizations/edit/${org.id}`)}
                   className="p-2 rounded-full bg-gray-100 hover:bg-gray-200"
                 >
                   <FiEdit className="text-blue-600" />
