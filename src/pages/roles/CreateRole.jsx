@@ -4,19 +4,24 @@ import React, { useState, useEffect } from "react";
 import MainLayout from "../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import { roleService } from "../../services/roleService";
+import roleService from "../../services/roleService";
 
 const CreateRole = () => {
   const navigate = useNavigate();
 
   const [roleName, setRoleName] = useState("");
+  const [description, setDescription] = useState(""); // ✅ Add description state
   const [existingRoles, setExistingRoles] = useState([]);
 
-  // ---- Load existing roles (async safe) ----
+  // ---- Load existing roles ----
   useEffect(() => {
     (async () => {
-      const list = await roleService.getRoles();
-      setExistingRoles(Array.isArray(list) ? list : []);
+      try {
+        const list = await roleService.getRoles();
+        setExistingRoles(Array.isArray(list) ? list : []);
+      } catch (error) {
+        console.error("Failed to load roles:", error);
+      }
     })();
   }, []);
 
@@ -27,23 +32,26 @@ const CreateRole = () => {
     const name = roleName.trim();
     if (!name) return alert("Please enter a role name.");
 
-    // Check duplicates
+    // Check duplicates using API's `name` field
     if (
-      existingRoles.some(
-        (r) => r.roleName.toLowerCase() === name.toLowerCase()
-      )
+      existingRoles.some((r) => r.name.toLowerCase() === name.toLowerCase())
     ) {
       alert("Role already exists!");
       return;
     }
 
-    // Save new role
-    const newRole = await roleService.addRole(name);
+    try {
+      // Save new role ✅ include description
+      const newRole = await roleService.createRole({ name, description });
 
-    alert("Role created successfully!");
+      alert("Role created successfully!");
 
-    // Auto-navigate to permissions page
-    navigate(`/roles/set-permissions?role=${newRole.id}`);
+      // Auto-navigate to permissions page
+      navigate(`/roles/set-permissions?role=${newRole.id}`);
+    } catch (error) {
+      console.error("Failed to create role:", error);
+      alert("Failed to create role. Try again.");
+    }
   };
 
   return (
@@ -68,12 +76,11 @@ const CreateRole = () => {
       {/* FORM CARD */}
       <div className="bg-white p-8 rounded-2xl shadow-md max-w-xl border border-gray-100">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Input */}
+          {/* Role Name Input */}
           <div className="flex flex-col">
             <label className="text-gray-700 text-sm font-medium">
               Role Name <span className="text-red-500">*</span>
             </label>
-
             <input
               type="text"
               value={roleName}
@@ -83,7 +90,21 @@ const CreateRole = () => {
             />
           </div>
 
-          {/* Submit */}
+          {/* Description Input ✅ */}
+          <div className="flex flex-col">
+            <label className="text-gray-700 text-sm font-medium">
+              Description
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Optional: Describe the purpose of this role"
+              className="mt-2 p-3 rounded-xl bg-gray-50 focus:bg-white shadow-sm outline-none border border-gray-200 resize-none"
+              rows={3}
+            />
+          </div>
+
+          {/* Submit Button */}
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-700 transition shadow-md"

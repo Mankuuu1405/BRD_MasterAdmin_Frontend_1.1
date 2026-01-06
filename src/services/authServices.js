@@ -13,6 +13,7 @@ export const authService = {
 
   localStorage.setItem("access_token", res.data.access);
   localStorage.setItem("refresh_token", res.data.refresh);
+  localStorage.setItem("permissions", res.data.permissions);
 },
 
 verify2FA: async (email, code) => {

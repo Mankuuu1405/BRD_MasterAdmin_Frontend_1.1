@@ -7,54 +7,51 @@ import {
   ListView,
   SearchFilterBar
 } from "../../components/Controls/SharedUIHelpers";
+import { productManagementService } from "../../services/productManagementService";
 
 export default function LoanImprovementList() {
   const navigate = useNavigate();
-  const [loans, setLoans] = useState([]);
+  const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
+  /* ================= FETCH PRODUCTS ================= */
   useEffect(() => {
-    // Sample data
-    setLoans([
-      {
-        id: 101,
-        loan_no: "LN-0001",
-        product: "Personal Loan",
-        interest: 12.5,
-        emi: 8500,
-        tenure: "36 Months",
-        outstanding: 285000,
-        status: "Active",
-      },
-      {
-        id: 102,
-        loan_no: "LN-0002",
-        product: "Home Loan",
-        interest: 8.75,
-        emi: 32000,
-        tenure: "240 Months",
-        outstanding: 4200000,
-        status: "Active",
-      },
-    ]);
-    setLoading(false);
+    loadProducts();
   }, []);
 
-  // Filtered based on search
-  const filtered = loans.filter((l) =>
-    l.loan_no.toLowerCase().includes(search.toLowerCase())
+  const loadProducts = async () => {
+      try {
+        setLoading(true);
+        const data = await productManagementService.getProducts();
+        setProducts(Array.isArray(data) ? data : []);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+   /* ================= FILTER ================= */
+  const filtered = products.filter((p) =>
+    p.product_name?.toLowerCase().includes(search.toLowerCase())
   );
 
   /* ================= LIST COLUMNS ================= */
   const columns = [
-    { key: "loan_no", label: "Loan No" },
-    { key: "product", label: "Product" },
-    { key: "interest", label: "Interest", type: "text" },
-    { key: "emi", label: "EMI", type: "text" },
-    { key: "tenure", label: "Tenure" },
-    { key: "outstanding", label: "Outstanding", type: "text" },
-    { key: "status", label: "Status", type: "status" },
+    { key: "product_name", label: "Product" },
+    { key: "product_category", label: "Category" },
+    { key: "product_type", label: "Type" },
+    {
+      key: "product_amount",
+      label: "Amount",
+      render: (v) => `₹${Number(v).toLocaleString()}`,
+    },
+    {
+      key: "product_period_value",
+      label: "Period",
+      render: (_, row) =>
+        `${row.product_period_value} ${row.product_period_unit}`,
+    },
+    { key: "is_active", label: "Status", type: "status" },
   ];
 
   /* ================= ROW ACTIONS ================= */
@@ -62,28 +59,37 @@ export default function LoanImprovementList() {
     {
       icon: <FiArrowRight />,
       color: "blue",
-      onClick: (row) => navigate(`/loan-improvement/${row.id}`),
+      onClick: (row) => navigate(`/loan-improvement/${row.id}`), // Open loan improvement for product
     },
   ];
 
   return (
     <MainLayout>
-      {/* HEADER */}
+      {/* ================= HEADER ================= */}
       <PageHeader
         title="Loan Improvement Management"
-        subtitle="Select an active loan to apply improvements"
+        subtitle="Select a product to create/improve a loan"
       />
 
-      {/* SEARCH */}
-      <SearchFilterBar search={search} onSearchChange={setSearch} placeholder="Search by Loan Number"/>
+      {/* ================= SEARCH ================= */}
+      <SearchFilterBar
+        search={search}
+        onSearchChange={setSearch}
+        placeholder="Search by product name..."
+      />
 
-      {/* LOAN LIST */}
+      {/* ================= LIST ================= */}
       {loading ? (
         <p className="text-center py-6 text-gray-500">Loading...</p>
       ) : filtered.length === 0 ? (
-        <p className="text-center py-6 text-gray-500">No loans found</p>
+        <p className="text-center py-6 text-gray-500">No products found</p>
       ) : (
-        <ListView data={filtered} columns={columns} actions={actions} rowKey="id" />
+        <ListView
+          data={filtered}
+          columns={columns}
+          actions={actions}
+          rowKey="id"
+        />
       )}
     </MainLayout>
   );

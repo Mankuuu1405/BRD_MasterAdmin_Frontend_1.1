@@ -50,12 +50,6 @@ const roleFeatures = [
     link: "/roles/set-permissions",
   },
   {
-    title: "Assign Loan Permissions",
-    icon: <FiCheckSquare />,
-    subtitle: "Control loan-module operations",
-    link: "/roles/assign-permissions",
-  },
-  {
     title: "Create Permissions",
     icon: <FiPenTool />,
     subtitle: "Create Permissions for Roles",

@@ -1,65 +1,116 @@
-import { api } from "./api";
+import axiosInstance from "../utils/axiosInstance";
 
-// ✅ Fix: '/api/v1' हटा दिया गया है
-const BASE_URL = "/adminpanel/access-control/roles/";
+const BASE_URL = "/adminpanel/access-control/"; // backend path
 
-export const roleService = {
+const roleService = {
+  // =========================
+  // ROLES
+  // =========================
 
-  // 1. GET ALL ROLES
-  async getRoles() {
+  createRole: async (data) => {
     try {
-      const res = await api.get(BASE_URL);
-      return res.data.map(r => ({
-        id: r.id,
-        roleName: r.name,
-        description: r.description,
-        createdAt: r.created_at
-      }));
+      const response = await axiosInstance.post(`${BASE_URL}roles/`, data);
+      return response.data;
     } catch (error) {
-      console.error("Fetch Roles Error:", error);
-      return [];
+      throw error.response?.data || error;
     }
   },
 
-  // 2. ADD ROLE
-  async addRole(roleName) {
+  getRoles: async () => {
     try {
-      const res = await api.post(BASE_URL, { name: roleName });
-      return res.data;
+      const response = await axiosInstance.get(`${BASE_URL}roles/`);
+      return response.data;
     } catch (error) {
-      throw error;
+      throw error.response?.data || error;
     }
   },
 
-  // 3. DELETE ROLE
-  async deleteRole(roleId) {
+  // =========================
+  // PERMISSIONS
+  // =========================
+
+  createPermission: async (data) => {
     try {
-      await api.delete(`${BASE_URL}${roleId}/`);
-      return true;
+      const response = await axiosInstance.post(`${BASE_URL}permissions/`, data);
+      return response.data;
     } catch (error) {
-      return false;
+      throw error.response?.data || error;
     }
   },
 
-  // 4. GET PERMISSIONS
-  async getPermissions(roleId) {
+  getPermissions: async () => {
     try {
-      const res = await api.get(`${BASE_URL}${roleId}/permissions/`);
-      return res.data; 
+      const response = await axiosInstance.get(`${BASE_URL}permissions/`);
+      return response.data;
     } catch (error) {
-      console.error("Fetch Permissions Error:", error);
-      return {};
+      throw error.response?.data || error;
     }
   },
 
-  // 5. SAVE PERMISSIONS
-  async savePermissions(roleId, permissions) {
+  // =========================
+  // ROLE ↔ PERMISSION
+  // =========================
+
+  assignPermissionsToRole: async ({ role, permissions }) => {
+  try {
+    // Ensure array exists
+    const cleanedPermissions = (permissions || []).map((id) =>
+      id.replace(/[“”]/g, "").trim()
+    );
+
+    const response = await axiosInstance.post(
+      `${BASE_URL}assign-permission/`,
+      {
+        role,                  // role UUID
+        permissions: cleanedPermissions, // ✅ plural
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+},
+
+
+  // New function to get permissions assigned to a role
+  getRolePermissions: async (roleId) => {
+    // Backend endpoint that returns all permission IDs assigned to a role
+    // We'll use the existing RolePermission list endpoint with a filter: ?role=<roleId>
     try {
-      await api.post(`${BASE_URL}${roleId}/permissions/`, { permissions });
-      return true;
+      const res = await axiosInstance.get(
+      `${BASE_URL}role-permissions/?role=${roleId}`
+      );
+      if (!res.data) return []; // handle undefined
+      return res.data.map((rp) => rp.permission);
     } catch (error) {
-      console.error("Save Permissions Error:", error);
-      throw error;
+      console.error("Failed to fetch role permissions", err);
+    return [];
+    }
+    
+  },
+
+  // =========================
+  // USER ↔ ROLE
+  // =========================
+
+  assignRoleToUser: async (data) => {
+    try {
+      const response = await axiosInstance.post(`${BASE_URL}assign-role/`, data);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  getUserRoles: async () => {
+    try {
+      const response = await axiosInstance.get(`${BASE_URL}user-roles/`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
     }
   },
 };
+
+export default roleService;
