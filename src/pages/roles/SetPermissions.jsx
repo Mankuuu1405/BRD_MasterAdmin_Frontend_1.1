@@ -1,201 +1,270 @@
 import React, { useEffect, useState } from "react";
 import MainLayout from "../../layout/MainLayout";
-import { FiArrowLeft, FiCheckCircle, FiSave, FiLoader } from "react-icons/fi";
+import {
+  FiArrowLeft,
+  FiSave,
+  FiLoader,
+  FiChevronDown,
+  FiChevronRight,
+} from "react-icons/fi";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { roleService } from "../../services/roleService";
+import roleService from "../../services/roleService";
+import SharedUIHelpers from "../../components/Controls/SharedUIHelpers";
 
-// Master List of Permissions
-const PERMISSION_LIST = [
-  { key: "loan_create", label: "Create Loan", desc: "Can create new loan applications" },
-  { key: "loan_approve", label: "Approve Loan", desc: "Authority to approve/reject loans" },
-  { key: "loan_edit", label: "Edit Loan", desc: "Can modify loan details" },
-  { key: "view_docs", label: "View Documents", desc: "Can view uploaded customer documents" },
-  { key: "download_docs", label: "Download Documents", desc: "Can download KYC files" },
-  { key: "edit_policies", label: "Edit Policies", desc: "Can change interest rates & policies" },
-  { key: "audit_logs", label: "View Audit Logs", desc: "Access to system audit trails" },
-];
+/* -------------------- HELPERS -------------------- */
+const groupPermissions = (permissions) => {
+  const groups = {};
+  permissions.forEach((perm) => {
+    const [module, action] = perm.code.split(".");
+    if (!groups[module]) groups[module] = [];
+    groups[module].push({ ...perm, action });
+  });
+  return groups;
+};
 
+/* -------------------- COMPONENT -------------------- */
 const SetPermissions = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const preSelectedRoleId = searchParams.get("role"); // URL se role ID lena (agar hai to)
+  const preSelectedRoleId = searchParams.get("role");
 
   const [roles, setRoles] = useState([]);
+  const [permissions, setPermissions] = useState([]);
   const [selectedRole, setSelectedRole] = useState("");
-  const [permissions, setPermissions] = useState({});
+  const [rolePerms, setRolePerms] = useState({});
+  const [expanded, setExpanded] = useState({});
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // 1. Load Roles on Mount
+  /* -------------------- FETCH DATA -------------------- */
   useEffect(() => {
-    const fetchRoles = async () => {
-      const data = await roleService.getRoles();
-      setRoles(data || []);
-      
-      // Agar URL me role ID hai, to use auto-select karein
-      if (preSelectedRoleId) {
-        handleRoleChange(preSelectedRoleId);
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const rolesRes = await roleService.getRoles();
+        const permsRes = await roleService.getPermissions();
+        setRoles(rolesRes || []);
+        setPermissions(permsRes || []);
+        if (preSelectedRoleId) handleRoleChange(preSelectedRoleId, permsRes);
+      } catch (err) {
+        console.error("Failed to load data", err);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchRoles();
+    loadData();
   }, []);
 
-  // 2. Handle Role Selection & Fetch Permissions
-  const handleRoleChange = async (roleId) => {
+  /* -------------------- ROLE CHANGE -------------------- */
+  const handleRoleChange = async (roleId, allPerms = permissions) => {
     setSelectedRole(roleId);
-    if (!roleId) {
-      setPermissions({});
-      return;
-    }
+    if (!roleId) return setRolePerms({});
 
     setLoading(true);
     try {
-      const data = await roleService.getPermissions(roleId);
-      setPermissions(data || {});
-    } catch (error) {
-      console.error("Error fetching permissions");
+      const existing = await roleService.getRolePermissions(roleId);
+      const map = {};
+      allPerms.forEach((p) => {
+        map[p.id] = existing.includes(p.id);
+      });
+      setRolePerms(map);
+    } catch (err) {
+      console.error("Failed to load role permissions", err);
     } finally {
       setLoading(false);
     }
   };
 
-  // 3. Toggle Permission Checkbox
-  const togglePermission = (key) => {
-    setPermissions((prev) => ({
-      ...prev,
-      [key]: !prev[key], // True <-> False
-    }));
+  /* -------------------- TOGGLES -------------------- */
+  const togglePermission = (id) => {
+    setRolePerms((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // 4. Save Changes
+  const toggleModule = (perms, value) => {
+    setRolePerms((prev) => {
+      const updated = { ...prev };
+      perms.forEach((p) => (updated[p.id] = value));
+      return updated;
+    });
+  };
+
+  /* -------------------- SAVE -------------------- */
   const handleSave = async () => {
-    if (!selectedRole) return alert("Please select a role first.");
+    if (!selectedRole) return alert("Select a role");
+
+    const active = Object.keys(rolePerms).filter((id) => rolePerms[id]);
+    if (!active.length) return alert("Select at least one permission");
 
     setSaving(true);
     try {
-      await roleService.savePermissions(selectedRole, permissions);
-      alert("Permissions updated successfully!");
-      navigate("/roles/list"); // Wapas list par bhejein
-    } catch (error) {
-      alert("Failed to save permissions.");
+      await roleService.assignPermissionsToRole({
+        role: selectedRole,
+        permissions: active,
+      });
+      alert("Permissions updated successfully");
+      navigate("/roles/list");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save permissions");
     } finally {
       setSaving(false);
     }
   };
 
+  /* -------------------- DERIVED DATA -------------------- */
+  const grouped = groupPermissions(permissions);
+
+  const filteredGroups = Object.entries(grouped).filter(
+    ([module, perms]) =>
+      module.toLowerCase().includes(search.toLowerCase()) ||
+      perms.some(
+        (p) =>
+          p.code.toLowerCase().includes(search.toLowerCase()) ||
+          p.description?.toLowerCase().includes(search.toLowerCase())
+      )
+  );
+
+  /* -------------------- UI -------------------- */
   return (
     <MainLayout>
       {/* HEADER */}
-      <div className="flex items-center gap-3 mb-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 shadow-sm transition"
-        >
-          <FiArrowLeft className="text-gray-700 text-xl" />
-        </button>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Set Permissions</h1>
-          <p className="text-gray-500 text-sm">
-            Configure access levels for system roles.
-          </p>
-        </div>
-      </div>
+      <SharedUIHelpers.SubPageHeader
+        title="Set Permissions"
+        subtitle="Assign permissions to roles"
+        onBack={() => navigate(-1)}
+      />
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        
-        {/* LEFT: SELECT ROLE */}
-        <div className="w-full lg:w-1/3">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <label className="text-gray-700 font-semibold mb-2 block">
-              Select Role to Configure
-            </label>
-            <select
-              value={selectedRole}
-              onChange={(e) => handleRoleChange(e.target.value)}
-              className="w-full p-3 bg-gray-50 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition"
-            >
-              <option value="">-- Choose Role --</option>
-              {roles.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.roleName}
-                </option>
-              ))}
-            </select>
-            
-            <p className="text-xs text-gray-500 mt-3">
-              Selecting a role will fetch its current active permissions.
-            </p>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* ROLE SELECT (STICKY) */}
+        <SharedUIHelpers.FormCard className="sticky top-6 h-fit">
+          <SharedUIHelpers.SelectField
+            label="Select Role"
+            value={selectedRole}
+            onChange={(e) => handleRoleChange(e.target.value)}
+            options={roles.map((r) => ({ label: r.name, value: r.id }))}
+            placeholder="-- Select Role --"
+          />
+        </SharedUIHelpers.FormCard>
 
-        {/* RIGHT: PERMISSIONS LIST */}
-        <div className="w-full lg:w-2/3">
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
-            
+        {/* PERMISSIONS + SAVE */}
+        <div className="lg:col-span-3 flex flex-col">
+          <SharedUIHelpers.FormCard className="flex-1 flex flex-col p-0 overflow-hidden">
             {!selectedRole ? (
-              <div className="text-center py-10 text-gray-400">
-                Please select a role from the left panel to view permissions.
-              </div>
+              <p className="text-center text-gray-400 py-20">
+                Select a role to manage permissions
+              </p>
             ) : loading ? (
-              <div className="text-center py-10 flex flex-col items-center">
-                <FiLoader className="animate-spin text-2xl text-blue-600 mb-2"/>
-                <span className="text-gray-500">Loading permissions...</span>
+              <div className="flex justify-center py-20">
+                <FiLoader className="animate-spin text-xl text-blue-600" />
               </div>
             ) : (
               <>
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-lg font-bold text-gray-800">Manage Access</h3>
-                  <span className="text-sm bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
-                    {roles.find(r => r.id == selectedRole)?.roleName}
-                  </span>
+                {/* SEARCH + ACTIONS */}
+                <div className="flex flex-col md:flex-row gap-4 mb-6 sticky top-0 bg-white z-10 p-4 border-b">
+                  <SharedUIHelpers.InputField
+                    placeholder="Search permissions..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                  <SharedUIHelpers.Button
+                    label="Select All"
+                    onClick={() => {
+                      const all = {};
+                      permissions.forEach((p) => (all[p.id] = true));
+                      setRolePerms(all);
+                    }}
+                  />
+                  <SharedUIHelpers.Button
+                    label="Clear All"
+                    variant="secondary"
+                    onClick={() => setRolePerms({})}
+                  />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {PERMISSION_LIST.map((perm) => {
-                    const isChecked = permissions[perm.key] === true;
-                    
+                {/* PERMISSION GROUPS */}
+                <div className="space-y-4 flex-1 overflow-y-auto max-h-[70vh] p-4">
+                  {filteredGroups.map(([module, perms]) => {
+                    const selectedCount = perms.filter((p) => rolePerms[p.id])
+                      .length;
+                    const allSelected = selectedCount === perms.length;
+
                     return (
                       <div
-                        key={perm.key}
-                        onClick={() => togglePermission(perm.key)}
-                        className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-3 ${
-                          isChecked
-                            ? "bg-blue-50 border-blue-500 ring-1 ring-blue-500"
-                            : "bg-white border-gray-200 hover:border-blue-300"
-                        }`}
+                        key={module}
+                        className="border rounded-xl overflow-hidden"
                       >
-                        <div className={`mt-1 w-5 h-5 rounded border flex items-center justify-center ${
-                          isChecked ? "bg-blue-600 border-blue-600" : "bg-white border-gray-400"
-                        }`}>
-                          {isChecked && <FiCheckCircle className="text-white text-xs" />}
+                        <div
+                          className="flex items-center justify-between px-5 py-4 bg-blue-50 cursor-pointer hover:bg-blue-100"
+                          onClick={() =>
+                            setExpanded((p) => ({
+                              ...p,
+                              [module]: !p[module],
+                            }))
+                          }
+                        >
+                          <div className="flex items-center gap-2">
+                            {expanded[module] ? (
+                              <FiChevronDown />
+                            ) : (
+                              <FiChevronRight />
+                            )}
+                            <div>
+                              <p className="font-semibold capitalize">{module}</p>
+                              <p className="text-xs text-gray-500">
+                                {selectedCount}/{perms.length} selected
+                              </p>
+                            </div>
+                          </div>
+
+                          <input
+                            type="checkbox"
+                            checked={allSelected}
+                            onChange={() => toggleModule(perms, !allSelected)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
                         </div>
 
-                        <div>
-                          <p className={`font-semibold text-sm ${isChecked ? "text-blue-800" : "text-gray-700"}`}>
-                            {perm.label}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-0.5">{perm.desc}</p>
-                        </div>
+                        {expanded[module] && (
+                          <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {perms.map((perm) => (
+                              <label
+                                key={perm.id}
+                                className="flex items-start gap-3 cursor-pointer"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={!!rolePerms[perm.id]}
+                                  onChange={() => togglePermission(perm.id)}
+                                />
+                                <div>
+                                  <p className="font-medium">{perm.action}</p>
+                                  <p className="text-xs text-gray-500">
+                                    {perm.description}
+                                  </p>
+                                </div>
+                              </label>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     );
                   })}
                 </div>
 
-                <div className="mt-8 border-t pt-6 flex justify-end">
-                  <button
+                {/* STICKY SAVE BUTTON */}
+                <div className="mt-4 flex justify-end sticky bottom-0 bg-white pt-4 border-t">
+                  <SharedUIHelpers.Button
+                    label="Save Changes"
+                    icon={saving ? <FiLoader className="animate-spin" /> : <FiSave />}
                     onClick={handleSave}
                     disabled={saving}
-                    className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 hover:bg-blue-700 transition shadow-md disabled:opacity-70"
-                  >
-                    {saving ? <FiLoader className="animate-spin" /> : <FiSave />}
-                    {saving ? "Saving..." : "Save Changes"}
-                  </button>
+                  />
                 </div>
               </>
             )}
-          </div>
+          </SharedUIHelpers.FormCard>
         </div>
-
       </div>
     </MainLayout>
   );

@@ -29,7 +29,7 @@ export const userService = {
 
   // UPDATE USER
   async updateUser(id, data) {
-    const res = await axiosInstance.patch(`${BASE_URL}${id}/`, data); // ✅ trailing slash
+    const res = await axiosInstance.put(`${BASE_URL}/list/${id}/`, data); // ✅ trailing slash
     return res.data;
   },
 

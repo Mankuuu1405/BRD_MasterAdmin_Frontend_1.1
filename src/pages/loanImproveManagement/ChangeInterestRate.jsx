@@ -3,13 +3,13 @@ import MainLayout from "../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 
-// import { loanImprovementService } from "../../../../services/loanImprovementService";
+import { productManagementService } from "../../services/productManagementService";
 
 const ChangeInterestRate = () => {
   const navigate = useNavigate();
-  const { loanId } = useParams();
+  const { loanId } = useParams(); // actually product id
 
-  const [loan, setLoan] = useState(null);
+  const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
   /* ---------------- FORM STATE ---------------- */
@@ -22,60 +22,39 @@ const ChangeInterestRate = () => {
   const [touched, setTouched] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
-  /* ---------------- LOAD LOAN CONTEXT ---------------- */
+  /* ---------------- LOAD PRODUCT ---------------- */
   useEffect(() => {
-    (async () => {
+    const loadProduct = async () => {
       try {
-        /*
-        const data = await loanService.getLoanById(loanId);
-        setLoan(data);
-        */
-
-        // TEMP MOCK DATA
-        setLoan({
-          loan_no: "LN-0001",
-          product: "Personal Loan",
-          interest: 12.5,
-          emi: 8500,
-          tenure: "36 Months",
-        });
+        setLoading(true);
+        const data = await productManagementService.getProduct(loanId);
+        setProduct(data);
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
-    })();
+    };
+    loadProduct();
   }, [loanId]);
 
   /* ---------------- VALIDATION ---------------- */
   const validate = (v) => {
     const e = {};
-
-    if (v.revised_rate === "") {
-      e.revised_rate = "Revised interest rate is required";
-    } else if (+v.revised_rate <= 0) {
-      e.revised_rate = "Interest rate must be greater than 0";
-    }
-
-    if (!v.effective_date) {
-      e.effective_date = "Effective date is required";
-    }
-
+    if (v.revised_rate === "") e.revised_rate = "Revised interest rate is required";
+    else if (+v.revised_rate <= 0) e.revised_rate = "Interest rate must be greater than 0";
+    if (!v.effective_date) e.effective_date = "Effective date is required";
     return e;
   };
 
-  const hasErrors = useMemo(
-    () => Object.keys(validate(form)).length > 0,
-    [form]
-  );
+  const hasErrors = useMemo(() => Object.keys(validate(form)).length > 0, [form]);
 
   /* ---------------- HANDLERS ---------------- */
   const handleChange = (e) => {
     const { name, value } = e.target;
     const updated = { ...form, [name]: value };
     setForm(updated);
-
-    if (touched[name]) {
-      setErrors(validate(updated));
-    }
+    if (touched[name]) setErrors(validate(updated));
   };
 
   const handleBlur = (e) => {
@@ -85,29 +64,23 @@ const ChangeInterestRate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const validationErrors = validate(form);
     setErrors(validationErrors);
-    setTouched({
-      revised_rate: true,
-      effective_date: true,
-    });
-
+    setTouched({ revised_rate: true, effective_date: true });
     if (Object.keys(validationErrors).length) return;
 
     setSubmitting(true);
     try {
-      /*
-      const payload = {
-        loan_id: loanId,
-        change_type: "INTEREST_RATE",
-        old_value: loan.interest,
-        new_value: Number(form.revised_rate),
-        effective_date: form.effective_date,
-      };
-
-      await loanImprovementService.createChange(payload);
-      */
+      // TODO: call loanImprovementService with product info
+      // Example payload:
+      // const payload = {
+      //   product_id: loanId,
+      //   change_type: "INTEREST_RATE",
+      //   old_value: product.interest_rate, // or whatever field you store
+      //   new_value: Number(form.revised_rate),
+      //   effective_date: form.effective_date,
+      // };
+      // await loanImprovementService.createChange(payload);
 
       navigate(`/loan-improvement/${loanId}`);
     } finally {
@@ -115,21 +88,19 @@ const ChangeInterestRate = () => {
     }
   };
 
-  if (loading) {
+  if (loading)
     return (
       <MainLayout>
-        <p className="text-gray-500">Loading loan details...</p>
+        <p className="text-gray-500">Loading product details...</p>
       </MainLayout>
     );
-  }
 
-  if (!loan) {
+  if (!product)
     return (
       <MainLayout>
-        <p className="text-gray-500">Loan not found.</p>
+        <p className="text-gray-500">Product not found.</p>
       </MainLayout>
     );
-  }
 
   return (
     <MainLayout>
@@ -141,34 +112,25 @@ const ChangeInterestRate = () => {
         >
           <FiArrowLeft className="text-gray-700 text-xl" />
         </button>
-
         <div>
-          <h1 className="text-xl font-semibold">
-            Change in Rate of Interest
-          </h1>
-          <p className="text-sm text-gray-500">
-            Update interest rate for selected loan
-          </p>
+          <h1 className="text-xl font-semibold">Change in Rate of Interest</h1>
+          <p className="text-sm text-gray-500">Update interest rate for selected product</p>
         </div>
       </div>
 
-      {/* LOAN SNAPSHOT */}
+      {/* PRODUCT SNAPSHOT */}
       <div className="bg-white rounded-2xl p-6 shadow-sm mb-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
-        <Info label="Loan No" value={loan.loan_no} />
-       
-        <Info label="Product" value={loan.product} />
-        <Info label="Current Interest" value={`${loan.interest}%`} />
-        <Info label="EMI" value={`₹${loan.emi}`} />
-        <Info label="Tenure" value={loan.tenure} />
+        <Info label="Product Name" value={product.product_name} />
+        <Info label="Category" value={product.product_category} />
+        <Info label="Type" value={product.product_type} />
+        <Info label="Amount" value={`₹${Number(product.product_amount).toLocaleString()}`} />
+        <Info label="Period" value={`${product.product_period_value} ${product.product_period_unit}`} />
+        <Info label="Status" value={product.is_active ? "Active" : "Inactive"} />
       </div>
 
       {/* FORM */}
       <div className="bg-white p-8 rounded-2xl shadow-md max-w-2xl">
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-        >
-          {/* REVISED RATE */}
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <InputField
             label="Revised Interest Rate (%)"
             type="number"
@@ -179,7 +141,6 @@ const ChangeInterestRate = () => {
             error={errors.revised_rate}
           />
 
-          {/* EFFECTIVE DATE */}
           <InputField
             label="Effective Date"
             type="date"
@@ -190,7 +151,6 @@ const ChangeInterestRate = () => {
             error={errors.effective_date}
           />
 
-          {/* SUBMIT */}
           <div className="md:col-span-2 mt-4">
             <button
               type="submit"
@@ -214,7 +174,6 @@ const ChangeInterestRate = () => {
 export default ChangeInterestRate;
 
 /* ---------------- SMALL UI HELPERS ---------------- */
-
 const Info = ({ label, value }) => (
   <div>
     <p className="text-xs text-gray-500">{label}</p>
@@ -222,15 +181,7 @@ const Info = ({ label, value }) => (
   </div>
 );
 
-const InputField = ({
-  label,
-  type = "text",
-  name,
-  value,
-  onChange,
-  onBlur,
-  error,
-}) => (
+const InputField = ({ label, type = "text", name, value, onChange, onBlur, error }) => (
   <div className="flex flex-col">
     <label className="text-gray-700 text-sm font-medium">{label}</label>
     <input

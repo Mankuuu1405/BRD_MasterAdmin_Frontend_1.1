@@ -5,76 +5,50 @@ import MainLayout from "../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { organizationService } from "../../services/organizationService";
-import { branchService } from "../../services/branchService";
 import { userService } from "../../services/userService";
+import roleService from "../../services/roleService";
+
+import { InputField, SelectField } from "../../components/Controls/SharedUIHelpers";
 
 const EditUser = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // <-- user ID from URL
+  const { id } = useParams(); // user ID from URL
 
   const [loading, setLoading] = useState(true);
-  const [organizations, setOrganizations] = useState([]);
-  const [branches, setBranches] = useState([]);
+  const [roles, setRoles] = useState([]);
 
   // FORM STATE
   const [form, setForm] = useState({
     email: "",
-    phone: "",
+    phone_number: "",
     password: "",
-    role: "",
-    organization: "",
-    branch: "",
+    role_id: "",       // <-- role UUID for backend
     status: "Active",
     employee_id: "",
     approval_limit: 0,
   });
 
-  // ROLE MAP (backend-format)
-  const ROLE_MAP = {
-    Admin: "ADMIN",
-    "Branch Manager": "BRANCH_MANAGER",
-    "Loan Officer": "LOAN_OFFICER",
-    "Field Staff": "FIELD_STAFF",
-  };
-
-  const ROLE_MAP_REVERSE = {
-    ADMIN: "Admin",
-    BRANCH_MANAGER: "Branch Manager",
-    LOAN_OFFICER: "Loan Officer",
-    FIELD_STAFF: "Field Staff",
-  };
-
   // ---------------------
-  // LOAD INITIAL DATA
+  // LOAD ROLES AND USER
   // ---------------------
   useEffect(() => {
     (async () => {
       try {
-        // Load orgs
-        const orgs = await organizationService.getOrganizations();
-        setOrganizations(orgs);
+        // Fetch all roles
+        const roleData = await roleService.getRoles();
+        setRoles(roleData || []);
 
-        // Load user details
+        // Fetch user details
         const u = await userService.getUser(id);
 
-        // Load branches based on user's org
-        let br = [];
-        if (u.tenant) {
-          br = await branchService.getBranchesByOrg(u.tenant);
-        }
-        setBranches(br);
+        // Find role UUID that matches the user's role name
+        const roleMatch = roleData.find((r) => r.name === u.role);
 
-        // Prefill form
         setForm({
-          email: u.email,
-          phone: u.phone,
-          password: "",
-          role: ROLE_MAP_REVERSE[u.role] || "",
-
-          organization: u.tenant || "",
-          branch: u.branch || "",
-
+          email: u.email || "",
+          phone_number: u.phone_number || "",
+          password: "", // keep blank
+          role_id: roleMatch ? roleMatch.id : "", // set role UUID
           status: u.is_active ? "Active" : "Inactive",
           employee_id: u.employee_id || "",
           approval_limit: u.approval_limit || 0,
@@ -92,16 +66,9 @@ const EditUser = () => {
   // ---------------------
   // ON CHANGE
   // ---------------------
-  const handleChange = async (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-
     setForm((prev) => ({ ...prev, [name]: value }));
-
-    if (name === "organization") {
-      const br = await branchService.getBranchesByOrg(value);
-      setBranches(br);
-      setForm((prev) => ({ ...prev, branch: "" }));
-    }
   };
 
   // ---------------------
@@ -112,19 +79,13 @@ const EditUser = () => {
 
     const payload = {
       email: form.email,
-      phone: form.phone,
-      role: ROLE_MAP[form.role] || null,
-
-      tenant: form.organization ? Number(form.organization) : null,
-      branch: form.branch ? Number(form.branch) : null,
-
+      phone_number: form.phone_number,
+      role_id: form.role_id || null, // send UUID to backend
       employee_id: form.employee_id || "",
       approval_limit: Number(form.approval_limit) || 0,
-
       is_active: form.status === "Active",
     };
 
-    // Only send password if user typed something
     if (form.password.trim() !== "") {
       payload.password = form.password;
     }
@@ -132,7 +93,7 @@ const EditUser = () => {
     try {
       await userService.updateUser(id, payload);
       alert("User updated successfully!");
-      navigate("/users/list");
+      navigate("/users");
     } catch (err) {
       console.error("UPDATE ERROR:", err.response?.data || err);
       alert("Unable to update user. Check console.");
@@ -165,11 +126,13 @@ const EditUser = () => {
 
       <div className="bg-white p-8 rounded-2xl shadow-md max-w-3xl">
         <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleSubmit}>
-
           <InputField name="email" label="Email" value={form.email} onChange={handleChange} />
-          <InputField name="phone" label="Phone Number" value={form.phone} onChange={handleChange} />
-
-          {/* Password is optional */}
+          <InputField
+            name="phone_number"
+            label="Phone Number"
+            value={form.phone_number}
+            onChange={handleChange}
+          />
           <InputField
             name="password"
             label="Password (Leave blank to keep unchanged)"
@@ -178,28 +141,16 @@ const EditUser = () => {
             onChange={handleChange}
           />
 
+          {/* ROLE SELECT */}
           <SelectField
-            name="role"
+            name="role_id"
             label="User Role"
-            value={form.role}
+            value={form.role_id}
             onChange={handleChange}
-            options={["Admin", "Branch Manager", "Loan Officer", "Field Staff"]}
-          />
-
-          <SelectField
-            name="organization"
-            label="Organization"
-            value={form.organization}
-            onChange={handleChange}
-            options={organizations.map((o) => ({ label: o.name, value: o.id }))}
-          />
-
-          <SelectField
-            name="branch"
-            label="Branch"
-            value={form.branch}
-            onChange={handleChange}
-            options={branches.map((b) => ({ label: b.name, value: b.id }))}
+            options={roles.map((r) => ({
+              label: r.name,
+              value: r.id,
+            }))}
           />
 
           <InputField
@@ -208,7 +159,6 @@ const EditUser = () => {
             value={form.employee_id}
             onChange={handleChange}
           />
-
           <InputField
             name="approval_limit"
             label="Approval Limit"
@@ -230,45 +180,10 @@ const EditUser = () => {
               <FiSave /> Update User
             </button>
           </div>
-
         </form>
       </div>
     </MainLayout>
   );
 };
-
-// Input Field Component
-const InputField = ({ label, type = "text", name, value, onChange }) => (
-  <div className="flex flex-col">
-    <label className="text-gray-700 text-sm font-medium">{label}</label>
-    <input
-      type={type}
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="mt-2 p-3 rounded-xl bg-gray-50 focus:bg-white shadow-sm outline-none"
-    />
-  </div>
-);
-
-// Select Field Component
-const SelectField = ({ label, name, value, onChange, options }) => (
-  <div className="flex flex-col">
-    <label className="text-gray-700 text-sm font-medium">{label}</label>
-    <select
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="mt-2 p-3 rounded-xl bg-gray-50 shadow-sm outline-none"
-    >
-      <option value="">Select {label}</option>
-      {options.map((op, i) => (
-        <option key={i} value={op.value || op}>
-          {op.label || op}
-        </option>
-      ))}
-    </select>
-  </div>
-);
 
 export default EditUser;

@@ -2,9 +2,9 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import MainLayout from "../../layout/MainLayout";
-import { FiArrowLeft, FiCheckCircle, FiShield, FiHelpCircle } from "react-icons/fi";
+import { FiArrowLeft, FiCheckCircle, FiShield, FiHelpCircle, FiLoader } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import { roleService } from "../../services/roleService";
+import roleService from "../../services/roleService";
 
 // ---- MASTER PERMISSION LIST ----
 const PERMISSIONS = [
@@ -17,7 +17,7 @@ const PERMISSIONS = [
   { key: "audit_logs", label: "Audit Logs", desc: "View detailed audit trail logs" },
 ];
 
-// ---- GROUPS FOR UI ----- 
+// ---- GROUPS FOR UI -----
 const PERMISSION_GROUPS = [
   {
     title: "Application Management",
@@ -65,25 +65,31 @@ const makeApprover = () => ({
 const AssignPermissions = () => {
   const navigate = useNavigate();
 
-  // ---- FIXED: Async load ----
   const [roles, setRoles] = useState([]);
   const [loadingRoles, setLoadingRoles] = useState(true);
 
   const [selectedRole, setSelectedRole] = useState("");
   const [perms, setPerms] = useState(makeEmptyPerms());
+  const [saving, setSaving] = useState(false);
+  const [loadingPerms, setLoadingPerms] = useState(false);
 
   // Load roles on mount
   useEffect(() => {
     (async () => {
-      const data = await roleService.getRoles();
-      setRoles(Array.isArray(data) ? data : []);
-      setLoadingRoles(false);
+      try {
+        const data = await roleService.getRoles();
+        setRoles(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Failed to load roles:", error);
+      } finally {
+        setLoadingRoles(false);
+      }
     })();
   }, []);
 
   // On role change → load its saved permissions
   const handleRoleChange = async (e) => {
-    const id = Number(e.target.value);
+    const id = e.target.value;
     setSelectedRole(id);
 
     if (!id) {
@@ -91,10 +97,20 @@ const AssignPermissions = () => {
       return;
     }
 
-    const saved = await roleService.getPermissions(id);
-
-    // merge with empty so new permissions get default false
-    setPerms({ ...makeEmptyPerms(), ...(saved || {}) });
+    setLoadingPerms(true);
+    try {
+      const allPerms = await roleService.getPermissions(); // fetch all permissions
+      // Build a boolean map of permissions assigned to this role
+      const rolePerms = allPerms.reduce((acc, perm) => {
+        acc[perm.key] = perm.roles?.includes(Number(id)) || false;
+        return acc;
+      }, {});
+      setPerms({ ...makeEmptyPerms(), ...rolePerms });
+    } catch (error) {
+      console.error("Failed to load role permissions:", error);
+    } finally {
+      setLoadingPerms(false);
+    }
   };
 
   const togglePerm = (key) => {
@@ -111,12 +127,24 @@ const AssignPermissions = () => {
   const handleSave = async () => {
     if (!selectedRole) return alert("Please select a role!");
 
-    await roleService.savePermissions(selectedRole, perms);
-    alert("Permissions saved!");
-    navigate("/roles");
+    setSaving(true);
+    try {
+      const activePerms = Object.keys(perms).filter((k) => perms[k]);
+      await roleService.assignPermissionsToRole({
+        role: Number(selectedRole),
+        permissions: activePerms,
+      });
+      alert("Permissions saved successfully!");
+      navigate("/roles");
+    } catch (error) {
+      console.error("Failed to save permissions:", error);
+      alert("Failed to save permissions.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const selectedRoleObj = roles.find((r) => r.id === selectedRole);
+  const selectedRoleObj = roles.find((r) => r.id === Number(selectedRole));
 
   const enabledPermissions = useMemo(
     () => Object.keys(perms).filter((k) => perms[k]).map((k) => PERM_MAP[k]),
@@ -165,11 +193,12 @@ const AssignPermissions = () => {
               value={selectedRole}
               onChange={handleRoleChange}
               className="p-3 bg-gray-50 rounded-xl outline-none shadow-sm"
+              disabled={loadingRoles}
             >
               <option value="">Choose role</option>
               {roles.map((r) => (
                 <option key={r.id} value={r.id}>
-                  {r.roleName}
+                  {r.name || r.roleName}
                 </option>
               ))}
             </select>
@@ -196,48 +225,50 @@ const AssignPermissions = () => {
 
           {/* PERMISSION UI */}
           {selectedRole ? (
-            <div className="space-y-6">
-              {PERMISSION_GROUPS.map((group) => (
-                <div key={group.title} className="bg-gray-50 border rounded-2xl p-4">
-                  <p className="font-semibold text-sm text-gray-800">{group.title}</p>
-                  <p className="text-xs text-gray-500 mb-3">{group.subtitle}</p>
+            loadingPerms ? (
+              <div className="text-center py-10 flex items-center justify-center gap-2 text-gray-500">
+                <FiLoader className="animate-spin" /> Loading permissions...
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {PERMISSION_GROUPS.map((group) => (
+                  <div key={group.title} className="bg-gray-50 border rounded-2xl p-4">
+                    <p className="font-semibold text-sm text-gray-800">{group.title}</p>
+                    <p className="text-xs text-gray-500 mb-3">{group.subtitle}</p>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {group.keys.map((key) => {
-                      const p = PERM_MAP[key];
-                      const active = perms[key];
-                      return (
-                        <button
-                          key={key}
-                          onClick={() => togglePerm(key)}
-                          className={`flex gap-3 p-3 border rounded-xl text-left transition ${
-                            active ? "bg-blue-50 border-blue-400" : "bg-white border-gray-200"
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={active}
-                            readOnly
-                            className="mt-1"
-                          />
-                          <div>
-                            <p className="font-medium text-gray-800 text-sm">{p.label}</p>
-                            <p className="text-xs text-gray-500">{p.desc}</p>
-                          </div>
-                        </button>
-                      );
-                    })}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {group.keys.map((key) => {
+                        const p = PERM_MAP[key];
+                        const active = perms[key];
+                        return (
+                          <button
+                            key={key}
+                            onClick={() => togglePerm(key)}
+                            className={`flex gap-3 p-3 border rounded-xl text-left transition ${
+                              active ? "bg-blue-50 border-blue-400" : "bg-white border-gray-200"
+                            }`}
+                          >
+                            <input type="checkbox" checked={active} readOnly className="mt-1" />
+                            <div>
+                              <p className="font-medium text-gray-800 text-sm">{p.label}</p>
+                              <p className="text-xs text-gray-500">{p.desc}</p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
 
-              <button
-                onClick={handleSave}
-                className="w-full bg-blue-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 shadow-md"
-              >
-                <FiCheckCircle /> Save Permissions
-              </button>
-            </div>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="w-full bg-blue-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 shadow-md disabled:opacity-70"
+                >
+                  <FiCheckCircle /> {saving ? "Saving..." : "Save Permissions"}
+                </button>
+              </div>
+            )
           ) : (
             <p className="text-center text-gray-400 border border-dashed rounded-xl p-6">
               Select a role to assign permissions.
@@ -252,10 +283,8 @@ const AssignPermissions = () => {
             <p className="text-xs text-gray-500">ROLE OVERVIEW</p>
             {selectedRoleObj ? (
               <>
-                <h2 className="text-lg font-bold text-gray-800">{selectedRoleObj.roleName}</h2>
-                <p className="text-xs text-gray-500 mt-1">
-                  Controls access to loan operations.
-                </p>
+                <h2 className="text-lg font-bold text-gray-800">{selectedRoleObj.name || selectedRoleObj.roleName}</h2>
+                <p className="text-xs text-gray-500 mt-1">Controls access to loan operations.</p>
               </>
             ) : (
               <p className="text-xs text-gray-500">No role selected.</p>
