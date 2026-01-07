@@ -70,6 +70,8 @@ const AddProduct = () => {
         product_facilities: form.facilities,
       };
 
+      console.log(payload)
+
       await productManagementService.createProduct(payload);
       navigate("/product-management/list");
     } catch (error) {

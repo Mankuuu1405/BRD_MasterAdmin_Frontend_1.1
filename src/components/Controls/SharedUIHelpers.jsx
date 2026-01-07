@@ -646,7 +646,5 @@ export default {
   CheckboxGroup,
   ListView,
   DeleteConfirmButton,
-  IconButton,
-  StatusBadge,
   FormCard,
 };

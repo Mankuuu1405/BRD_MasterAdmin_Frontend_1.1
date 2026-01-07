@@ -2,10 +2,13 @@ import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
+import { controlsManagementService } from "../../../services/controlsManagementService";
 
 export default function EditJointApplicant() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const [form, setForm] = useState({
     type: "",
@@ -13,12 +16,21 @@ export default function EditJointApplicant() {
     status: "Active",
   });
 
+  // Fetch joint applicant details
   useEffect(() => {
-    setForm({
-      type: "Co-Borrower",
-      workflow: "Dual Approval",
-      status: "Active",
-    });
+    const fetchData = async () => {
+      const data = await controlsManagementService.joint_applicants.retrieve(id);
+      if (data) {
+        setForm({
+          type: data.type || "",
+          workflow: data.workflow || "",
+          status: data.status || "Active",
+        });
+      }
+      setLoading(false);
+    };
+
+    fetchData();
   }, [id]);
 
   const handleChange = (e) => {
@@ -26,11 +38,22 @@ export default function EditJointApplicant() {
     setForm((p) => ({ ...p, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Update Joint Applicant:", form);
-    navigate("/controls/joint-applicant");
+    setSaving(true);
+
+    const payload = {
+      type: form.type,
+      workflow: form.workflow,
+      status: form.status,
+    };
+
+    const res = await controlsManagementService.joint_applicants.update(id, payload);
+    setSaving(false);
+    if (res) navigate("/controls/joint-applicant");
   };
+
+  if (loading) return <MainLayout>Loading...</MainLayout>;
 
   return (
     <MainLayout>
@@ -54,27 +77,64 @@ export default function EditJointApplicant() {
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-2xl shadow-md max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-6"
       >
-        <select name="type" value={form.type} onChange={handleChange} className="p-3 border rounded-xl">
-          <option>Co-Borrower</option>
-          <option>Partner</option>
-        </select>
+        <Select
+          label="Joint Applicant Type"
+          name="type"
+          value={form.type}
+          onChange={handleChange}
+          options={["Co-Borrower", "Partner"]}
+          required
+        />
 
-        <select name="workflow" value={form.workflow} onChange={handleChange} className="p-3 border rounded-xl">
-          <option>Single Approval</option>
-          <option>Dual Approval</option>
-        </select>
+        <Select
+          label="Approval Workflow"
+          name="workflow"
+          value={form.workflow}
+          onChange={handleChange}
+          options={["Single Approval", "Dual Approval"]}
+          required
+        />
 
-        <select name="status" value={form.status} onChange={handleChange} className="p-3 border rounded-xl">
-          <option>Active</option>
-          <option>Inactive</option>
-        </select>
+        <Select
+          label="Status"
+          name="status"
+          value={form.status}
+          onChange={handleChange}
+          options={["Active", "Inactive"]}
+        />
 
-        <div className="md:col-span-2 flex justify-end">
-          <button className="px-5 py-3 bg-blue-600 text-white rounded-xl flex items-center gap-2">
-            <FiSave /> Update
+        <div className="md:col-span-2 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="px-5 py-3 rounded-xl border"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={saving}
+            className="px-5 py-3 rounded-xl bg-blue-600 text-white flex items-center gap-2"
+          >
+            <FiSave /> {saving ? "Updating..." : "Update"}
           </button>
         </div>
       </form>
     </MainLayout>
   );
 }
+
+const Select = ({ label, options, ...props }) => (
+  <div>
+    <label className="text-sm font-medium text-gray-700">{label}</label>
+    <select
+      {...props}
+      className="mt-2 w-full p-3 bg-gray-50 rounded-xl border border-gray-300"
+    >
+      <option value="">Select</option>
+      {options.map((o) => (
+        <option key={o}>{o}</option>
+      ))}
+    </select>
+  </div>
+);

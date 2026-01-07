@@ -1,33 +1,28 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiPlus, FiEdit3, FiTrash2, FiSearch } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-
-/* ================= MOCK DATA ================= */
-
-const MOCK_GEO_DATA = [
-  {
-    id: "298dc7df-c302-4429-bf57-5ad25de2c40e",
-    status: "ACTIVE",
-    country: "India",
-    state: "Gujarat",
-    city: "Vadodara",
-    area: "Karelibaug",
-  },
-  {
-    id: "ab12c7df-c302-1111-bf57-5ad25de21111",
-    status: "ACTIVE",
-    country: "India",
-    state: "Maharashtra",
-    city: "Mumbai",
-    area: "Andheri",
-  },
-];
+import { controlsManagementService } from "../../../services/controlsManagementService";
 
 export default function GeoLocationList() {
   const navigate = useNavigate();
+
   const [search, setSearch] = useState("");
-  const [geoList, setGeoList] = useState(MOCK_GEO_DATA);
+  const [geoList, setGeoList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  /* ================= FETCH ================= */
+
+  const fetchGeoLocations = async () => {
+    setLoading(true);
+    const data = await controlsManagementService.geo_locations.list();
+    setGeoList(Array.isArray(data) ? data : []);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchGeoLocations();
+  }, []);
 
   /* ================= FILTER ================= */
 
@@ -39,9 +34,15 @@ export default function GeoLocationList() {
 
   /* ================= DELETE ================= */
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm("Delete this geo location?")) return;
-    setGeoList((prev) => prev.filter((g) => g.id !== id));
+
+    const success =
+      await controlsManagementService.geo_locations.delete(id);
+
+    if (success) {
+      setGeoList((prev) => prev.filter((g) => g.id !== id));
+    }
   };
 
   return (
@@ -86,7 +87,11 @@ export default function GeoLocationList() {
           <div className="text-right">Actions</div>
         </div>
 
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-10 text-gray-400">
+            Loading geo locations...
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="text-center py-10 text-gray-500">
             No geo locations found
           </div>
@@ -124,7 +129,6 @@ export default function GeoLocationList() {
 
               {/* ================= MOBILE CARD ================= */}
               <div className="md:hidden bg-white rounded-2xl shadow-sm divide-y">
-                {/* TOP */}
                 <div className="flex items-center justify-between px-4 py-3">
                   <div className="font-semibold text-sm">
                     {g.country} · {g.state}
@@ -144,7 +148,6 @@ export default function GeoLocationList() {
                   </div>
                 </div>
 
-                {/* BODY */}
                 <div className="px-4 py-3 space-y-3 text-sm">
                   <Row label="City" value={g.city} />
                   <Row label="Area" value={g.area} />

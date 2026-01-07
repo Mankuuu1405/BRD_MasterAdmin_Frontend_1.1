@@ -2,17 +2,19 @@ import React, { useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { controlsManagementService } from "../../../services/controlsManagementService";
 
-const AUTH_TYPES = ["OTP", "Password", "Biometric"];
+const AUTH_TYPES = ["OTP", "PASSWORD", "BIOMETRIC"];
 
 export default function AddLoginAuth() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
-    authType: "",
-    deviceRestriction: false,
-    mfaEnabled: false,
-    status: "Active",
+    authentication_type: "",
+    device_restriction: false,
+    multi_factor_enabled: false,
+    status: "ACTIVE",
   });
 
   const handleChange = (e) => {
@@ -23,9 +25,13 @@ export default function AddLoginAuth() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Add Login Auth:", form);
+    setLoading(true);
+
+    await controlsManagementService.login_auth.create(form);
+
+    setLoading(false);
     navigate("/controls/login-auth");
   };
 
@@ -33,12 +39,17 @@ export default function AddLoginAuth() {
     <MainLayout>
       {/* HEADER */}
       <div className="flex items-center gap-3 mb-8">
-        <button onClick={() => navigate(-1)} className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100">
+        <button
+          onClick={() => navigate(-1)}
+          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100"
+        >
           <FiArrowLeft />
         </button>
         <div>
           <h1 className="text-2xl font-bold">Add Login Authentication</h1>
-          <p className="text-gray-500 text-sm">Configure authentication policy</p>
+          <p className="text-gray-500 text-sm">
+            Configure authentication policy
+          </p>
         </div>
       </div>
 
@@ -48,8 +59,8 @@ export default function AddLoginAuth() {
       >
         <Select
           label="Authentication Type"
-          name="authType"
-          value={form.authType}
+          name="authentication_type"
+          value={form.authentication_type}
           onChange={handleChange}
           options={AUTH_TYPES}
           required
@@ -60,20 +71,20 @@ export default function AddLoginAuth() {
           name="status"
           value={form.status}
           onChange={handleChange}
-          options={["Active", "Inactive"]}
+          options={["ACTIVE", "INACTIVE"]}
         />
 
         <Toggle
           label="Device Restriction"
-          name="deviceRestriction"
-          checked={form.deviceRestriction}
+          name="device_restriction"
+          checked={form.device_restriction}
           onChange={handleChange}
         />
 
         <Toggle
           label="Multi-Factor Authentication"
-          name="mfaEnabled"
-          checked={form.mfaEnabled}
+          name="multi_factor_enabled"
+          checked={form.multi_factor_enabled}
           onChange={handleChange}
         />
 
@@ -85,11 +96,13 @@ export default function AddLoginAuth() {
           >
             Cancel
           </button>
+
           <button
             type="submit"
-            className="px-5 py-3 rounded-xl bg-blue-600 text-white flex items-center gap-2 hover:bg-blue-700"
+            disabled={loading}
+            className="px-5 py-3 rounded-xl bg-blue-600 text-white flex items-center gap-2 disabled:opacity-60"
           >
-            <FiSave /> Save Policy
+            <FiSave /> {loading ? "Saving..." : "Save Policy"}
           </button>
         </div>
       </form>
@@ -105,10 +118,13 @@ const Select = ({ label, options, ...props }) => (
     <select
       {...props}
       className="mt-2 w-full p-3 bg-gray-50 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500"
+      required
     >
       <option value="">Select</option>
       {options.map((o) => (
-        <option key={o} value={o}>{o}</option>
+        <option key={o} value={o}>
+          {o}
+        </option>
       ))}
     </select>
   </div>
