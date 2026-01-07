@@ -1,37 +1,75 @@
-// import React, { useState } from "react";
-// import MainLayout from "../../../layout/MainLayout";
-// import { Header, Select, SaveBtn } from "../../../components/Controls/SharedUIHelpers";
-// import { FiArrowLeft, FiSave } from "react-icons/fi";
-// import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import MainLayout from "../../../layout/MainLayout";
+import {
+  PageHeader,
+  SelectField,
+  Button,
+} from "../../../components/Controls/SharedUIHelpers";
+import { useNavigate } from "react-router-dom";
+import { controlsManagementService } from "../../../services/controlsManagementService";
 
-// export default function UpdateProcessingMode() {
-//   const navigate = useNavigate();
-//   const [mode, setMode] = useState("Manual");
+export default function UpdateProcessingMode() {
+  const navigate = useNavigate();
+  const service = controlsManagementService.application_process;
 
-//   const handleSave = () => {
-//     console.log("Processing Mode:", mode);
-//     navigate(-1);
-//   };
+  const [recordId, setRecordId] = useState(null);
+  const [mode, setMode] = useState("");
+  const [loading, setLoading] = useState(true);
 
-//   return (
-//     <MainLayout>
-//       <Header
-//         title="Processing Mode"
-//         subtitle="Select how applications are processed"
-//       />
+  /* ================= FETCH EXISTING CONFIG ================= */
+  useEffect(() => {
+    const fetchConfig = async () => {
+      const data = await service.list();
 
-//       <div className="bg-white p-8 rounded-2xl shadow-md max-w-xl space-y-6">
-//         <Select
-//           label="Processing Mode"
-//           value={mode}
-//           onChange={(e) => setMode(e.target.value)}
-//           options={["Manual", "Auto", "Hybrid"]}
-//         />
+      if (Array.isArray(data) && data.length > 0) {
+        setRecordId(data[0].id);
+        setMode(data[0].processing_mode || "");
+      }
 
-//         <div className="flex justify-end">
-//           <SaveBtn onClick={handleSave} />
-//         </div>
-//       </div>
-//     </MainLayout>
-//   );
-// }
+      setLoading(false);
+    };
+
+    fetchConfig();
+  }, [service]);
+
+  /* ================= SAVE ================= */
+  const handleSave = async () => {
+    if (!recordId) return;
+
+    await service.partialUpdate(recordId, {
+      processing_mode: mode,
+    });
+
+    navigate(-1);
+  };
+
+  if (loading) return null;
+
+  return (
+    <MainLayout>
+      <PageHeader
+        title="Processing Mode"
+        subtitle="Select how applications are processed"
+      />
+
+      <div className="bg-white p-8 rounded-2xl shadow-md max-w-xl space-y-6">
+        <SelectField
+          label="Processing Mode"
+          value={mode}
+          onChange={(e) => setMode(e.target.value)}
+          options={[
+            { label: "Manual", value: "Manual" },
+            { label: "Auto", value: "Auto" },
+            { label: "Hybrid", value: "Hybrid" },
+          ]}
+        />
+
+        <div className="flex justify-end">
+          <Button variant="primary" onClick={handleSave}>
+            Save
+          </Button>
+        </div>
+      </div>
+    </MainLayout>
+  );
+}

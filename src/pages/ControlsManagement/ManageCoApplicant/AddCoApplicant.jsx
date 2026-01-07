@@ -2,28 +2,37 @@ import React, { useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { controlsManagementService } from "../../../services/controlsManagementService";
 
 const CO_APPLICANT_TYPES = ["Primary", "Secondary", "Guarantor"];
 const RELATIONSHIPS = ["Spouse", "Parent", "Sibling", "Business Partner"];
 
 export default function AddCoApplicant() {
   const navigate = useNavigate();
+  const [saving, setSaving] = useState(false);
 
   const [form, setForm] = useState({
-    type: "",
+    co_applicant_type: "",
     relationship: "",
-    status: "Active",
+    is_active: true,
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: name === "is_active" ? value === "true" : value,
+    }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Add Co-Applicant:", form);
-    navigate("/controls/co-applicant");
+    setSaving(true);
+
+    const res = await controlsManagementService.co_applicants.create(form);
+
+    setSaving(false);
+    if (res) navigate("/controls/co-applicant");
   };
 
   return (
@@ -50,8 +59,8 @@ export default function AddCoApplicant() {
       >
         <Select
           label="Co-Applicant Type"
-          name="type"
-          value={form.type}
+          name="co_applicant_type"
+          value={form.co_applicant_type}
           onChange={handleChange}
           options={CO_APPLICANT_TYPES}
           required
@@ -68,10 +77,13 @@ export default function AddCoApplicant() {
 
         <Select
           label="Status"
-          name="status"
-          value={form.status}
+          name="is_active"
+          value={form.is_active}
           onChange={handleChange}
-          options={["Active", "Inactive"]}
+          options={[
+            { label: "Active", value: true },
+            { label: "Inactive", value: false },
+          ]}
         />
 
         <div className="md:col-span-2 flex justify-end gap-2 mt-4">
@@ -84,7 +96,8 @@ export default function AddCoApplicant() {
           </button>
           <button
             type="submit"
-            className="px-5 py-3 rounded-xl bg-blue-600 text-white flex items-center gap-2 hover:bg-blue-700"
+            disabled={saving}
+            className="px-5 py-3 rounded-xl bg-blue-600 text-white flex items-center gap-2 hover:bg-blue-700 disabled:opacity-50"
           >
             <FiSave /> Save
           </button>
@@ -94,6 +107,8 @@ export default function AddCoApplicant() {
   );
 }
 
+/* ---------- UI ---------- */
+
 const Select = ({ label, options, ...props }) => (
   <div>
     <label className="text-sm font-medium text-gray-700">{label}</label>
@@ -102,9 +117,13 @@ const Select = ({ label, options, ...props }) => (
       className="mt-2 w-full p-3 bg-gray-50 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500"
     >
       <option value="">Select</option>
-      {options.map((o) => (
-        <option key={o} value={o}>{o}</option>
-      ))}
+      {options.map((o) =>
+        typeof o === "string" ? (
+          <option key={o} value={o}>{o}</option>
+        ) : (
+          <option key={o.label} value={o.value}>{o.label}</option>
+        )
+      )}
     </select>
   </div>
 );

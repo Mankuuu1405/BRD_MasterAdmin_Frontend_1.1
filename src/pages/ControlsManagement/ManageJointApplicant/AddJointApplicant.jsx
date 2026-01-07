@@ -2,30 +2,50 @@ import React, { useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { controlsManagementService } from "../../../services/controlsManagementService";
 
 export default function AddJointApplicant() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const [form, setForm] = useState({
-    type: "",
-    workflow: "",
-    status: "Active",
+    joint_applicant_type: "",
+    approval_workflow: "",
+    status: "ACTIVE",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((p) => ({ ...p, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Add Joint Applicant:", form);
-    navigate("/controls/joint-applicant");
+    setLoading(true);
+    setErrors({});
+
+    const payload = {
+      joint_applicant_type: form.joint_applicant_type,
+      approval_workflow: form.approval_workflow,
+      status: form.status,
+    };
+
+    console.log("Payload to send:", payload);
+
+    const res = await controlsManagementService.joint_applicants.create(
+      payload
+    );
+
+    setLoading(false);
+
+      navigate("/controls/joint-applicant"); // success
+    
   };
 
   return (
     <MainLayout>
-      {/* HEADER */}
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={() => navigate(-1)}
@@ -41,27 +61,26 @@ export default function AddJointApplicant() {
         </div>
       </div>
 
-      {/* FORM */}
       <form
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-2xl shadow-md max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-6"
       >
         <Select
           label="Joint Applicant Type"
-          name="type"
-          value={form.type}
+          name="joint_applicant_type"
+          value={form.joint_applicant_type}
           onChange={handleChange}
           options={["Co-Borrower", "Partner"]}
-          required
+          error={errors.joint_applicant_type}
         />
 
         <Select
           label="Approval Workflow"
-          name="workflow"
-          value={form.workflow}
+          name="approval_workflow"
+          value={form.approval_workflow}
           onChange={handleChange}
           options={["Single Approval", "Dual Approval"]}
-          required
+          error={errors.approval_workflow}
         />
 
         <Select
@@ -69,7 +88,7 @@ export default function AddJointApplicant() {
           name="status"
           value={form.status}
           onChange={handleChange}
-          options={["Active", "Inactive"]}
+          options={["ACTIVE", "INACTIVE"]}
         />
 
         <div className="md:col-span-2 flex justify-end gap-2">
@@ -82,9 +101,10 @@ export default function AddJointApplicant() {
           </button>
           <button
             type="submit"
+            disabled={loading}
             className="px-5 py-3 rounded-xl bg-blue-600 text-white flex items-center gap-2"
           >
-            <FiSave /> Save
+            <FiSave /> {loading ? "Saving..." : "Save"}
           </button>
         </div>
       </form>
@@ -92,17 +112,22 @@ export default function AddJointApplicant() {
   );
 }
 
-const Select = ({ label, options, ...props }) => (
+const Select = ({ label, options, error, ...props }) => (
   <div>
     <label className="text-sm font-medium text-gray-700">{label}</label>
     <select
       {...props}
-      className="mt-2 w-full p-3 bg-gray-50 rounded-xl border border-gray-300"
+      className={`mt-2 w-full p-3 bg-gray-50 rounded-xl border border-gray-300 ${
+        error ? "border-red-500" : ""
+      }`}
     >
       <option value="">Select</option>
       {options.map((o) => (
-        <option key={o}>{o}</option>
+        <option key={o} value={o}>
+          {o}
+        </option>
       ))}
     </select>
+    {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
   </div>
 );
