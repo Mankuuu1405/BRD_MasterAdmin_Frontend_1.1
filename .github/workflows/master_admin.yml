@@ -3,7 +3,7 @@ run-name: running cicd for master_admin dashboard
 on:
   push:
     branches:
-    - main
+    - demo
     paths-ignore:
     - '.github/workflows/**'
 jobs:
