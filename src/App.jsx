@@ -692,6 +692,60 @@ export default function App() {
           />
 
           <Route
+            path="/bank-management"
+            element={
+              <RBACRoute permission="bank.view">
+                <BankManagement />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="/fund-management"
+            element={
+              <RBACRoute permission="fund.view">
+                <FundManagement />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="/portfolio-management"
+            element={
+              <RBACRoute permission="portfolio.view">
+                <PortfolioManagement />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="/mode-of-bank"
+            element={
+              <RBACRoute permission="mode.view">
+                <ModeOfBank />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="/taxation-management"
+            element={
+              <RBACRoute permission="tax.view">
+                <TaxationManagement />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="/business-model"
+            element={
+              <RBACRoute permission="business.view">
+                <BusinessModel />
+              </RBACRoute>
+            }
+          />
+
+          <Route
             path="/score-card/view/:id"
             element={
               <RBACRoute permission="score.view">
@@ -719,6 +773,7 @@ export default function App() {
           />
         </Route>
 
+        
         {/* ============ FALLBACKS ============ */}
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
