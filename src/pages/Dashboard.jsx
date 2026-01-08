@@ -39,11 +39,11 @@ const Dashboard = () => {
         <Card icon={<FiHome />} title="Total Organizations" value={cards.totalOrganizations} />
         <Card icon={<FiGitBranch />} title="Total Branches" value={cards.totalBranches} />
         <Card icon={<FiUsers />} title="Active Users" value={cards.activeUsers} />
-        <Card icon={<FiActivity />} title="Active & Pending Loans" value={cards.activeLoans} />
+        {/* <Card icon={<FiActivity />} title="Active & Pending Loans" value={cards.activeLoans} /> */}
         <Card icon={<FiTrendingUp />} title="Daily Disbursement" value={cards.dailyDisbursement} />
-        <Card icon={<FiDatabase />} title="API Status" value={cards.apiStatus} />
+        {/* <Card icon={<FiDatabase />} title="API Status" value={cards.apiStatus} />
         <Card icon={<FiClipboard />} title="Recent Activities" value="View Logs →" />
-        <Card icon={<FiAlertTriangle />} title="Alerts" value={`${cards.alerts} Critical`} />
+        <Card icon={<FiAlertTriangle />} title="Alerts" value={`${cards.alerts} Critical`} /> */}
       </div>
 
       {/* CHARTS */}

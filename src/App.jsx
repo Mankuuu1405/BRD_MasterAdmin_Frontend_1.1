@@ -602,7 +602,7 @@ export default function App() {
             path="/eligibility/edit/:id"
             element={
               <RBACRoute permission="eligibility.update">
-                <EligibilityForm />
+                <EligibilityForm isEdit="true" />
               </RBACRoute>
             }
           />
@@ -639,7 +639,7 @@ export default function App() {
             path="/banking/edit/:id"
             element={
               <RBACRoute permission="banking.update">
-                <BankingForm />
+                <BankingForm isEdit="true"/ >
               </RBACRoute>
             }
           />
@@ -717,6 +717,31 @@ export default function App() {
               </RBACRoute>
             }
           />
+          <Route
+            path="/approvals"
+            element={
+              <RBACRoute permission="approval.view">
+                <ApprovalList />
+              </RBACRoute>
+            }
+          />
+          <Route
+            path="/manage-approvals"
+            element={
+              <RBACRoute permission="approval.manage">
+                <ManageApprovalPage />
+              </RBACRoute>
+            }
+          />
+          <Route
+            path="/audits"
+            element={
+              <RBACRoute permission="audit.view">
+                <AuditMain />
+              </RBACRoute>
+            }
+          />
+          
         </Route>
 
         {/* ============ FALLBACKS ============ */}

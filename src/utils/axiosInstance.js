@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // .env से URL उठा रहा है
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_DEPLOYMENT_URL;
 
 const axiosInstance = axios.create({
   baseURL: `${BASE_URL}/api/v1`,
@@ -23,20 +23,21 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   res => res,
   async error => {
-    if (error.response?.status === 401) {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
       const refresh = localStorage.getItem("refresh_token");
-      if (!refresh) {
-        localStorage.clear();
-        window.location.href = "/login";
-        return;
-      }
-
-      try {
-        const res = await axios.post(`${BASE_URL}/api/token/refresh/`, { refresh });
-        localStorage.setItem("access_token", res.data.access);
-        error.config.headers.Authorization = `Bearer ${res.data.access}`;
-        return axiosInstance(error.config);
-      } catch {
+      if (refresh) {
+        try {
+          const res = await axios.post(`${BASE_URL}/api/token/refresh/`, { refresh });
+          localStorage.setItem("access_token", res.data.access);
+          originalRequest.headers.Authorization = `Bearer ${res.data.access}`;
+          return axiosInstance(originalRequest);
+        } catch {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
+      } else {
         localStorage.clear();
         window.location.href = "/login";
       }
@@ -44,6 +45,7 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
 
 
 export default axiosInstance;
