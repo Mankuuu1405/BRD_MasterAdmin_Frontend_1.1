@@ -105,8 +105,8 @@ const Sidebar = ({ open, setOpen }) => {
       icon: <Icons.FiFileText size={18} />,
       permission: "template.view",
       submenu: [
-        { title: "Predefine Template", path: "/predefine-template", permission: "template:predefine" },
-        { title: "Customize Template", path: "/customize-template", permission: "template:customize" },
+        { title: "Predefine Template", path: "/predefine-template", permission: "template.predefine" },
+        { title: "Customize Template", path: "/customize-template", permission: "template.customize" },
       ],
     },
 
@@ -129,9 +129,9 @@ const Sidebar = ({ open, setOpen }) => {
       icon: <Icons.FiUser size={18} />,
       permission: "profile.view",
       submenu: [
-        { title: "Vendor Profile", path: "/profile-management/vendor", permission: "profile:vendor" },
-        { title: "Agent Profile", path: "/profile-management/agent", permission: "profile:agent" },
-        { title: "Client Profile", path: "/profile-management/client", permission: "profile:client" },
+        { title: "Vendor Profile", path: "/profile-management/vendor", permission: "profile.vendor" },
+        { title: "Agent Profile", path: "/profile-management/agent", permission: "profile.agent" },
+        { title: "Client Profile", path: "/profile-management/client", permission: "profile.client" },
       ],
     },
 
@@ -140,10 +140,10 @@ const Sidebar = ({ open, setOpen }) => {
       icon: <Icons.FiUsers size={18} />,
       permission: "agent.view",
       submenu: [
-        { title: "Channel Partners", path: "/channel-partners", permission: "agent:channel" },
-        { title: "Verification Agency", path: "/verification-agency", permission: "agent:verification" },
-        { title: "Collection Agent", path: "/collection-agent", permission: "agent:collection" },
-        { title: "Legal Agent", path: "/legal-agent", permission: "agent:legal" },
+        { title: "Channel Partners", path: "/channel-partners", permission: "agent.channel" },
+        { title: "Verification Agency", path: "/verification-agency", permission: "agent.verification" },
+        { title: "Collection Agent", path: "/collection-agent", permission: "agent.collection" },
+        { title: "Legal Agent", path: "/legal-agent", permission: "agent.legal" },
       ],
     },
 
@@ -170,14 +170,14 @@ const Sidebar = ({ open, setOpen }) => {
       icon: <Icons.FiGitBranch size={18} />,
       permission: "rules.view",
       submenu: [
-        { title: "Rule Master", path: "/rule-management/rule-master", permission: "rules:master" },
-        { title: "Impact Values", path: "/rule-management/impact-values", permission: "rules:impact" },
-        { title: "Client Profile Rules", path: "/rule-management/client-profile", permission: "rules:client" },
-        { title: "Collateral Quality", path: "/rule-management/collateral-quality", permission: "rules:collateral" },
-        { title: "Financial Eligibility", path: "/rule-management/financial-eligibility", permission: "rules:financial" },
-        { title: "Score Card", path: "/rule-management/scorecard", permission: "rules:scorecard" },
-        { title: "Risk & Mitigation", path: "/rule-management/risk-mitigation", permission: "rules:risk" },
-        { title: "Verification Rules", path: "/rule-management/verification", permission: "rules:verification" },
+        { title: "Rule Master", path: "/rule-management/rule-master", permission: "rules.master" },
+        { title: "Impact Values", path: "/rule-management/impact-values", permission: "rules.impact" },
+        { title: "Client Profile Rules", path: "/rule-management/client-profile", permission: "rules.client" },
+        { title: "Collateral Quality", path: "/rule-management/collateral-quality", permission: "rules.collateral" },
+        { title: "Financial Eligibility", path: "/rule-management/financial-eligibility", permission: "rules.financial" },
+        { title: "Score Card", path: "/rule-management/scorecard", permission: "rules.scorecard" },
+        { title: "Risk & Mitigation", path: "/rule-management/risk-mitigation", permission: "rules.risk" },
+        { title: "Verification Rules", path: "/rule-management/verification", permission: "rules.verification" },
       ],
     },
 
