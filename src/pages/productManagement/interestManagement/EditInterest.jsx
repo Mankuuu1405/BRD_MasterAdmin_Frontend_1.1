@@ -10,32 +10,33 @@ import {
   Button,
 } from "../../../components/Controls/SharedUIHelpers";
 
-// import { interestService } from "../../../services/interestService";
+import { interestService } from "../../../services/productManagementService";
 
 /* ---------------- OPTIONS ---------------- */
 const BENCHMARK_TYPE_OPTIONS = [
   { label: "MCLR", value: "MCLR" },
-  { label: "RBI Rate", value: "RBI Rate" },
+  { label: "RBI Rate", value: "RBI_RATE" },
+  { label: "Base Rate", value: "BASE_RATE" },
 ];
 
 const BENCHMARK_FREQUENCY_OPTIONS = [
-  { label: "Monthly", value: "Monthly" },
-  { label: "Quarterly", value: "Quarterly" },
+  { label: "Monthly", value: "MONTHLY" },
+  { label: "Quarterly", value: "QUARTERLY" },
 ];
 
 const INTEREST_TYPE_OPTIONS = [
-  { label: "Fixed", value: "Fixed" },
-  { label: "Floating", value: "Floating" },
+  { label: "Fixed", value: "FIXED" },
+  { label: "Floating", value: "FLOATING" },
 ];
 
 const ACCRUAL_STAGE_OPTIONS = [
-  { label: "Pre-EMI", value: "Pre-EMI" },
-  { label: "Post-EMI", value: "Post-EMI" },
+  { label: "Pre-EMI", value: "PRE_EMI" },
+  { label: "Post-EMI", value: "POST_EMI" },
 ];
 
 const ACCRUAL_METHOD_OPTIONS = [
-  { label: "Simple", value: "Simple" },
-  { label: "Compound", value: "Compound" },
+  { label: "Simple", value: "SIMPLE" },
+  { label: "Compound", value: "COMPOUND" },
 ];
 
 const EditInterest = () => {
@@ -49,48 +50,45 @@ const EditInterest = () => {
     benchmark_type: "",
     benchmark_frequency: "",
     benchmark_rate: "",
-    benchmark_markup: "",
+    mark_up: "",
     interest_type: "",
     accrual_stage: "",
     accrual_method: "",
     interest_rate: "",
+    is_active: true,
   });
 
   const [errors, setErrors] = useState({});
 
-  /* ---------------- LOAD INTEREST ---------------- */
   useEffect(() => {
     (async () => {
       try {
-        /*
-        const data = await interestService.getInterestById(id);
-        setForm({...});
-        */
-
-        // TEMP MOCK
+        const data = await interestService.getInterest(id);
         setForm({
-          benchmark_type: "MCLR",
-          benchmark_frequency: "Quarterly",
-          benchmark_rate: 8.5,
-          benchmark_markup: 1.5,
-          interest_type: "Floating",
-          accrual_stage: "Post-EMI",
-          accrual_method: "Compound",
-          interest_rate: 10,
+          benchmark_type: data.benchmark_type,
+          benchmark_frequency: data.benchmark_frequency,
+          benchmark_rate: data.benchmark_rate,
+          mark_up: data.mark_up,
+          interest_type: data.interest_type,
+          accrual_stage: data.accrual_stage,
+          accrual_method: data.accrual_method,
+          interest_rate: data.interest_rate,
+          is_active: data.is_active,
         });
+      } catch (err) {
+        console.error("Failed to load interest:", err);
       } finally {
         setLoading(false);
       }
     })();
   }, [id]);
 
-  /* ---------------- VALIDATION ---------------- */
   const validate = (v) => {
     const e = {};
     if (!v.benchmark_type) e.benchmark_type = "Required";
     if (!v.benchmark_frequency) e.benchmark_frequency = "Required";
     if (v.benchmark_rate === "") e.benchmark_rate = "Required";
-    if (v.benchmark_markup === "") e.benchmark_markup = "Required";
+    if (v.mark_up === "") e.mark_up = "Required";
     if (!v.interest_type) e.interest_type = "Required";
     if (!v.accrual_stage) e.accrual_stage = "Required";
     if (!v.accrual_method) e.accrual_method = "Required";
@@ -98,29 +96,24 @@ const EditInterest = () => {
     return e;
   };
 
-  const hasErrors = useMemo(
-    () => Object.keys(validate(form)).length > 0,
-    [form]
-  );
+  const hasErrors = useMemo(() => Object.keys(validate(form)).length > 0, [form]);
 
-  /* ---------------- HANDLERS ---------------- */
   const handleChange = (name) => (e) => {
     setForm((p) => ({ ...p, [name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const err = validate(form);
     setErrors(err);
     if (Object.keys(err).length) return;
 
     setSubmitting(true);
     try {
-      /*
-      await interestService.updateInterest(id, payload);
-      */
+      await interestService.updateInterest(id, form);
       navigate(-1);
+    } catch (err) {
+      console.error("Failed to update interest:", err);
     } finally {
       setSubmitting(false);
     }
@@ -136,20 +129,14 @@ const EditInterest = () => {
 
   return (
     <MainLayout>
-      {/* HEADER */}
       <SubPageHeader
         title="Edit Interest Configuration"
         subtitle="Update benchmark and interest calculation rules"
         onBack={() => navigate(-1)}
       />
 
-      {/* FORM */}
       <div className="bg-white p-8 rounded-2xl shadow-md max-w-4xl">
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-        >
-          {/* BENCHMARK */}
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2 text-sm font-semibold text-gray-600">
             Benchmark Configuration
           </div>
@@ -178,11 +165,10 @@ const EditInterest = () => {
           <InputField
             label="Mark Up (%)"
             type="number"
-            value={form.benchmark_markup}
-            onChange={handleChange("benchmark_markup")}
+            value={form.mark_up}
+            onChange={handleChange("mark_up")}
           />
 
-          {/* INTEREST */}
           <div className="md:col-span-2 text-sm font-semibold text-gray-600 mt-4">
             Interest Configuration
           </div>
@@ -215,7 +201,6 @@ const EditInterest = () => {
             onChange={handleChange("interest_rate")}
           />
 
-          {/* SUBMIT */}
           <div className="md:col-span-2">
             <Button
               type="submit"

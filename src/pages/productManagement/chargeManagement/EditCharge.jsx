@@ -10,156 +10,127 @@ import {
   Button,
 } from "../../../components/Controls/SharedUIHelpers";
 
-// import { chargeService } from "../../../services/chargeService";
+import { chargesService } from "../../../services/productManagementService";
 
-/* ---------------- OPTIONS ---------------- */
 const FREQUENCY_OPTIONS = [
-  { label: "One-time", value: "One-time" },
-  { label: "Recurring", value: "Recurring" },
+  { label: "One-time", value: "ONE_TIME" },
+  { label: "Recurring", value: "RECURRING" },
 ];
 
 const BASIS_OPTIONS = [
-  { label: "Fixed", value: "Fixed" },
-  { label: "Slab", value: "Slab" },
-  { label: "Variable", value: "Variable" },
+  { label: "Fixed", value: "FIXED" },
+  { label: "Slab", value: "SLAB" },
+  { label: "Variable", value: "VARIABLE" },
 ];
 
 const RECOVERY_STAGE_OPTIONS = [
-  { label: "Onboarding", value: "Onboarding" },
-  { label: "Post-disbursement", value: "Post-disbursement" },
+  { label: "Onboarding", value: "ONBOARDING" },
+  { label: "Post-disbursement", value: "POST_DISBURSEMENT" },
 ];
 
 const RECOVERY_MODE_OPTIONS = [
-  { label: "Auto", value: "Auto" },
-  { label: "Manual", value: "Manual" },
+  { label: "Auto", value: "AUTO" },
+  { label: "Manual", value: "MANUAL" },
 ];
 
 const EditCharge = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-
   const [form, setForm] = useState({
-    name: "",
+    charge_name: "",
     frequency: "",
     basis_of_recovery: "",
     recovery_stage: "",
     recovery_mode: "",
-    rate: "",
+    rate_of_charges: "",
+    is_active: true,
   });
-
+  const [loading, setLoading] = useState(true);
   const [touched, setTouched] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
-  /* ---------------- LOAD DATA ---------------- */
   useEffect(() => {
     (async () => {
       try {
-        /*
-        const data = await chargeService.getChargeById(id);
-        setForm(data);
-        */
-
-        // TEMP MOCK
-        setForm({
-          name: "Processing Charge",
-          frequency: "One-time",
-          basis_of_recovery: "Fixed",
-          recovery_stage: "Onboarding",
-          recovery_mode: "Auto",
-          rate: 2000,
-        });
+        const data = await chargesService.getCharge(id);
+        setForm({ ...data });
+      } catch (err) {
+        console.error("Load charge error:", err);
       } finally {
         setLoading(false);
       }
     })();
   }, [id]);
 
-  /* ---------------- VALIDATION ---------------- */
   const validate = (v) => {
     const e = {};
-    if (!v.name.trim()) e.name = "Charge name is required";
+    if (!v.charge_name) e.charge_name = "Charge name is required";
     if (!v.frequency) e.frequency = "Frequency is required";
     if (!v.basis_of_recovery) e.basis_of_recovery = "Basis is required";
     if (!v.recovery_stage) e.recovery_stage = "Recovery stage is required";
     if (!v.recovery_mode) e.recovery_mode = "Recovery mode is required";
-    if (v.rate === "") e.rate = "Rate is required";
-    else if (+v.rate < 0) e.rate = "Rate cannot be negative";
+    if (v.rate_of_charges === "") e.rate_of_charges = "Rate is required";
+    else if (+v.rate_of_charges < 0) e.rate_of_charges = "Rate cannot be negative";
     return e;
   };
 
   const errors = useMemo(() => validate(form), [form]);
   const hasErrors = Object.keys(errors).length > 0;
 
-  /* ---------------- HANDLERS ---------------- */
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((p) => ({ ...p, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setForm((p) => ({ ...p, [name]: type === "checkbox" ? checked : value }));
   };
 
-  const handleBlur = (e) => {
-    setTouched((p) => ({ ...p, [e.target.name]: true }));
-  };
+  const handleBlur = (e) => setTouched((p) => ({ ...p, [e.target.name]: true }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setTouched({
-      name: true,
+      charge_name: true,
       frequency: true,
       basis_of_recovery: true,
       recovery_stage: true,
       recovery_mode: true,
-      rate: true,
+      rate_of_charges: true,
     });
-
     if (hasErrors) return;
 
     setSubmitting(true);
     try {
-      /*
-      const payload = { ...form, rate: Number(form.rate) };
-      await chargeService.updateCharge(id, payload);
-      */
-
-      navigate(-1);
+      await chargesService.updateCharge(id, {
+        ...form,
+        rate_of_charges: Number(form.rate_of_charges),
+      });
+      navigate("/charges");
+    } catch (err) {
+      console.error("Update charge error:", err);
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (loading) {
-    return (
-      <MainLayout>
-        <p className="text-gray-500">Loading charge...</p>
-      </MainLayout>
-    );
-  }
+  if (loading) return <MainLayout><p className="text-gray-500">Loading charge...</p></MainLayout>;
 
   return (
     <MainLayout>
-      {/* HEADER */}
       <SubPageHeader
         title="Edit Charge"
         subtitle="Update charge configuration and recovery rules"
         onBack={() => navigate(-1)}
       />
 
-      {/* FORM */}
       <div className="bg-white p-8 rounded-2xl shadow-md max-w-3xl">
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-        >
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <InputField
             label="Charge Name"
-            name="name"
-            value={form.name}
+            name="charge_name"
+            value={form.charge_name}
             onChange={handleChange}
             onBlur={handleBlur}
-            className={touched.name && errors.name ? "border-red-400" : ""}
+            className={touched.charge_name && errors.charge_name ? "border-red-400" : ""}
           />
-
           <SelectField
             label="Frequency"
             name="frequency"
@@ -167,7 +138,6 @@ const EditCharge = () => {
             onChange={handleChange}
             options={FREQUENCY_OPTIONS}
           />
-
           <SelectField
             label="Basis of Recovery"
             name="basis_of_recovery"
@@ -175,7 +145,6 @@ const EditCharge = () => {
             onChange={handleChange}
             options={BASIS_OPTIONS}
           />
-
           <SelectField
             label="Recovery Stage"
             name="recovery_stage"
@@ -183,7 +152,6 @@ const EditCharge = () => {
             onChange={handleChange}
             options={RECOVERY_STAGE_OPTIONS}
           />
-
           <SelectField
             label="Recovery Mode"
             name="recovery_mode"
@@ -191,18 +159,15 @@ const EditCharge = () => {
             onChange={handleChange}
             options={RECOVERY_MODE_OPTIONS}
           />
-
           <InputField
             label="Rate of Charges"
             type="number"
-            name="rate"
-            value={form.rate}
+            name="rate_of_charges"
+            value={form.rate_of_charges}
             onChange={handleChange}
             onBlur={handleBlur}
-            className={touched.rate && errors.rate ? "border-red-400" : ""}
+            className={touched.rate_of_charges && errors.rate_of_charges ? "border-red-400" : ""}
           />
-
-          {/* SUBMIT */}
           <div className="md:col-span-2">
             <Button
               type="submit"

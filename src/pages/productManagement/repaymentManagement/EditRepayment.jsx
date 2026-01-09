@@ -1,261 +1,193 @@
-// import React, { useEffect, useMemo, useState } from "react";
-// import MainLayout from "../../../layout/MainLayout";
-// import { useNavigate, useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import MainLayout from "../../../layout/MainLayout";
+import { FiArrowLeft, FiSave } from "react-icons/fi";
+import {
+  PageHeader,
+  FormCard,
+  InputField,
+  SelectField,
+  MultiSelectField,
+  Button,
+} from "../../../components/Controls/SharedUIHelpers";
+import { repaymentsService } from "../../../services/productManagementService";
 
-// import {
-//   PageHeader,
-//   FormCard,
-//   FormGrid,
-//   InputField,
-//   SelectField,
-//   MultiSelectField,
-//   PrimaryButton,
-// } from "../../../components/Controls/SharedUIHelpers";
+const FREQUENCY_OPTIONS = ["Weekly", "Monthly", "Quarterly"];
+const SEQUENCE_OPTIONS = ["Ascending", "Descending"];
+const COLLECTION_MODE_OPTIONS = ["Cash", "Bank Transfer", "UPI"];
 
-// // import { repaymentService } from "../../../services/repaymentService";
+const MONTHS_OPTIONS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
 
-// /* ---------------- OPTIONS ---------------- */
-// const TYPE_OPTIONS = ["EMI", "Bullet", "Step-up"];
-// const FREQUENCY_OPTIONS = ["Monthly", "Bi-weekly"];
-// const SEQUENCE_OPTIONS = ["Principal First", "Interest First"];
-// const COLLECTION_MODE_OPTIONS = ["NACH", "Cash", "Online"];
+const DAYS_OPTIONS = Array.from({ length: 31 }, (_, i) => (i + 1).toString());
 
-// const MONTH_OPTIONS = [
-//   "January","February","March","April","May","June",
-//   "July","August","September","October","November","December",
-// ];
+const EditRepayment = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
 
-// const DAY_OPTIONS = [
-//   "Monday","Tuesday","Wednesday",
-//   "Thursday","Friday","Saturday","Sunday",
-// ];
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    type: "",
+    frequency: "",
+    limit_in_month: "",
+    gap_first_repayment: "",
+    no_of_repayments: "",
+    sequence: "",
+    repayment_months: [],
+    repayment_days: [],
+    repayment_dates: [],
+    collection_mode: "",
+  });
 
-// const DATE_OPTIONS = ["1","5","10","15","20","25","30"];
+  // Fetch repayment details
+  useEffect(() => {
+    const fetchRepayment = async () => {
+      setLoading(true);
+      try {
+        const data = await repaymentsService.getRepayment(id);
+        setForm({
+          type: data.repayment_type || "",
+          frequency: data.frequency || "",
+          limit_in_month: data.limit_in_month || "",
+          gap_first_repayment: data.gap_between_disbursement_and_first_repayment || "",
+          no_of_repayments: data.number_of_repayments || "",
+          sequence: data.sequence_of_repayment_adjustment || "",
+          repayment_months: data.repayment_months || [],
+          repayment_days: data.repayment_days || [],
+          repayment_dates: data.repayment_dates || [],
+          collection_mode: data.mode_of_collection || "",
+        });
+      } catch (err) {
+        console.error("Failed to fetch repayment:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRepayment();
+  }, [id]);
 
-// export default function EditRepayment() {
-//   const navigate = useNavigate();
-//   const { id } = useParams();
+  const handleChange = (key, value) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
 
-//   const [loading, setLoading] = useState(true);
-//   const [submitting, setSubmitting] = useState(false);
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      await repaymentsService.updateRepayment(id, {
+        repayment_type: form.type,
+        frequency: form.frequency,
+        limit_in_month: Number(form.limit_in_month),
+        gap_between_disbursement_and_first_repayment: Number(form.gap_first_repayment),
+        number_of_repayments: Number(form.no_of_repayments),
+        sequence_of_repayment_adjustment: form.sequence,
+        repayment_months: form.repayment_months,
+        repayment_days: form.repayment_days,
+        repayment_dates: form.repayment_dates,
+        mode_of_collection: form.collection_mode,
+      });
+      navigate("/repayments");
+    } catch (err) {
+      console.error("Failed to update repayment:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-//   const [form, setForm] = useState({
-//     type: "",
-//     frequency: "",
-//     limit_in_month: "",
-//     gap_first_repayment: "",
-//     no_of_repayments: "",
-//     sequence: "",
-//     repayment_months: [],
-//     repayment_days: [],
-//     repayment_dates: [],
-//     collection_mode: "",
-//   });
+  return (
+    <MainLayout>
+      <PageHeader
+        title="Edit Repayment Configuration"
+        subtitle="Modify the repayment settings"
+        backButton={{
+          label: "Back",
+          icon: <FiArrowLeft />,
+          onClick: () => navigate("/repayments"),
+        }}
+      />
+      <FormCard>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InputField
+            label="Repayment Type"
+            value={form.type}
+            onChange={(e) => handleChange("type", e.target.value)}
+          />
+          <SelectField
+            label="Frequency"
+            options={FREQUENCY_OPTIONS}
+            value={form.frequency}
+            onChange={(val) => handleChange("frequency", val)}
+          />
+          <InputField
+            label="Limit in Month"
+            type="number"
+            value={form.limit_in_month}
+            onChange={(e) => handleChange("limit_in_month", e.target.value)}
+          />
+          <InputField
+            label="Gap Between Disbursement & First Repayment"
+            type="number"
+            value={form.gap_first_repayment}
+            onChange={(e) => handleChange("gap_first_repayment", e.target.value)}
+          />
+          <InputField
+            label="Number of Repayments"
+            type="number"
+            value={form.no_of_repayments}
+            onChange={(e) => handleChange("no_of_repayments", e.target.value)}
+          />
+          <SelectField
+            label="Sequence of Repayment Adjustment"
+            options={SEQUENCE_OPTIONS}
+            value={form.sequence}
+            onChange={(val) => handleChange("sequence", val)}
+          />
+          <MultiSelectField
+            label="Repayment Months"
+            options={MONTHS_OPTIONS}
+            value={form.repayment_months}
+            onChange={(val) => handleChange("repayment_months", val)}
+          />
+          <MultiSelectField
+            label="Repayment Days"
+            options={DAYS_OPTIONS}
+            value={form.repayment_days}
+            onChange={(val) => handleChange("repayment_days", val)}
+          />
+          <MultiSelectField
+            label="Repayment Dates"
+            options={DAYS_OPTIONS}
+            value={form.repayment_dates}
+            onChange={(val) => handleChange("repayment_dates", val)}
+          />
+          <SelectField
+            label="Mode of Collection"
+            options={COLLECTION_MODE_OPTIONS}
+            value={form.collection_mode}
+            onChange={(val) => handleChange("collection_mode", val)}
+          />
+        </div>
+        <div className="mt-6 flex gap-3">
+          <Button
+            label="Save Changes"
+            icon={<FiSave />}
+            onClick={handleSubmit}
+            fullWidth
+            size="md"
+            disabled={loading}
+          />
+          <Button
+            label="Cancel"
+            onClick={() => navigate("/repayments")}
+            variant="secondary"
+            fullWidth
+            size="md"
+          />
+        </div>
+      </FormCard>
+    </MainLayout>
+  );
+};
 
-//   const [errors, setErrors] = useState({});
-
-//   /* ---------------- LOAD DATA ---------------- */
-//   useEffect(() => {
-//     (async () => {
-//       try {
-//         /*
-//         const data = await repaymentService.getRepaymentById(id);
-//         setForm({
-//           type: data.type,
-//           frequency: data.frequency,
-//           limit_in_month: data.limit_in_month,
-//           gap_first_repayment: data.gap_first_repayment,
-//           no_of_repayments: data.no_of_repayments,
-//           sequence: data.sequence,
-//           repayment_months: data.repayment_months || [],
-//           repayment_days: data.repayment_days || [],
-//           repayment_dates: data.repayment_dates || [],
-//           collection_mode: data.collection_mode,
-//         });
-//         */
-
-//         // TEMP MOCK
-//         setForm({
-//           type: "EMI",
-//           frequency: "Monthly",
-//           limit_in_month: 24,
-//           gap_first_repayment: 1,
-//           no_of_repayments: 24,
-//           sequence: "Principal First",
-//           repayment_months: ["January", "February"],
-//           repayment_days: ["Monday"],
-//           repayment_dates: ["5"],
-//           collection_mode: "NACH",
-//         });
-//       } finally {
-//         setLoading(false);
-//       }
-//     })();
-//   }, [id]);
-
-//   /* ---------------- VALIDATION ---------------- */
-//   const validate = (v) => {
-//     const e = {};
-//     if (!v.type) e.type = "Required";
-//     if (!v.frequency) e.frequency = "Required";
-//     if (v.limit_in_month <= 0) e.limit_in_month = "Invalid";
-//     if (v.gap_first_repayment < 0) e.gap_first_repayment = "Invalid";
-//     if (v.no_of_repayments <= 0) e.no_of_repayments = "Invalid";
-//     if (!v.sequence) e.sequence = "Required";
-//     if (!v.collection_mode) e.collection_mode = "Required";
-//     return e;
-//   };
-
-//   const hasErrors = useMemo(
-//     () => Object.keys(validate(form)).length > 0,
-//     [form]
-//   );
-
-//   /* ---------------- HANDLERS ---------------- */
-//   const update = (key, value) => {
-//     const updated = { ...form, [key]: value };
-//     setForm(updated);
-//     setErrors(validate(updated));
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-
-//     const validationErrors = validate(form);
-//     setErrors(validationErrors);
-//     if (Object.keys(validationErrors).length) return;
-
-//     setSubmitting(true);
-//     try {
-//       /*
-//       await repaymentService.updateRepayment(id, {
-//         ...form,
-//         limit_in_month: Number(form.limit_in_month),
-//         gap_first_repayment: Number(form.gap_first_repayment),
-//         no_of_repayments: Number(form.no_of_repayments),
-//       });
-//       */
-//       navigate(-1);
-//     } finally {
-//       setSubmitting(false);
-//     }
-//   };
-
-//   if (loading) {
-//     return (
-//       <MainLayout>
-//         <p className="text-gray-500">Loading repayment rule...</p>
-//       </MainLayout>
-//     );
-//   }
-
-//   return (
-//     <MainLayout>
-//       <PageHeader
-//         title="Edit Repayment Rule"
-//         subtitle="Update repayment schedule and collection rules"
-//         onBack={() => navigate(-1)}
-//       />
-
-//       <FormCard>
-//         <form onSubmit={handleSubmit}>
-//           <FormGrid columns={2}>
-//             <SelectField
-//               label="Repayment Type"
-//               value={form.type}
-//               options={TYPE_OPTIONS}
-//               error={errors.type}
-//               onChange={(v) => update("type", v)}
-//             />
-
-//             <SelectField
-//               label="Frequency"
-//               value={form.frequency}
-//               options={FREQUENCY_OPTIONS}
-//               error={errors.frequency}
-//               onChange={(v) => update("frequency", v)}
-//             />
-
-//             <InputField
-//               label="Limit in Months"
-//               type="number"
-//               value={form.limit_in_month}
-//               error={errors.limit_in_month}
-//               onChange={(v) => update("limit_in_month", Number(v))}
-//             />
-
-//             <InputField
-//               label="Gap before First Repayment (Months)"
-//               type="number"
-//               value={form.gap_first_repayment}
-//               error={errors.gap_first_repayment}
-//               onChange={(v) => update("gap_first_repayment", Number(v))}
-//             />
-
-//             <InputField
-//               label="No. of Repayments"
-//               type="number"
-//               value={form.no_of_repayments}
-//               error={errors.no_of_repayments}
-//               onChange={(v) => update("no_of_repayments", Number(v))}
-//             />
-
-//             <SelectField
-//               label="Repayment Sequence"
-//               value={form.sequence}
-//               options={SEQUENCE_OPTIONS}
-//               error={errors.sequence}
-//               onChange={(v) => update("sequence", v)}
-//             />
-
-//             <MultiSelectField
-//               label="Repayment Months"
-//               options={MONTH_OPTIONS}
-//               values={form.repayment_months}
-//               onChange={(v) => update("repayment_months", v)}
-//             />
-
-//             <MultiSelectField
-//               label="Repayment Days"
-//               options={DAY_OPTIONS}
-//               values={form.repayment_days}
-//               onChange={(v) => update("repayment_days", v)}
-//             />
-
-//             <MultiSelectField
-//               label="Repayment Dates"
-//               options={DATE_OPTIONS}
-//               values={form.repayment_dates}
-//               onChange={(v) => update("repayment_dates", v)}
-//             />
-
-//             <SelectField
-//               label="Collection Mode"
-//               value={form.collection_mode}
-//               options={COLLECTION_MODE_OPTIONS}
-//               error={errors.collection_mode}
-//               onChange={(v) => update("collection_mode", v)}
-//             />
-//           </FormGrid>
-
-//           <PrimaryButton
-//             loading={submitting}
-//             disabled={hasErrors}
-//             className="mt-6"
-//           >
-//             Update Repayment Rule
-//           </PrimaryButton>
-//         </form>
-//       </FormCard>
-//     </MainLayout>
-//   );
-// }
-
-
-export default function EditRepayment(){
-  return(
-    <>
-      hello
-    </>
-  )
-}
+export default EditRepayment;

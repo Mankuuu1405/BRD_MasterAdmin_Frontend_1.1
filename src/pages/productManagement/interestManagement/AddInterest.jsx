@@ -10,32 +10,33 @@ import {
   Button,
 } from "../../../components/Controls/SharedUIHelpers";
 
-// import { interestService } from "../../../services/interestService";
+import { interestService } from "../../../services/productManagementService";
 
 /* ---------------- OPTIONS ---------------- */
 const BENCHMARK_TYPE_OPTIONS = [
   { label: "MCLR", value: "MCLR" },
-  { label: "RBI Rate", value: "RBI Rate" },
+  { label: "RBI Rate", value: "RBI_RATE" },
+  { label: "Base Rate", value: "BASE_RATE" },
 ];
 
 const BENCHMARK_FREQUENCY_OPTIONS = [
-  { label: "Monthly", value: "Monthly" },
-  { label: "Quarterly", value: "Quarterly" },
+  { label: "Monthly", value: "MONTHLY" },
+  { label: "Quarterly", value: "QUARTERLY" },
 ];
 
 const INTEREST_TYPE_OPTIONS = [
-  { label: "Fixed", value: "Fixed" },
-  { label: "Floating", value: "Floating" },
+  { label: "Fixed", value: "FIXED" },
+  { label: "Floating", value: "FLOATING" },
 ];
 
 const ACCRUAL_STAGE_OPTIONS = [
-  { label: "Pre-EMI", value: "Pre-EMI" },
-  { label: "Post-EMI", value: "Post-EMI" },
+  { label: "Pre-EMI", value: "PRE_EMI" },
+  { label: "Post-EMI", value: "POST_EMI" },
 ];
 
 const ACCRUAL_METHOD_OPTIONS = [
-  { label: "Simple", value: "Simple" },
-  { label: "Compound", value: "Compound" },
+  { label: "Simple", value: "SIMPLE" },
+  { label: "Compound", value: "COMPOUND" },
 ];
 
 const AddInterest = () => {
@@ -45,23 +46,23 @@ const AddInterest = () => {
     benchmark_type: "",
     benchmark_frequency: "",
     benchmark_rate: "",
-    benchmark_markup: "",
+    mark_up: "",
     interest_type: "",
     accrual_stage: "",
     accrual_method: "",
     interest_rate: "",
+    is_active: true,
   });
 
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
-  /* ---------------- VALIDATION ---------------- */
   const validate = (v) => {
     const e = {};
     if (!v.benchmark_type) e.benchmark_type = "Required";
     if (!v.benchmark_frequency) e.benchmark_frequency = "Required";
     if (v.benchmark_rate === "") e.benchmark_rate = "Required";
-    if (v.benchmark_markup === "") e.benchmark_markup = "Required";
+    if (v.mark_up === "") e.mark_up = "Required";
     if (!v.interest_type) e.interest_type = "Required";
     if (!v.accrual_stage) e.accrual_stage = "Required";
     if (!v.accrual_method) e.accrual_method = "Required";
@@ -69,29 +70,24 @@ const AddInterest = () => {
     return e;
   };
 
-  const hasErrors = useMemo(
-    () => Object.keys(validate(form)).length > 0,
-    [form]
-  );
+  const hasErrors = useMemo(() => Object.keys(validate(form)).length > 0, [form]);
 
-  /* ---------------- HANDLERS ---------------- */
   const handleChange = (name) => (e) => {
     setForm((p) => ({ ...p, [name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const eMap = validate(form);
     setErrors(eMap);
     if (Object.keys(eMap).length) return;
 
     setSubmitting(true);
     try {
-      /*
-      await interestService.addInterest({...});
-      */
+      await interestService.createInterest(form);
       navigate("/interest");
+    } catch (err) {
+      console.error("Failed to create interest:", err);
     } finally {
       setSubmitting(false);
     }
@@ -99,20 +95,14 @@ const AddInterest = () => {
 
   return (
     <MainLayout>
-      {/* HEADER */}
       <SubPageHeader
         title="Add Interest Configuration"
         subtitle="Define benchmark and interest calculation rules"
         onBack={() => navigate(-1)}
       />
 
-      {/* FORM */}
       <div className="bg-white p-8 rounded-2xl shadow-md max-w-4xl">
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-        >
-          {/* BENCHMARK */}
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2 text-sm font-semibold text-gray-600">
             Benchmark Configuration
           </div>
@@ -141,11 +131,10 @@ const AddInterest = () => {
           <InputField
             label="Mark Up (%)"
             type="number"
-            value={form.benchmark_markup}
-            onChange={handleChange("benchmark_markup")}
+            value={form.mark_up}
+            onChange={handleChange("mark_up")}
           />
 
-          {/* INTEREST */}
           <div className="md:col-span-2 text-sm font-semibold text-gray-600 mt-4">
             Interest Configuration
           </div>
@@ -178,7 +167,6 @@ const AddInterest = () => {
             onChange={handleChange("interest_rate")}
           />
 
-          {/* SUBMIT */}
           <div className="md:col-span-2">
             <Button
               type="submit"

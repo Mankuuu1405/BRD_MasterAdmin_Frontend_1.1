@@ -10,7 +10,9 @@ import {
   Button,
 } from "../../../components/Controls/SharedUIHelpers";
 
-/* ================= OPTIONS (BACKEND READY) ================= */
+import { feesService } from "../../../services/productManagementService";
+
+/* ================= OPTIONS ================= */
 const FEE_FREQUENCY_OPTIONS = [
   { label: "One-time", value: "One-time" },
   { label: "Monthly", value: "Monthly" },
@@ -20,7 +22,7 @@ const FEE_FREQUENCY_OPTIONS = [
 const FEE_BASIS_OPTIONS = [
   { label: "Fixed", value: "Fixed" },
   { label: "Percentage", value: "Percentage" },
-  { label: "Slab-based", value: "Slab-based" },
+  { label: "Slab-based", value: "Slab" },
 ];
 
 const RECOVERY_STAGE_OPTIONS = [
@@ -74,10 +76,7 @@ const AddFees = () => {
     const { name, value } = e.target;
     const updated = { ...form, [name]: value };
     setForm(updated);
-
-    if (touched[name]) {
-      setErrors(validate(updated));
-    }
+    if (touched[name]) setErrors(validate(updated));
   };
 
   const handleBlur = (e) => {
@@ -88,7 +87,6 @@ const AddFees = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const validationErrors = validate(form);
     setErrors(validationErrors);
     setTouched({
@@ -104,18 +102,16 @@ const AddFees = () => {
 
     setSubmitting(true);
     try {
-      /*
-        const payload = {
-          name: form.name,
-          fees_frequency: form.frequency,
-          basis_of_fees: form.basis,
-          recovery_stage: form.recovery_stage,
-          recovery_mode: form.recovery_mode,
-          fees_rate: Number(form.rate),
-        };
-        await feesService.addFee(payload);
-      */
-      navigate(-1);
+      const payload = {
+        name: form.name,
+        fees_frequency: form.frequency,
+        basis_of_fees: form.basis,
+        recovery_stage: form.recovery_stage,
+        recovery_mode: form.recovery_mode,
+        fees_rate: Number(form.rate),
+      };
+      await feesService.createFee(payload);
+      navigate("/fees");
     } finally {
       setSubmitting(false);
     }
@@ -123,111 +119,69 @@ const AddFees = () => {
 
   return (
     <MainLayout>
-      {/* ================= HEADER ================= */}
       <SubPageHeader
         title="Add Fee"
         subtitle="Define how fees are applied and recovered"
         onBack={() => navigate(-1)}
       />
 
-      {/* ================= FORM ================= */}
       <div className="bg-white p-8 rounded-2xl shadow-md max-w-3xl">
         <form
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-2 gap-6"
         >
-          <div>
-            <InputField
-              label="Fee Name"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              onBlur={handleBlur}
-            />
-            {touched.name && errors.name && (
-              <p className="text-xs text-red-600 mt-1">{errors.name}</p>
-            )}
-          </div>
+          <InputField
+            label="Fee Name"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          />
+          <SelectField
+            label="Fees Frequency"
+            name="frequency"
+            value={form.frequency}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            options={FEE_FREQUENCY_OPTIONS}
+            placeholder="Select Frequency"
+          />
+          <SelectField
+            label="Basis of Fees"
+            name="basis"
+            value={form.basis}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            options={FEE_BASIS_OPTIONS}
+            placeholder="Select Basis"
+          />
+          <SelectField
+            label="Recovery Stage"
+            name="recovery_stage"
+            value={form.recovery_stage}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            options={RECOVERY_STAGE_OPTIONS}
+            placeholder="Select Stage"
+          />
+          <SelectField
+            label="Recovery Mode"
+            name="recovery_mode"
+            value={form.recovery_mode}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            options={RECOVERY_MODE_OPTIONS}
+            placeholder="Select Mode"
+          />
+          <InputField
+            label="Fees Rate"
+            name="rate"
+            type="number"
+            value={form.rate}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          />
 
-          <div>
-            <SelectField
-              label="Fees Frequency"
-              name="frequency"
-              value={form.frequency}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              options={FEE_FREQUENCY_OPTIONS}
-              placeholder="Select Frequency"
-            />
-            {touched.frequency && errors.frequency && (
-              <p className="text-xs text-red-600 mt-1">{errors.frequency}</p>
-            )}
-          </div>
-
-          <div>
-            <SelectField
-              label="Basis of Fees"
-              name="basis"
-              value={form.basis}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              options={FEE_BASIS_OPTIONS}
-              placeholder="Select Basis"
-            />
-            {touched.basis && errors.basis && (
-              <p className="text-xs text-red-600 mt-1">{errors.basis}</p>
-            )}
-          </div>
-
-          <div>
-            <SelectField
-              label="Fees Recovery Stage"
-              name="recovery_stage"
-              value={form.recovery_stage}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              options={RECOVERY_STAGE_OPTIONS}
-              placeholder="Select Stage"
-            />
-            {touched.recovery_stage && errors.recovery_stage && (
-              <p className="text-xs text-red-600 mt-1">
-                {errors.recovery_stage}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <SelectField
-              label="Fees Recovery Mode"
-              name="recovery_mode"
-              value={form.recovery_mode}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              options={RECOVERY_MODE_OPTIONS}
-              placeholder="Select Mode"
-            />
-            {touched.recovery_mode && errors.recovery_mode && (
-              <p className="text-xs text-red-600 mt-1">
-                {errors.recovery_mode}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <InputField
-              label="Fees Rate"
-              name="rate"
-              type="number"
-              value={form.rate}
-              onChange={handleChange}
-              onBlur={handleBlur}
-            />
-            {touched.rate && errors.rate && (
-              <p className="text-xs text-red-600 mt-1">{errors.rate}</p>
-            )}
-          </div>
-
-          {/* ================= SUBMIT ================= */}
           <div className="md:col-span-2 pt-4">
             <Button
               type="submit"

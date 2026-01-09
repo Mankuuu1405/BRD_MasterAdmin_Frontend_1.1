@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../../layout/MainLayout";
 import { useNavigate } from "react-router-dom";
 import { FiSave } from "react-icons/fi";
@@ -10,25 +10,17 @@ import {
   Button,
 } from "../../components/Controls/SharedUIHelpers";
 
-export function ManageApprovalPage() {
+import { approvalAssignmentService } from "../../services/approvalMasterService";
+import { organizationService } from "../../services/organizationService";
+import { userService } from "../../services/userService";
+
+export function ManageApprovalPage({ isEdit = false, editId = null }) {
   const navigate = useNavigate();
 
-  /* MOCK DATA (API LATER) */
-  const tenants = [
-    { label: "TENANT_001", value: "TENANT_001" },
-    { label: "TENANT_002", value: "TENANT_002" },
-  ];
+  /* ================= STATE ================= */
 
-  const tenantUsers = {
-    TENANT_001: [
-      { value: "u1", label: "John Doe" },
-      { value: "u2", label: "Risk Manager" },
-    ],
-    TENANT_002: [
-      { value: "u3", label: "Admin User" },
-      { value: "u4", label: "Finance Head" },
-    ],
-  };
+  const [tenants, setTenants] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
 
   const [form, setForm] = useState({
     tenant_id: "",
@@ -38,9 +30,37 @@ export function ManageApprovalPage() {
     status: "Active",
   });
 
-  const users = form.tenant_id ? tenantUsers[form.tenant_id] || [] : [];
+  /* ================= LOAD DATA ================= */
 
-  /* ---------------- HANDLERS ---------------- */
+  useEffect(() => {
+    fetchTenants();
+    fetchUsers();
+  }, []);
+
+  const fetchTenants = async () => {
+    const data = await organizationService.getOrganizations();
+    const tenantOptions = data.map((t) => ({
+      label: t.business_name || t.code || t.id,
+      value: t.id,
+    }));
+    setTenants(tenantOptions);
+  };
+
+  const fetchUsers = async () => {
+    const data = await userService.getUsers();
+    setAllUsers(data);
+    console.log(data)
+  };
+
+  /* ================= FILTER USERS BY TENANT ================= */
+
+  const users = allUsers.map((u) => ({
+  label: u.email,
+  value: u.id,
+}));
+
+
+  /* ================= HANDLERS ================= */
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,36 +89,45 @@ export function ManageApprovalPage() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  /* ================= SUBMIT ================= */
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = {
       tenant_id: form.tenant_id,
-      approver_type: form.approver_type,
-      assigned_to:
-        form.approver_type === "Individual"
-          ? form.user_id
-          : form.group_users,
-      status: form.status,
+      approver_type: form.approver_type.toUpperCase(),
+      user_id:
+        form.approver_type === "Individual" ? form.user_id : null,
+      group_users:
+        form.approver_type === "Group" ? form.group_users : null,
+      status: form.status.toUpperCase(),
     };
 
-    console.log("Manage Approval Payload:", payload);
-    navigate(-1);
+    try {
+      if (isEdit && editId) {
+        await approvalAssignmentService.updateAssignment(editId, payload);
+      } else {
+        await approvalAssignmentService.createAssignment(payload);
+      }
+      navigate(-1);
+    } catch (error) {
+      console.error("Manage Approval Error:", error);
+    }
   };
 
-  /* ---------------- UI ---------------- */
+  /* ================= UI ================= */
 
   return (
     <MainLayout>
       <SubPageHeader
-        title="Manage Approval"
+        title={isEdit ? "Edit Approval Assignment" : "Manage Approval"}
         subtitle="Tenant → Approver Type → User / Group"
         onBack={() => navigate(-1)}
       />
 
       <div className="max-w-3xl rounded-2xl bg-white p-8 shadow-sm">
         <form onSubmit={handleSubmit} className="space-y-8">
-
           {/* ================= ASSIGNMENT DETAILS ================= */}
           <div>
             <h3 className="mb-4 text-sm font-semibold text-gray-700">
@@ -189,7 +218,7 @@ export function ManageApprovalPage() {
             type="submit"
             fullWidth
             icon={<FiSave />}
-            label="Save Assignment"
+            label={isEdit ? "Update Assignment" : "Save Assignment"}
             disabled={!form.tenant_id || !form.approver_type}
           />
         </form>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../../layout/MainLayout";
 import { FiSave } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
@@ -10,25 +10,41 @@ import {
   Button,
 } from "../../components/Controls/SharedUIHelpers";
 
+import { escalationMasterService } from "../../services/approvalMasterService";
+import { userService } from "../../services/userService";
+
 export function EscalationPage() {
   const navigate = useNavigate();
 
-  /* MOCK USERS – replace with API */
-  const users = [
-    { label: "John Doe", value: "john.doe" },
-    { label: "Risk Manager", value: "risk.manager" },
-    { label: "Admin User", value: "admin.user" },
-  ];
+  const [users, setUsers] = useState([]);
 
   const [form, setForm] = useState({
     escalation_level: "",
     escalation_time: "",
-    escalation_manage: "",
-    escalation_to: "",
-    status: "Active",
+    escalation_manager: "", // store UUID
+    escalation_to: "",      // store UUID
+    status: "ACTIVE",
   });
 
-  /* ---------------- HANDLERS ---------------- */
+  /* ================= LOAD USERS ================= */
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const data = await userService.getUsers();
+      const options = data.map((u) => ({
+        label: u.full_name || u.email,
+        value: u.id, // UUID for backend
+      }));
+      setUsers(options);
+    } catch (err) {
+      console.error("Failed to fetch users:", err);
+    }
+  };
+
+  /* ================= HANDLERS ================= */
   const handleChange = (field) => (e) => {
     setForm((prev) => ({
       ...prev,
@@ -36,33 +52,41 @@ export function EscalationPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Escalation Payload:", form);
-    navigate(-1);
+    const payload = {
+      escalation_level: Number(form.escalation_level),
+      escalation_time: form.escalation_time, // ISO string from datetime-local
+      escalation_manager: form.escalation_manager, // UUID
+      escalation_to: form.escalation_to,           // UUID
+      status: form.status.toUpperCase(),
+    };
+
+    console.log("Escalation Payload:", payload);
+
+    try {
+      await escalationMasterService.createEscalation(payload);
+      navigate(-1);
+    } catch (err) {
+      console.error("Escalation create error:", err);
+    }
   };
 
   return (
     <MainLayout>
-      {/* HEADER */}
       <SubPageHeader
         title="Escalation Master"
         subtitle="Manage delayed approval escalation rules"
         onBack={() => navigate(-1)}
       />
 
-      {/* FORM CARD */}
       <form
         onSubmit={handleSubmit}
         className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 max-w-4xl space-y-8"
       >
-        {/* SECTION TITLE */}
-        <h3 className="text-gray-900 font-semibold">
-          Escalation Details
-        </h3>
+        <h3 className="text-gray-900 font-semibold">Escalation Details</h3>
 
-        {/* FIELDS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <SelectField
             label="Escalation Level *"
@@ -86,8 +110,8 @@ export function EscalationPage() {
 
           <SelectField
             label="Escalation Manager *"
-            value={form.escalation_manage}
-            onChange={handleChange("escalation_manage")}
+            value={form.escalation_manager}
+            onChange={handleChange("escalation_manager")}
             placeholder="Select manager"
             options={users}
           />
@@ -105,23 +129,23 @@ export function EscalationPage() {
             value={form.status}
             onChange={handleChange("status")}
             options={[
-              { label: "Active", value: "Active" },
-              { label: "Inactive", value: "Inactive" },
+              { label: "Active", value: "ACTIVE" },
+              { label: "Inactive", value: "INACTIVE" },
             ]}
           />
         </div>
 
-        {/* ACTION */}
         <div className="pt-6 flex justify-end">
           <Button
             type="submit"
             label="Save Escalation Rule"
             icon={<FiSave />}
             variant="primary"
-            size="md"
           />
         </div>
       </form>
     </MainLayout>
   );
 }
+
+export default EscalationPage;

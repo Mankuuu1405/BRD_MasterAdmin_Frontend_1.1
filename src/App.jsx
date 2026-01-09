@@ -5,6 +5,7 @@ import {
   Route,
   Navigate,
   BrowserRouter,
+  Outlet,
 } from "react-router-dom";
 
 import Login from "./auth/Login";
@@ -421,9 +422,7 @@ import MainLayout from "./layout/MainLayout";
 import Unauthorized from "./components/Unauthorized";
 
 export default function App() {
-  /* ===============================
-     AUTH + RBAC HELPERS
-  =============================== */
+  //  AUTH + RBAC HELPERS
 
   const isAuthenticated = () => {
     return !!localStorage.getItem("access_token");
@@ -443,9 +442,7 @@ export default function App() {
     return getPermissions().includes(permission.toLowerCase());
   };
 
-  /* ===============================
-     ROUTE GUARDS
-  =============================== */
+  //  ROUTE GUARDS
 
   const PrivateRoute = ({ children }) => {
     return isAuthenticated() ? children : <Navigate to="/login" replace />;
@@ -471,375 +468,2659 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* ============ PROTECTED ROOT ============ */}
-        <Route>
-          {/* -------- Dashboard -------- */}
+
+        {/* -------- Dashboard -------- */}
+        <Route
+          path="dashboard"
+          element={
+            <RBACRoute permission="dashboard.view">
+              <Dashboard />
+            </RBACRoute>
+          }
+        />
+
+        {/* -------- Organization -------- */}
+        <Route
+          path="organizations"
+          element={
+            <RBACRoute permission="organization.view">
+              <Organization />
+            </RBACRoute>
+          }
+        />
+        <Route
+          path="organizations/list"
+          element={
+            <RBACRoute permission="organization.view">
+              <OrganizationList />
+            </RBACRoute>
+          }
+        />
+        <Route
+          path="organizations/add"
+          element={
+            <RBACRoute permission="organization.create">
+              <AddOrganization />
+            </RBACRoute>
+          }
+        />
+        <Route
+          path="organizations/:id/edit"
+          element={
+            <RBACRoute permission="organization.update">
+              <EditOrganization />
+            </RBACRoute>
+          }
+        />
+
+        {/* -------- Branch -------- */}
+        <Route
+          path="organizations/branches/list"
+          element={
+            <RBACRoute permission="branch.view">
+              <BranchList />
+            </RBACRoute>
+          }
+        />
+        <Route
+          path="organizations/branches/add"
+          element={
+            <RBACRoute permission="branch.create">
+              <CreateBranch />
+            </RBACRoute>
+          }
+        />
+        <Route
+          path="organizations/branches/update/:id"
+          element={
+            <RBACRoute permission="branch.update">
+              <UpdateBranch />
+            </RBACRoute>
+          }
+        />
+
+        {/* -------- Users -------- */}
+        <Route
+          path="users"
+          element={
+            <RBACRoute permission="users.view">
+              <UserList />
+            </RBACRoute>
+          }
+        />
+        <Route
+          path="users/add"
+          element={
+            <RBACRoute permission="users.create">
+              <AddUser />
+            </RBACRoute>
+          }
+        />
+
+        {/* ================= ROLES AND PERMISSION ================= */}
+        <Route
+          path="roles/"
+          element={
+            <RBACRoute permission="roles.view">
+              <Roles />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="roles/list"
+          element={
+            <RBACRoute permission="roles.view">
+              <RoleList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="roles/create"
+          element={
+            <RBACRoute permission="roles.create">
+              <CreateRole />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="roles/set-permissions/"
+          element={
+            <RBACRoute permission="permission.view">
+              <SetPermissions />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="roles/assign-permissions/"
+          element={
+            <RBACRoute permission="permission.assign">
+              <AssignPermissions />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="roles/add-permission/"
+          element={
+            <RBACRoute permission="permission.create">
+              <AddPermission />
+            </RBACRoute>
+          }
+        />
+
+        {/* ================= ELIGIBILITY ================= */}
+        <Route
+          path="/eligibility"
+          element={
+            <RBACRoute permission="eligibility.view">
+              <EligibilityList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="/eligibility/view/:id"
+          element={
+            <RBACRoute permission="eligibility.view">
+              <EligibilityView />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="/eligibility/add"
+          element={
+            <RBACRoute permission="eligibility.create">
+              <EligibilityForm />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="/eligibility/edit/:id"
+          element={
+            <RBACRoute permission="eligibility.update">
+              <EligibilityForm isEdit="true" />
+            </RBACRoute>
+          }
+        />
+
+        {/* ================= BANKING ================= */}
+        <Route
+          path="/banking"
+          element={
+            <RBACRoute permission="banking.view">
+              <BankingList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="/banking/view/:id"
+          element={
+            <RBACRoute permission="banking.view">
+              <BankingView />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="/banking/add"
+          element={
+            <RBACRoute permission="banking.create">
+              <BankingForm />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="/banking/edit/:id"
+          element={
+            <RBACRoute permission="banking.update">
+              <BankingForm isEdit="true" />
+            </RBACRoute>
+          }
+        />
+
+        {/* ================= OBLIGATION ================= */}
+        <Route
+          path="/obligation"
+          element={
+            <RBACRoute permission="obligation.view">
+              <ExistingObligationList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="/obligation/view/:id"
+          element={
+            <RBACRoute permission="obligation.view">
+              <ExistingObligationView />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="/obligation/add"
+          element={
+            <RBACRoute permission="obligation.create">
+              <ExistingObligationForm />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="/obligation/edit/:id"
+          element={
+            <RBACRoute permission="obligation.update">
+              <ExistingObligationForm />
+            </RBACRoute>
+          }
+        />
+
+        {/* ================= SCORE CARD ================= */}
+        <Route
+          path="/score-card"
+          element={
+            <RBACRoute permission="score.view">
+              <ScoreCardList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="/score-card/view/:id"
+          element={
+            <RBACRoute permission="score.view">
+              <ScoreCardView />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="/score-card/add"
+          element={
+            <RBACRoute permission="score.create">
+              <ScoreCardForm />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="/score-card/edit/:id"
+          element={
+            <RBACRoute permission="score.update">
+              <ScoreCardForm />
+            </RBACRoute>
+          }
+        />
+
+        {/* ================= APPROVALS ================= */}
+        <Route
+          path="/approvals"
+          element={
+            <RBACRoute permission="approval.view">
+              <ApprovalList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="/manage-approvals"
+          element={
+            <RBACRoute permission="approval.manage">
+              <ManageApprovalPage />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="/escalation"
+          element={
+            <RBACRoute permission="approval.escalation">
+              <EscalationPage />
+            </RBACRoute>
+          }
+        />
+
+        {/* ================= AUDITS ================= */}
+        <Route
+          path="/audits"
+          element={
+            <RBACRoute permission="audit.view">
+              <AuditMain />
+            </RBACRoute>
+          }
+        />
+
+
+        <Route
+          path="subscriptions/"
+          element={
+            <RBACRoute permission="roles.manage">
+              <SubscriptionHome />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="subscriptions/list/"
+          element={
+            <RBACRoute permission="roles.manage">
+              <SubscribersPage />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="subscriptions/add/"
+          element={
+            <RBACRoute permission="roles.manage">
+              <AddSubscription />
+            </RBACRoute>
+          }
+        />
+        {/* ======report======= */}
+
+        <Route
+          path="reports/"
+          element={
+            <RBACRoute permission="reports.manage">
+              <ReportingAnalytics />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="reports/daily-disbursement/"
+          element={
+            <RBACRoute permission="reports.view">
+              <DailyDisbursementReport />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="reports/branch-performance/"
+          element={
+            <RBACRoute permission="reports.view">
+              <BranchPerformanceReport />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="reports/loan-approval-rejection/"
+          element={
+            <RBACRoute permission="reports.view">
+              <LoanApprovalRejectionReport />
+            </RBACRoute>
+          }
+        />
+        <Route
+          path="reports/npa-report/"
+          element={
+            <RBACRoute permission="reports.view">
+              <NpaReport />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="reports/revenue-report/"
+          element={
+            <RBACRoute permission="reports.view">
+              <RevenueReport />
+            </RBACRoute>
+          }
+        />
+        <Route
+          path="reports/user-activity-report/"
+          element={
+            <RBACRoute permission="reports.view">
+              <UserActivityReport />
+            </RBACRoute>
+          }
+        />
+        {/* ======audit======= */}
+        <Route
+          path="audits/"
+          element={
+            <RBACRoute permission="audit.view">
+              <AuditMain />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="audits/user-actions/"
+          element={
+            <RBACRoute permission="audits.view">
+              <ViewUserActions />
+            </RBACRoute>
+          }
+        />
+        <Route
+          path="audits/user-actions/"
+          element={
+            <RBACRoute permission="audits.view">
+              <ViewUserActions />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="audits/edits-deletes/"
+          element={
+            <RBACRoute permission="audits.view">
+              <TrackEditsDeletes />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="audits/timestamps/"
+          element={
+            <RBACRoute permission="audits.view">
+              <ActivityTimeline />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="audits/ip-logs/"
+          element={
+            <RBACRoute permission="audits.view">
+              <TrackIpLogs />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="audits/branch-data/"
+          element={
+            <RBACRoute permission="audits.view">
+              <BranchDataMonitor />
+            </RBACRoute>
+          }
+        />
+        {/* ======subscriptions====== */}
+        <Route
+          path="subscriptions/"
+          element={
+            <RBACRoute permission="subscriptions.view">
+              <SubscriptionHome />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="subscriptions/list/"
+          element={
+            <RBACRoute permission="subscriptions.view">
+              <SubscriptionPage />
+            </RBACRoute>
+          }
+        />
+        <Route
+          path="subscriptions/add/"
+          element={
+            <RBACRoute permission="subscriptions.view">
+              <AddSubscription />
+            </RBACRoute>
+          }
+        />
+        <Route
+          path="subscriptions/edit/:uuid"
+          element={
+            <RBACRoute permission="subscriptions.modify">
+              <EditSubscription />
+            </RBACRoute>
+          }
+        />
+
+        {/* coupons */}
+
+        <Route
+          path="coupons/"
+          element={
+            <RBACRoute permission="coupons.view">
+              <CouponPage />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="coupons/"
+          element={
+            <RBACRoute permission="coupons.view">
+              <CouponPage />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="coupons/add"
+          element={
+            <RBACRoute permission="coupons.add">
+              <AddCoupon />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="coupons/edit/:uuid"
+          element={
+            <RBACRoute permission="coupons.edit">
+              <EditCoupon />
+            </RBACRoute>
+          }
+        />
+
+        {/* subscribers */}
+
+        <Route
+          path="subscribers/"
+          element={
+            <RBACRoute permission="subscribers.view">
+              <SubscribersPage />
+            </RBACRoute>
+          }
+        />
+
+        {/* employment */}
+
+        <Route
+          path="employment-types/"
+          element={
+            <RBACRoute permission="employment_types.view">
+              <EmploymentTypePage />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="employment-types/add"
+          element={
+            <RBACRoute permission="employment_types.add">
+              <AddEmploymentTypePage />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="employment-types/edit/:uuid"
+          element={
+            <RBACRoute permission="employment_types.edit">
+              <EditEmploymentTypePage />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="employment-types/view/:uuid"
+          element={
+            <RBACRoute permission="employment_types.view">
+              <ViewEmploymentTypePage />
+            </RBACRoute>
+          }
+        />
+        {/* occupation */}
+
+        <Route
+          path="occupation-types/"
+          element={
+            <RBACRoute permission="occupation_types.view">
+              <OccupationTypePage />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="occupation-types/add"
+          element={
+            <RBACRoute permission="occupation_types.add">
+              <AddOccupationTypePage />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="occupation-types/edit/:uuid"
+          element={
+            <RBACRoute permission="occupation_types.edit">
+              <EditOccupationTypePage />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="occupation-types/view/:uuid"
+          element={
+            <RBACRoute permission="occupation_types.view">
+              <ViewOccupationTypePage />
+            </RBACRoute>
+          }
+        />
+
+        {/* document */}
+
+        <Route
+          path="document"
+          element={
+            <RBACRoute permission="documents.view">
+              <Notification />
+            </RBACRoute>
+          }
+        />
+        {/* product */}
+
+        <Route
+          path="product-management/list"
+          element={
+            <RBACRoute permission="products.view">
+              <ProductList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="product-management/add"
+          element={
+            <RBACRoute permission="products.add">
+              <AddProduct />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="product-management/:id/edit"
+          element={
+            <RBACRoute permission="products.edit">
+              <EditProduct />
+            </RBACRoute>
+          }
+        />
+
+        {/* product-mix */}
+
+        <Route
+          path="product-mix/list"
+          element={
+            <RBACRoute permission="product_mix.view">
+              <ProductMixList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="product-mix/add"
+          element={
+            <RBACRoute permission="product_mix.add">
+              <AddProductMix />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="product-mix/:id/edit"
+          element={
+            <RBACRoute permission="product_mix.edit">
+              <EditProductMix />
+            </RBACRoute>
+          }
+        />
+
+        {/* fees */}
+
+        <Route
+          path="fees/list"
+          element={
+            <RBACRoute permission="fees.view">
+              <FeeList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="fees/add"
+          element={
+            <RBACRoute permission="fees.add">
+              <AddFees />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="fees/:id/edit"
+          element={
+            <RBACRoute permission="fees.edit">
+              <EditFees />
+            </RBACRoute>
+          }
+        />
+
+        {/* interest */}
+
+        <Route
+          path="interest/list"
+          element={
+            <RBACRoute permission="interest.view">
+              <InterestList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="interest/add"
+          element={
+            <RBACRoute permission="interest.add">
+              <AddInterest />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="interest/:id"
+          element={
+            <RBACRoute permission="interest.view">
+              <InterestDetail />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="interest/:id/edit"
+          element={
+            <RBACRoute permission="interest.edit">
+              <EditInterest />
+            </RBACRoute>
+          }
+        />
+
+        {/* charges */}
+
+        <Route
+          path="charges/list"
+          element={
+            <RBACRoute permission="charges.view">
+              <ChargeList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="charges/add"
+          element={
+            <RBACRoute permission="charges.add">
+              <AddCharge />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="charges/:id"
+          element={
+            <RBACRoute permission="charges.view">
+              <ChargeDetail />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="charges/:id/edit"
+          element={
+            <RBACRoute permission="charges.edit">
+              <EditCharge />
+            </RBACRoute>
+          }
+        />
+
+        {/* repayment */}
+
+        <Route
+          path="repayment/list"
+          element={
+            <RBACRoute permission="repayment.view">
+              <RepaymentList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="repayment/add"
+          element={
+            <RBACRoute permission="repayment.add">
+              <AddRepayment />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="repayment/:id"
+          element={
+            <RBACRoute permission="repayment.view">
+              <RepaymentDetail />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="repayment/:id/edit"
+          element={
+            <RBACRoute permission="repayment.edit">
+              <EditRepayment />
+            </RBACRoute>
+          }
+        />
+
+        {/* moratorium */}
+
+        <Route
+          path="moratorium"
+          element={
+            <RBACRoute permission="moratorium.view">
+              <MoratoriumList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="moratorium/add"
+          element={
+            <RBACRoute permission="moratorium.add">
+              <AddMoratorium />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="moratorium/:id"
+          element={
+            <RBACRoute permission="moratorium.view">
+              <MoratoriumDetail />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="moratorium/:id/edit"
+          element={
+            <RBACRoute permission="moratorium.edit">
+              <EditMoratorium />
+            </RBACRoute>
+          }
+        />
+
+        {/* penalties */}
+
+        <Route
+          path="penalties"
+          element={
+            <RBACRoute permission="penalties.view">
+              <PenaltyList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="penalties/add"
+          element={
+            <RBACRoute permission="penalties.add">
+              <AddPenalty />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="penalties/:id"
+          element={
+            <RBACRoute permission="penalties.view">
+              <PenaltyDetail />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="penalties/:id/edit"
+          element={
+            <RBACRoute permission="penalties.edit">
+              <EditPenalty />
+            </RBACRoute>
+          }
+        />
+
+        {/* loan-improvement */}
+
+        <Route
+          path="loan-improvement"
+          element={
+            <RBACRoute permission="loan_improvement.view">
+              <LoanImprovementList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="loan-improvement/:loanId"
+          element={
+            <RBACRoute permission="loan_improvement.view">
+              <LoanImprovementDashboard />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="loan-improvement/:loanId/interest-rate"
+          element={
+            <RBACRoute permission="loan_improvement.edit">
+              <ChangeInterestRate />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="loan-improvement/:loanId/tenure"
+          element={
+            <RBACRoute permission="loan_improvement.edit">
+              <ChangeRepaymentPeriod />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="loan-improvement/:loanId/emi"
+          element={
+            <RBACRoute permission="loan_improvement.edit">
+              <ChangeRepaymentAmount />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="loan-improvement/:loanId/product"
+          element={
+            <RBACRoute permission="loan_improvement.edit">
+              <ChangeLoanProduct />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="loan-improvement/:loanId/fees"
+          element={
+            <RBACRoute permission="loan_improvement.edit">
+              <ChangeFeesCharges />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="loan-improvement/:loanId/collateral"
+          element={
+            <RBACRoute permission="loan_improvement.edit">
+              <ChangeCollateral />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="loan-improvement/:loanId/rationalisation"
+          element={
+            <RBACRoute permission="loan_improvement.edit">
+              <RepaymentRationalisation />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="loan-improvement/:loanId/moratorium"
+          element={
+            <RBACRoute permission="loan_improvement.edit">
+              <MoratoriumInterest />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="loan-improvement/:loanId/top-up"
+          element={
+            <RBACRoute permission="loan_improvement.edit">
+              <TopUpManagement />
+            </RBACRoute>
+          }
+        />
+
+        {/* Document */}
+
+        <Route
+          path="documents/sanction"
+          element={
+            <RBACRoute permission="sanction_documents.view">
+              <SanctionDocumentList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="documents/sanction/add"
+          element={
+            <RBACRoute permission="sanction_documents.add">
+              <AddSanctionDocument />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="documents/sanction/:id/edit"
+          element={
+            <RBACRoute permission="sanction_documents.edit">
+              <EditSanctionDocument />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="documents/sanction/:id"
+          element={
+            <RBACRoute permission="sanction_documents.view">
+              <ViewSanctionDocument />
+            </RBACRoute>
+          }
+        />
+
+        {/* loan document */}
+
+        <Route
+          path="documents/loan"
+          element={
+            <RBACRoute permission="loan_documents.view">
+              <LoanDocumentList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="documents/loan/add"
+          element={
+            <RBACRoute permission="loan_documents.add">
+              <AddLoanDocument />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="documents/loan/:id/edit"
+          element={
+            <RBACRoute permission="loan_documents.edit">
+              <EditLoanDocument />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="documents/loan/:id"
+          element={
+            <RBACRoute permission="loan_documents.view">
+              <ViewLoanDocument />
+            </RBACRoute>
+          }
+        />
+
+        {/* Document Management */}
+
+        <Route
+          path="documents/collateral"
+          element={
+            <RBACRoute permission="collateral_documents.view">
+              <CollateralDocumentList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="documents/collateral/add"
+          element={
+            <RBACRoute permission="collateral_documents.add">
+              <AddCollateralDocument />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="documents/collateral/:id/edit"
+          element={
+            <RBACRoute permission="collateral_documents.edit">
+              <EditCollateralDocument />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="documents/collateral/:id"
+          element={
+            <RBACRoute permission="collateral_documents.view">
+              <ViewCollateralDocument />
+            </RBACRoute>
+          }
+        />
+
+        {/* Risk Management */}
+
+        <Route
+          path="risk-management/risks"
+          element={
+            <RBACRoute permission="risks.view">
+              <RiskList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/risks/add"
+          element={
+            <RBACRoute permission="risks.add">
+              <AddRisk />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/risks/:id/view"
+          element={
+            <RBACRoute permission="risks.view">
+              <ViewRisk />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/risks/:id/edit"
+          element={
+            <RBACRoute permission="risks.edit">
+              <EditRisk />
+            </RBACRoute>
+          }
+        />
+
+        {/* Risk Mitigation */}
+
+        <Route
+          path="risk-management/mitigation"
+          element={
+            <RBACRoute permission="risk_mitigation.view">
+              <MitigationList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/mitigation/add"
+          element={
+            <RBACRoute permission="risk_mitigation.add">
+              <AddMitigation />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/mitigation/:id/view"
+          element={
+            <RBACRoute permission="risk_mitigation.view">
+              <ViewMitigation />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/mitigation/:id/edit"
+          element={
+            <RBACRoute permission="risk_mitigation.edit">
+              <EditMitigation />
+            </RBACRoute>
+          }
+        />
+        {/* Deviation Management */}
+
+        <Route
+          path="risk-management/deviations"
+          element={
+            <RBACRoute permission="deviations.view">
+              <DeviationList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/deviations/add"
+          element={
+            <RBACRoute permission="deviations.add">
+              <AddDeviation />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/deviations/:id/view"
+          element={
+            <RBACRoute permission="deviations.view">
+              <ViewDeviation />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/deviations/:id/edit"
+          element={
+            <RBACRoute permission="deviations.edit">
+              <EditDeviation />
+            </RBACRoute>
+          }
+        />
+
+        {/* RCU */}
+
+        <Route
+          path="risk-management/rcu"
+          element={
+            <RBACRoute permission="rcu.view">
+              <RCUList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/rcu/add"
+          element={
+            <RBACRoute permission="rcu.add">
+              <AddRCU />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/rcu/:id/view"
+          element={
+            <RBACRoute permission="rcu.view">
+              <ViewRCU />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/rcu/:id/edit"
+          element={
+            <RBACRoute permission="rcu.edit">
+              <EditRCU />
+            </RBACRoute>
+          }
+        />
+
+        {/* Fraud Management */}
+
+        <Route
+          path="risk-management/fraud"
+          element={
+            <RBACRoute permission="fraud.view">
+              <FraudList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/fraud/add"
+          element={
+            <RBACRoute permission="fraud.add">
+              <AddFraud />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/fraud/:id/view"
+          element={
+            <RBACRoute permission="fraud.view">
+              <ViewFraud />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/fraud/:id/edit"
+          element={
+            <RBACRoute permission="fraud.edit">
+              <EditFraud />
+            </RBACRoute>
+          }
+        />
+        {/* Portfolio Limits */}
+
+        <Route
+          path="risk-management/portfolio-limits"
+          element={
+            <RBACRoute permission="portfolio_limits.view">
+              <PortfolioLimitList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/portfolio-limits/add"
+          element={
+            <RBACRoute permission="portfolio_limits.add">
+              <AddPortfolioLimit />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/portfolio-limits/:id/view"
+          element={
+            <RBACRoute permission="portfolio_limits.view">
+              <ViewPortfolioLimit />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/portfolio-limits/:id/edit"
+          element={
+            <RBACRoute permission="portfolio_limits.edit">
+              <EditPortfolioLimit />
+            </RBACRoute>
+          }
+        />
+        {/* Default Limits */}
+
+        <Route
+          path="risk-management/default-limits"
+          element={
+            <RBACRoute permission="default_limits.view">
+              <DefaultLimitList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/default-limits/add"
+          element={
+            <RBACRoute permission="default_limits.add">
+              <AddDefaultLimit />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/default-limits/:id/view"
+          element={
+            <RBACRoute permission="default_limits.view">
+              <ViewDefaultLimit />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/default-limits/:id/edit"
+          element={
+            <RBACRoute permission="default_limits.edit">
+              <EditDefaultLimit />
+            </RBACRoute>
+          }
+        />
+
+        {/* Risk Management */}
+
+        <Route
+          path="risk-management/others"
+          element={
+            <RBACRoute permission="risk_others.view">
+              <OtherList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/others/add"
+          element={
+            <RBACRoute permission="risk_others.add">
+              <AddOther />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/others/:id/view"
+          element={
+            <RBACRoute permission="risk_others.view">
+              <ViewOther />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="risk-management/others/:id/edit"
+          element={
+            <RBACRoute permission="risk_others.edit">
+              <EditOther />
+            </RBACRoute>
+          }
+        />
+
+        {/* Agent Management */}
+
+        <Route
+          path="channel-partners"
+          element={
+            <RBACRoute permission="channel_partners.view">
+              <ChannelPartnerList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="channel-partners/add"
+          element={
+            <RBACRoute permission="channel_partners.add">
+              <AddEditAgent />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="channel-partners/edit/:id"
+          element={
+            <RBACRoute permission="channel_partners.edit">
+              <AddEditAgent />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="channel-partners/view/:id"
+          element={
+            <RBACRoute permission="channel_partners.view">
+              <ChannelPartnerView />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="channel-partners/payout/:id"
+          element={
+            <RBACRoute permission="channel_partners.edit">
+              <UpdatePayout />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="channel-partners/recovery/:id"
+          element={
+            <RBACRoute permission="channel_partners.edit">
+              <UpdateRecovery />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="channel-partners/performance/:id"
+          element={
+            <RBACRoute permission="channel_partners.view">
+              <AgentPerformance />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="channel-partners/tenants/:id"
+          element={
+            <RBACRoute permission="channel_partners.edit">
+              <ManageTenants />
+            </RBACRoute>
+          }
+        />
+
+        {/* Collection Agent Management */}
+
+        <Route
+          path="collection-agent"
+          element={
+            <RBACRoute permission="collection_agents.view">
+              <CollectionAgentList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="collection-agent/add"
+          element={
+            <RBACRoute permission="collection_agents.add">
+              <CollectionAgentForm />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="collection-agent/edit/:id"
+          element={
+            <RBACRoute permission="collection_agents.edit">
+              <CollectionAgentForm />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="collection-agent/view/:id"
+          element={
+            <RBACRoute permission="collection_agents.view">
+              <CollectionAgentView />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="collection-agent/update/:id"
+          element={
+            <RBACRoute permission="collection_agents.edit">
+              <UpdateAgent />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="collection-agent/fees/:id"
+          element={
+            <RBACRoute permission="collection_agents.edit">
+              <ManageFees />
+            </RBACRoute>
+          }
+        />
+        {/* Legal / Verification Agencies */}
+
+        <Route
+          path="legal-agent"
+          element={
+            <RBACRoute permission="legal_agents.view">
+              <LegalAgentList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="legal-agents/add"
+          element={
+            <RBACRoute permission="legal_agents.add">
+              <LegalAgentForm />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="legal-agents/edit/:id"
+          element={
+            <RBACRoute permission="legal_agents.edit">
+              <LegalAgentForm />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="legal-agents/view/:id"
+          element={
+            <RBACRoute permission="legal_agents.view">
+              <LegalAgentView />
+            </RBACRoute>
+          }
+        />
+        <Route
+          path="verification-agency"
+          element={
+            <RBACRoute permission="verification_agency.view">
+              <VerificationAgencyList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="verification-agency/add"
+          element={
+            <RBACRoute permission="verification_agency.add">
+              <VerificationAgencyForm />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="verification-agency/edit/:id"
+          element={
+            <RBACRoute permission="verification_agency.edit">
+              <VerificationAgencyForm />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="verification-agency/view/:id"
+          element={
+            <RBACRoute permission="verification_agency.view">
+              <VerificationAgencyView />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="verification-agency/manage-fees/:id"
+          element={
+            <RBACRoute permission="verification_agency.edit">
+              <ManageVerificationFees />
+            </RBACRoute>
+          }
+        />
+        {/* Controls */}
+
+        <Route
+          path="controls/language"
+          element={
+            <RBACRoute permission="controls_language.view">
+              <LanguageList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/language/add"
+          element={
+            <RBACRoute permission="controls_language.add">
+              <LanguageAdd />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/language/edit/:id"
+          element={
+            <RBACRoute permission="controls_language.edit">
+              <LanguageEdit />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/language/view/:id"
+          element={
+            <RBACRoute permission="controls_language.view">
+              <LanguageView />
+            </RBACRoute>
+          }
+        />
+        {/* Collection Management */}
+
+        <Route path="collection-management">
           <Route
-            path="dashboard"
+            index
             element={
-              <RBACRoute permission="dashboard.view">
-                <Dashboard />
+              <RBACRoute permission="collection_management.view">
+                <CollectionManagement />
               </RBACRoute>
             }
           />
 
-          {/* -------- Organization -------- */}
-          <Route
-            path="organizations"
-            element={
-              <RBACRoute permission="organizations.view">
-                <Organization />
-              </RBACRoute>
-            }
-          />
-          <Route
-            path="organizations/list"
-            element={
-              <RBACRoute permission="organizations.view">
-                <OrganizationList />
-              </RBACRoute>
-            }
-          />
-          <Route
-            path="organizations/add"
-            element={
-              <RBACRoute permission="organization.create">
-                <AddOrganization />
-              </RBACRoute>
-            }
-          />
-          <Route
-            path="organizations/:id/edit"
-            element={
-              <RBACRoute permission="organization.update">
-                <EditOrganization />
-              </RBACRoute>
-            }
-          />
+          <Route path="payment-gateways">
+            <Route
+              index
+              element={
+                <RBACRoute permission="payment_gateways.view">
+                  <PaymentGatewayList />
+                </RBACRoute>
+              }
+            />
+            <Route
+              path="add"
+              element={
+                <RBACRoute permission="payment_gateways.add">
+                  <AddPaymentGateway />
+                </RBACRoute>
+              }
+            />
+            <Route
+              path=":id/edit"
+              element={
+                <RBACRoute permission="payment_gateways.edit">
+                  <EditPaymentGateway />
+                </RBACRoute>
+              }
+            />
+          </Route>
 
-          {/* -------- Branch -------- */}
           <Route
-            path="organizations/branches/list"
+            path="controls"
             element={
-              <RBACRoute permission="organizations.view">
-                <BranchList />
-              </RBACRoute>
-            }
-          />
-          <Route
-            path="organizations/branches/add"
-            element={
-              <RBACRoute permission="organizations.create">
-                <CreateBranch />
-              </RBACRoute>
-            }
-          />
-          <Route
-            path="organizations/branches/update/:id"
-            element={
-              <RBACRoute permission="organization.update">
-                <UpdateBranch />
-              </RBACRoute>
-            }
-          />
-
-          {/* -------- Users -------- */}
-          <Route
-            path="users"
-            element={
-              <RBACRoute permission="users.view">
-                <UserList />
-              </RBACRoute>
-            }
-          />
-          <Route
-            path="users/add"
-            element={
-              <RBACRoute permission="users.create">
-                <AddUser />
-              </RBACRoute>
-            }
-          />
-
-          {/* -------- Roles & Permissions -------- */}
-          <Route
-            path="roles"
-            element={
-              <RBACRoute permission="roles.view">
-                <RoleList />
-              </RBACRoute>
-            }
-          />
-
-          {/* ================= ELIGIBILITY ================= */}
-          <Route
-            path="/eligibility"
-            element={
-              <RBACRoute permission="eligibility.view">
-                <EligibilityList />
+              <RBACRoute permission="collection_controls.view">
+                <CollectionControl />
               </RBACRoute>
             }
           />
 
           <Route
-            path="/eligibility/view/:id"
+            path="client-team-mapping/add"
             element={
-              <RBACRoute permission="eligibility.view">
-                <EligibilityView />
+              <RBACRoute permission="collection_mapping.add">
+                <MapClientTeam />
               </RBACRoute>
             }
           />
 
           <Route
-            path="/eligibility/add"
+            path="client-agent-mapping/add"
             element={
-              <RBACRoute permission="eligibility.create">
-                <EligibilityForm />
+              <RBACRoute permission="collection_mapping.add">
+                <MapClientAgent />
               </RBACRoute>
             }
           />
 
           <Route
-            path="/eligibility/edit/:id"
+            path="payouts/add"
             element={
-              <RBACRoute permission="eligibility.update">
-                <EligibilityForm isEdit="true" />
+              <RBACRoute permission="collection_payouts.add">
+                <PayoutManagement />
+              </RBACRoute>
+            }
+          />
+        </Route>
+
+        {/* Disbursement Management */}
+
+        <Route path="disbursement-management">
+          <Route
+            index
+            element={
+              <RBACRoute permission="disbursement.view">
+                <DisbursementList />
               </RBACRoute>
             }
           />
 
-          {/* ================= BANKING ================= */}
+          <Route path="disbursement">
+            <Route
+              index
+              element={
+                <RBACRoute permission="disbursement.view">
+                  <DisbursementList />
+                </RBACRoute>
+              }
+            />
+            <Route
+              path="add"
+              element={
+                <RBACRoute permission="disbursement.add">
+                  <DisbursementForm />
+                </RBACRoute>
+              }
+            />
+            <Route
+              path=":id/edit"
+              element={
+                <RBACRoute permission="disbursement.edit">
+                  <DisbursementForm />
+                </RBACRoute>
+              }
+            />
+            <Route
+              path=":id/view"
+              element={
+                <RBACRoute permission="disbursement.view">
+                  <DisbursementDetail />
+                </RBACRoute>
+              }
+            />
+          </Route>
+        </Route>
+
+        {/* Provisioning / Classification */}
+
+        <Route path="provisioning-classification/loan-classification">
           <Route
-            path="/banking"
+            index
             element={
-              <RBACRoute permission="banking.view">
-                <BankingList />
+              <RBACRoute permission="loan_classification.view">
+                <ClassificationList />
               </RBACRoute>
             }
           />
-
           <Route
-            path="/banking/view/:id"
+            path="add"
             element={
-              <RBACRoute permission="banking.view">
-                <BankingView />
+              <RBACRoute permission="loan_classification.add">
+                <ClassificationForm />
               </RBACRoute>
             }
           />
-
           <Route
-            path="/banking/add"
+            path=":id/edit"
             element={
-              <RBACRoute permission="banking.create">
-                <BankingForm />
+              <RBACRoute permission="loan_classification.edit">
+                <ClassificationForm />
               </RBACRoute>
             }
           />
-
           <Route
-            path="/banking/edit/:id"
+            path=":id/update"
             element={
-              <RBACRoute permission="banking.update">
-                <BankingForm isEdit="true"/ >
+              <RBACRoute permission="loan_classification.edit">
+                <ClassificationUpdate />
               </RBACRoute>
             }
           />
-
-          {/* ================= OBLIGATION ================= */}
           <Route
-            path="/obligation"
+            path=":id/manage"
             element={
-              <RBACRoute permission="obligation.view">
-                <ExistingObligationList />
+              <RBACRoute permission="loan_classification.edit">
+                <ClassificationManage />
               </RBACRoute>
             }
           />
+        </Route>
+
+        <Route
+          path="writeoff"
+          element={
+            <RBACRoute permission="writeoff.view">
+              <Outlet />
+            </RBACRoute>
+          }
+        >
+          <Route index element={<WriteoffRuleList />} />
 
           <Route
-            path="/obligation/view/:id"
+            path="add"
             element={
-              <RBACRoute permission="obligation.view">
-                <ExistingObligationView />
-              </RBACRoute>
-            }
-          />
-
-          <Route
-            path="/obligation/add"
-            element={
-              <RBACRoute permission="obligation.create">
-                <ExistingObligationForm />
-              </RBACRoute>
-            }
-          />
-
-          <Route
-            path="/obligation/edit/:id"
-            element={
-              <RBACRoute permission="obligation.update">
-                <ExistingObligationForm />
-              </RBACRoute>
-            }
-          />
-
-          {/* ================= SCORE CARD ================= */}
-          <Route
-            path="/score-card"
-            element={
-              <RBACRoute permission="score.view">
-                <ScoreCardList />
-              </RBACRoute>
-            }
-          />
-
-          <Route
-            path="/score-card/view/:id"
-            element={
-              <RBACRoute permission="score.view">
-                <ScoreCardView />
-              </RBACRoute>
-            }
-          />
-
-          <Route
-            path="/score-card/add"
-            element={
-              <RBACRoute permission="score.create">
-                <ScoreCardForm />
-              </RBACRoute>
-            }
-          />
-
-          <Route
-            path="/score-card/edit/:id"
-            element={
-              <RBACRoute permission="score.update">
-                <ScoreCardForm />
-              </RBACRoute>
-            }
-          />
-
-          {/* ================= APPROVALS ================= */}
-          <Route
-            path="/approvals"
-            element={
-              <RBACRoute permission="approval.view">
-                <ApprovalList />
+              <RBACRoute permission="writeoff.add">
+                <WriteoffRuleForm />
               </RBACRoute>
             }
           />
 
           <Route
-            path="/manage-approvals"
+            path=":id/edit"
             element={
-              <RBACRoute permission="approval.manage">
-                <ManageApprovalPage />
+              <RBACRoute permission="writeoff.edit">
+                <WriteoffRuleForm />
               </RBACRoute>
             }
           />
 
           <Route
-            path="/escalation"
+            path=":id/update"
             element={
-              <RBACRoute permission="approval.escalation">
-                <EscalationPage />
-              </RBACRoute>
-            }
-          />
-
-          {/* ================= AUDITS ================= */}
-          <Route
-            path="/audits"
-            element={
-              <RBACRoute permission="audit.view">
-                <AuditMain />
-              </RBACRoute>
-            }
-          />
-
-          {/* ================= ROLES AND PERMISSION ================= */}
-          <Route
-            path="roles/"
-            element={
-              <RBACRoute permission="roles.view">
-                <Roles />
+              <RBACRoute permission="writeoff.update">
+                <WriteoffUpdate />
               </RBACRoute>
             }
           />
 
           <Route
-            path="roles/list"
+            path=":id/manage"
             element={
-              <RBACRoute permission="roles.view">
-                <RoleList />
+              <RBACRoute permission="writeoff.manage">
+                <WriteoffManage />
+              </RBACRoute>
+            }
+          />
+        </Route>
+
+        <Route
+          path="settlement"
+          element={
+            <RBACRoute permission="settlement.view">
+              <Outlet />
+            </RBACRoute>
+          }
+        >
+          <Route index element={<SettlementRuleList />} />
+
+          <Route
+            path="add"
+            element={
+              <RBACRoute permission="settlement.add">
+                <SettlementRuleForm />
               </RBACRoute>
             }
           />
 
           <Route
-            path="roles/create"
+            path=":id/edit"
             element={
-              <RBACRoute permission="roles.manage">
-                <CreateRole />
+              <RBACRoute permission="settlement.edit">
+                <SettlementRuleForm />
               </RBACRoute>
             }
           />
 
           <Route
-            path="roles/set-permissions/"
+            path=":id/update"
             element={
-              <RBACRoute permission="roles.manage">
-                <SetPermissions />
+              <RBACRoute permission="settlement.update">
+                <SettlementUpdate />
               </RBACRoute>
             }
           />
 
           <Route
-            path="roles/assign-permissions/"
+            path=":id/manage"
             element={
-              <RBACRoute permission="roles.manage">
-                <AssignPermissions />
+              <RBACRoute permission="settlement.manage">
+                <SettlementManage />
+              </RBACRoute>
+            }
+          />
+        </Route>
+
+        <Route
+          path="provisioning-npa"
+          element={
+            <RBACRoute permission="provisioning.view">
+              <Outlet />
+            </RBACRoute>
+          }
+        >
+          <Route index element={<ProvisioningRuleList />} />
+
+          <Route
+            path="add"
+            element={
+              <RBACRoute permission="provisioning.add">
+                <ProvisioningRuleForm />
               </RBACRoute>
             }
           />
 
           <Route
-            path="roles/add-permission/"
+            path=":id/edit"
             element={
-              <RBACRoute permission="roles.manage">
-                <AddPermission />
+              <RBACRoute permission="provisioning.edit">
+                <ProvisioningRuleForm />
               </RBACRoute>
             }
           />
 
           <Route
-            path="subscriptions/"
+            path=":id/manage"
             element={
-              <RBACRoute permission="roles.manage">
-                <SubscriptionHome />
+              <RBACRoute permission="provisioning.manage">
+                <ProvisioningManagerForm />
               </RBACRoute>
             }
           />
-          
-          <Route
-            path="subscriptions/list/"
-            element={
-              <RBACRoute permission="roles.manage">
-                <SubscribersPage />
-              </RBACRoute>
-            }
-          />
+        </Route>
+        <Route
+          path="incentive-management"
+          element={
+            <RBACRoute permission="incentive.view">
+              <Outlet />
+            </RBACRoute>
+          }
+        >
+          <Route index element={<IncentiveRuleList />} />
 
           <Route
-            path="subscriptions/add/"
+            path="add"
             element={
-              <RBACRoute permission="roles.manage">
-                <AddSubscription />
+              <RBACRoute permission="incentive.add">
+                <IncentiveRuleForm />
               </RBACRoute>
             }
           />
 
+          <Route
+            path=":id/edit"
+            element={
+              <RBACRoute permission="incentive.edit">
+                <IncentiveRuleForm />
+              </RBACRoute>
+            }
+          />
+        </Route>
+        <Route
+          path="/currency-management"
+          element={
+            <RBACRoute permission="currency.view">
+              <CurrencyList />
+            </RBACRoute>
+          }
+        />
 
-          
+        <Route
+          path="/currency-management/add"
+          element={
+            <RBACRoute permission="currency.add">
+              <CurrencyForm />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="/currency-management/edit/:uuid"
+          element={
+            <RBACRoute permission="currency.edit">
+              <CurrencyForm isEdit />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="/currency-management/view/:uuid"
+          element={
+            <RBACRoute permission="currency.view">
+              <CurrencyView />
+            </RBACRoute>
+          }
+        />
+
+        {/* concession-management */}
+
+        <Route
+          path="/concession-management"
+          element={
+            <RBACRoute permission="concession.view">
+              <Outlet />
+            </RBACRoute>
+          }
+        >
+          {/* Concession List */}
+
+          <Route index element={<ConcessionList />} />
+
+          {/* -------- Concession Type -------- */}
+
+          <Route
+            path="type/add"
+            element={
+              <RBACRoute permission="concession.type.add">
+                <ConcessionTypeForm />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="type/edit/:id"
+            element={
+              <RBACRoute permission="concession.type.edit">
+                <ConcessionTypeForm />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="type/view/:id"
+            element={
+              <RBACRoute permission="concession.type.view">
+                <ConcessionView />
+              </RBACRoute>
+            }
+          />
+
+          {/* -------- Concession Category -------- */}
+
+          <Route
+            path="category/add"
+            element={
+              <RBACRoute permission="concession.category.add">
+                <ConcessionCategoryForm />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="category/edit/:id"
+            element={
+              <RBACRoute permission="concession.category.edit">
+                <ConcessionCategoryForm />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="category/view/:id"
+            element={
+              <RBACRoute permission="concession.category.view">
+                <ConcessionView />
+              </RBACRoute>
+            }
+          />
+        </Route>
+
+        <Route
+          path="/rule-management"
+          element={
+            <RBACRoute permission="rule_management.view">
+              <Outlet />
+            </RBACRoute>
+          }
+        >
+          {/* ================= RULE MASTER ================= */}
+
+          <Route path="rule-master" element={<RuleNameList />} />
+
+          <Route
+            path="rule-master/add"
+            element={
+              <RBACRoute permission="rule_master.add">
+                <AddRuleName />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="rule-master/edit/:id"
+            element={
+              <RBACRoute permission="rule_master.edit">
+                <EditRuleName />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="rule-master/view/:id"
+            element={
+              <RBACRoute permission="rule_master.view">
+                <ViewRuleName />
+              </RBACRoute>
+            }
+          />
+
+          {/* ================= IMPACT VALUES ================= */}
+
+          <Route path="impact-values" element={<ImpactValueList />} />
+
+          <Route
+            path="impact-values/add"
+            element={
+              <RBACRoute permission="impact_value.add">
+                <AddImpactValue />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="impact-values/edit/:id"
+            element={
+              <RBACRoute permission="impact_value.edit">
+                <EditImpactValue />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="impact-values/view/:id"
+            element={
+              <RBACRoute permission="impact_value.view">
+                <ViewImpactValue />
+              </RBACRoute>
+            }
+          />
+
+          {/* ================= CLIENT PROFILE RULE ================= */}
+
+          <Route path="client-profile" element={<ClientProfileRuleList />} />
+
+          <Route
+            path="client-profile/add"
+            element={
+              <RBACRoute permission="client_profile_rule.add">
+                <AddClientProfileRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="client-profile/edit/:id"
+            element={
+              <RBACRoute permission="client_profile_rule.edit">
+                <EditClientProfileRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="client-profile/view/:id"
+            element={
+              <RBACRoute permission="client_profile_rule.view">
+                <ViewClientProfileRule />
+              </RBACRoute>
+            }
+          />
+
+          {/* ================= VERIFICATION RULES ================= */}
+
+          <Route path="verification" element={<VerificationRuleHome />} />
+
+          {/* Internal */}
+          <Route
+            path="verification/internal"
+            element={<InternalVerificationRule />}
+          />
+
+          <Route
+            path="verification/internal/add"
+            element={
+              <RBACRoute permission="verification.internal.add">
+                <AddInternalVerificationRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="verification/internal/edit/:id"
+            element={
+              <RBACRoute permission="verification.internal.edit">
+                <EditInternalVerificationRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="verification/internal/view/:id"
+            element={
+              <RBACRoute permission="verification.internal.view">
+                <ViewInternalVerificationRule />
+              </RBACRoute>
+            }
+          />
+
+          {/* Agency */}
+          <Route
+            path="verification/agency"
+            element={<AgencyVerificationRule />}
+          />
+
+          <Route
+            path="verification/agency/add"
+            element={
+              <RBACRoute permission="verification.agency.add">
+                <AddAgencyVerificationRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="verification/agency/edit/:id"
+            element={
+              <RBACRoute permission="verification.agency.edit">
+                <EditAgencyVerificationRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="verification/agency/view/:id"
+            element={
+              <RBACRoute permission="verification.agency.view">
+                <ViewAgencyVerificationRule />
+              </RBACRoute>
+            }
+          />
+
+          {/* ================= COLLATERAL QUALITY ================= */}
+
+          <Route path="collateral-quality" element={<CollateralRuleList />} />
+
+          <Route
+            path="collateral-quality/add"
+            element={
+              <RBACRoute permission="collateral_rule.add">
+                <AddCollateralRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="collateral-quality/edit/:id"
+            element={
+              <RBACRoute permission="collateral_rule.edit">
+                <EditCollateralRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="collateral-quality/view/:id"
+            element={
+              <RBACRoute permission="collateral_rule.view">
+                <ViewCollateralRule />
+              </RBACRoute>
+            }
+          />
+
+          {/* ================= FINANCIAL ELIGIBILITY ================= */}
+
+          <Route path="financial-eligibility" element={<FinancialRuleList />} />
+
+          <Route
+            path="financial-eligibility/add"
+            element={
+              <RBACRoute permission="financial_rule.add">
+                <AddFinancialRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="financial-eligibility/edit/:id"
+            element={
+              <RBACRoute permission="financial_rule.edit">
+                <EditFinancialRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="financial-eligibility/view/:id"
+            element={
+              <RBACRoute permission="financial_rule.view">
+                <ViewFinancialRule />
+              </RBACRoute>
+            }
+          />
+
+          {/* RULE MANAGEMENT */}
+
+          <Route
+            path="rule-management/scorecard"
+            element={
+              <RBACRoute permission="scorecard.view">
+                <ScorecardHome />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="rule-management/scorecard/internal"
+            element={
+              <RBACRoute permission="scorecard.internal.view">
+                <InternalScoreRuleList />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="rule-management/scorecard/internal/add"
+            element={
+              <RBACRoute permission="scorecard.internal.add">
+                <AddInternalScoreRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="rule-management/scorecard/internal/edit/:id"
+            element={
+              <RBACRoute permission="scorecard.internal.edit">
+                <EditInternalScoreRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="rule-management/scorecard/internal/view/:id"
+            element={
+              <RBACRoute permission="scorecard.internal.view">
+                <ViewInternalScoreRule />
+              </RBACRoute>
+            }
+          />
+
+          {/* SCORECARD GEO RULES */}
+
+          <Route
+            path="rule-management/scorecard/geo"
+            element={
+              <RBACRoute permission="scorecard.geo.view">
+                <GeoLocationRuleList />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="rule-management/scorecard/geo/add"
+            element={
+              <RBACRoute permission="scorecard.geo.add">
+                <AddGeoLocationRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="rule-management/scorecard/geo/edit/:id"
+            element={
+              <RBACRoute permission="scorecard.geo.edit">
+                <EditGeoLocationRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="rule-management/scorecard/geo/view/:id"
+            element={
+              <RBACRoute permission="scorecard.geo.view">
+                <ViewGeoLocationRule />
+              </RBACRoute>
+            }
+          />
+
+          {/* SCORECARD  CREDIT HISTORY */}
+
+          <Route
+            path="rule-management/scorecard/credit-history"
+            element={
+              <RBACRoute permission="scorecard.credit_history.view">
+                <CreditHistoryRuleList />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="rule-management/scorecard/credit-history/add"
+            element={
+              <RBACRoute permission="scorecard.credit_history.add">
+                <AddCreditHistoryRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="rule-management/scorecard/credit-history/edit/:id"
+            element={
+              <RBACRoute permission="scorecard.credit_history.edit">
+                <EditCreditHistoryRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="rule-management/scorecard/credit-history/view/:id"
+            element={
+              <RBACRoute permission="scorecard.credit_history.view">
+                <ViewCreditHistoryRule />
+              </RBACRoute>
+            }
+          />
+
+          {/* RULE MANAGEMENT */}
+
+          <Route
+            path="rule-management/risk-mitigation"
+            element={
+              <RBACRoute permission="risk_mitigation.view">
+                <RiskMitigationRuleList />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="rule-management/risk-mitigation/add"
+            element={
+              <RBACRoute permission="risk_mitigation.add">
+                <AddRiskMitigationRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="rule-management/risk-mitigation/edit/:id"
+            element={
+              <RBACRoute permission="risk_mitigation.edit">
+                <EditRiskMitigationRule />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="rule-management/risk-mitigation/view/:id"
+            element={
+              <RBACRoute permission="risk_mitigation.view">
+                <ViewRiskMitigationRule />
+              </RBACRoute>
+            }
+          />
+
+          {/* PROFILE MANAGEMENT */}
+
+          <Route
+            path="profile-management/vendor"
+            element={
+              <RBACRoute permission="vendor.view">
+                <VendorList />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="profile-management/vendor/add"
+            element={
+              <RBACRoute permission="vendor.add">
+                <VendorAdd />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="profile-management/vendor/edit/:id"
+            element={
+              <RBACRoute permission="vendor.edit">
+                <VendorMasterEdit />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="profile-management/vendor/view/:id"
+            element={
+              <RBACRoute permission="vendor.view">
+                <VendorView />
+              </RBACRoute>
+            }
+          />
+
+          {/* PROFILE  AGENT */}
+
+          <Route
+            path="profile-management/agent"
+            element={
+              <RBACRoute permission="agent.view">
+                <AgentList />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="profile-management/agent/add"
+            element={
+              <RBACRoute permission="agent.add">
+                <AgentAdd />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="profile-management/agent/edit/:id"
+            element={
+              <RBACRoute permission="agent.edit">
+                <AgencyForm />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="profile-management/agent/view/:id"
+            element={
+              <RBACRoute permission="agent.view">
+                <AgentView />
+              </RBACRoute>
+            }
+          />
+
+          {/* PROFILE  CLIENT */}
+
+          <Route
+            path="profile-management/client"
+            element={
+              <RBACRoute permission="client.view">
+                <ClientList />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="profile-management/client/add"
+            element={
+              <RBACRoute permission="client.add">
+                <ClientAdd />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="profile-management/client/edit/:id"
+            element={
+              <RBACRoute permission="client.edit">
+                <ClientMasterEdit />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="profile-management/client/view/:id"
+            element={
+              <RBACRoute permission="client.view">
+                <ClientView />
+              </RBACRoute>
+            }
+          />
+          {/* CONTROLS MANAGEMENT */}
+
+          <Route
+            path="controls-management/geo/form"
+            element={
+              <RBACRoute permission="geo.add">
+                <GeoForm />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="controls-management/geo/list"
+            element={
+              <RBACRoute permission="geo.view">
+                <GeoList />
+              </RBACRoute>
+            }
+          />
         </Route>
 
         {/* ============ FALLBACKS ============ */}
@@ -850,997 +3131,3 @@ export default function App() {
   );
 }
 
-// function App() {
-//   return (
-//     <Router>
-//       <Routes>
-//         {/* PUBLIC ROUTES */}
-//         <Route path="/login" element={<Login />} />
-//         <Route path="/signup" element={<Signup />} />
-//         <Route path="/forgot-password" element={<ForgotPassword />} />
-//         {/* DEFAULT ROUTE → Login */}
-//         <Route path="/" element={<Navigate to="/login" />} />
-//         <Route path="/profile" element={<ProfilePage />} />
-//         {/* <Route path="/dashboard" element={<Dashboard />} />  */}
-//         <Route
-//           path="/dashboard"
-//           element={
-//             <RequireMasterAdmin>
-//               <Dashboard />
-//             </RequireMasterAdmin>
-//           }
-//         />
-//         <Route path="/dashboard" element={<Dashboard />} />
-//         <Route path="/organizations" element={<Organization />} />
-//         <Route path="/organizations/add" element={<AddOrganization />} />
-//         <Route
-//           path="/organizations/branches/create"
-//           element={<CreateBranch />}
-//         />
-//         <Route path="/organizations/list" element={<OrganizationList />} />
-//         <Route path="/organizations/edit/:id" element={<EditOrganization />} />
-//         <Route path="/approvals" element={<ApprovalList />} />
-//         <Route path="/approvals/add" element={<AddApproval />} />
-//         <Route path="/approvals/edit/:id" element={<EditApproval />} />
-//         <Route path="/approvals/view/:id" element={<ApprovalView />} />
-//         <Route path="/eligibility" element={<EligibilityList />} />
-//         <Route path="/eligibility/view/:id" element={<EligibilityView />} />
-//         <Route path="/eligibility/add" element={<EligibilityForm />} />
-//         <Route path="/eligibility/edit/:id" element={<EligibilityForm />} />
-//         <Route path="/banking" element={<BankingList />} />
-//         <Route path="/banking/view/:id" element={<BankingView />} />
-//         <Route path="/banking/add" element={<BankingForm />} />
-//         <Route path="/banking/edit/:id" element={<BankingForm />} />
-//         <Route path="/obligation" element={<ExistingObligationList />} />
-//         <Route
-//           path="/obligation/view/:id"
-//           element={<ExistingObligationView />}
-//         />
-//         <Route path="/obligation/add" element={<ExistingObligationForm />} />
-//         <Route
-//           path="/obligation/edit/:id"
-//           element={<ExistingObligationForm />}
-//         />
-//         <Route path="/score-card" element={<ScoreCardList />} />
-//         <Route path="/score-card/view/:id" element={<ScoreCardView />} />
-//         <Route path="/score-card/add" element={<ScoreCardForm />} />
-//         <Route path="/score-card/edit/:id" element={<ScoreCardForm />} />
-//         <Route
-//           path="/predefine-template"
-//           element={<PredefinedTemplateList />}
-//         />
-//         <Route path="/predefine-template/view/:id" element={<ViewTemplate />} />
-//         <Route path="/predefine-template/add" element={<AddTemplate />} />
-//         <Route path="/predefine-template/edit/:id" element={<EditTemplate />} />
-//         <Route path="/customize-template" element={<CustomizeTemplateList />} />
-//         <Route
-//           path="/customize-template/view/:id"
-//           element={<CustomizeTemplateView />}
-//         />
-//         <Route
-//           path="/customize-template/edit/:id"
-//           element={<CustomizeTemplateEdit />}
-//         />
-//         <Route path="/manage-approvals" element={<ManageApprovalPage />} />
-//         <Route path="/escalation" element={<EscalationPage />} />
-//         <Route path="/organizations/branches/list" element={<BranchList />} />
-//         <Route
-//           path="/organizations/branches/update/:id"
-//           element={<UpdateBranch />}
-//         />
-//         <Route path="/organizations/branches/add" element={<CreateBranch />} />
-//         {/* <Route path="/users" element={<Users />} /> */}
-//         <Route path="/users/add" element={<AddUser />} />
-//         <Route path="/users" element={<UserList />} />
-//         <Route path="/users/edit/:id" element={<EditUser />} />
-//         <Route path="/roles" element={<Roles />} />
-//         <Route path="/roles/list" element={<RoleList />} />
-//         <Route path="/roles/create" element={<CreateRole />} />
-//         <Route path="/roles/set-permissions" element={<SetPermissions />} />
-//         <Route path="/roles/assign-permissions" element={<AssignPermissions />} />
-//         <Route path="/roles/add-permission" element={<AddPermission />} />
-//         <Route path="/reports" element={<ReportingAnalytics />} />
-//         <Route
-//           path="/reports/daily-disbursement"
-//           element={<DailyDisbursementReport />}
-//         />
-//         <Route
-//           path="/reports/branch-performance"
-//           element={<BranchPerformanceReport />}
-//         />
-//         <Route
-//           path="/reports/loan-approval-rejection"
-//           element={<LoanApprovalRejectionReport />}
-//         />
-//         <Route path="/reports/npa-report" element={<NpaReport />} />
-//         <Route path="/reports/revenue-report" element={<RevenueReport />} />
-//         <Route
-//           path="/reports/user-activity-report"
-//           element={<UserActivityReport />}
-//         />
-//         <Route path="/audits" element={<AuditMain />} />
-//         <Route path="/audits/user-actions" element={<ViewUserActions />} />
-//         <Route path="/audits/user-actions" element={<ViewUserActions />} />
-//         <Route path="/audits/edits-deletes" element={<TrackEditsDeletes />} />
-//         <Route path="/audits/timestamps" element={<ActivityTimeline />} />
-//         <Route path="/audits/ip-logs" element={<TrackIpLogs />} />
-//         <Route path="/audits/branch-data" element={<BranchDataMonitor />} />
-//         <Route path="/subscriptions" element={<SubscriptionHome />} />
-//         <Route path="/subscriptions/list" element={<SubscriptionPage />} />
-//         <Route path="/subscriptions/add" element={<AddSubscription />} />
-//         <Route
-//           path="/subscriptions/edit/:uuid"
-//           element={<EditSubscription />}
-//         />
-//         <Route path="/coupons" element={<CouponPage />} />
-//         <Route path="/coupons/add" element={<AddCoupon />} />
-//         <Route path="/coupons/edit/:uuid" element={<EditCoupon />} />
-//         <Route path="/subscribers" element={<SubscribersPage />} />
-//         <Route path="/subscribers/edit/:uuid" element={<EditSubscriber />} />
-//         <Route path="/subscribers" element={<SubscribersPage />} />
-//         <Route path="/employment-types" element={<EmploymentTypePage />} />
-//         <Route
-//           path="/employment-types/add"
-//           element={<AddEmploymentTypePage />}
-//         />
-//         <Route
-//           path="/employment-types/edit/:uuid"
-//           element={<EditEmploymentTypePage />}
-//         />
-//         <Route
-//           path="/employment-types/view/:uuid"
-//           element={<ViewEmploymentTypePage />}
-//         />
-//         <Route path="/occupation-types" element={<OccupationTypePage />} />
-//         <Route
-//           path="/occupation-types/add"
-//           element={<AddOccupationTypePage />}
-//         />
-//         <Route
-//           path="/occupation-types/edit/:uuid"
-//           element={<EditOccupationTypePage />}
-//         />
-//         <Route
-//           path="/occupation-types/view/:uuid"
-//           element={<ViewOccupationTypePage />}
-//         />
-//         {/* <Route path="/integrations/payment-gateway" element={<IntegrationManagament />} />
-//            <Route path="/integrations/credit-bureau" element={<ManageCreditBureau />} />
-//            <Route path="/integrations/sms-email-api" element={<ManageSmsEmailApi />} />
-//            <Route path="/integrations/accounting-erp" element={<ManageCrm />} />
-//            <Route path="/integrations/crm" element={<ManagePaymentGateway />} />
-//            <Route path="/integrations/api-keys" element={<AddApiKeys />} />
-//            <Route path="/integrations/endpoints" element={<SetEndpoints />} />
-//            <Route path="/integrations/monitor-status" element={<MonitorStatus />} />
-//            <Route path="/integrations/test-connections" element={<TestConnections />} />  */}
-//         <Route path="/document" element={<Notification />} />
-//         <Route
-//           path="/roles/assign-permissions"
-//           element={<AssignPermissions />}
-//         />
-//         <Route path="/reports" element={<ReportingAnalytics />} />
-//         <Route
-//           path="/reports/daily-disbursement"
-//           element={<DailyDisbursementReport />}
-//         />
-//         <Route
-//           path="/reports/branch-performance"
-//           element={<BranchPerformanceReport />}
-//         />
-//         <Route
-//           path="/reports/loan-approval-rejection"
-//           element={<LoanApprovalRejectionReport />}
-//         />
-//         <Route path="/reports/npa-report" element={<NpaReport />} />
-//         <Route path="/reports/revenue-report" element={<RevenueReport />} />
-//         <Route
-//           path="/reports/user-activity-report"
-//           element={<UserActivityReport />}
-//         />
-//         <Route path="/audits" element={<AuditMain />} />
-//         <Route path="/audits/user-actions" element={<ViewUserActions />} />
-//         <Route path="/audits/user-actions" element={<ViewUserActions />} />
-//         <Route path="/audits/edits-deletes" element={<TrackEditsDeletes />} />
-//         <Route path="/audits/timestamps" element={<ActivityTimeline />} />
-//         <Route path="/audits/ip-logs" element={<TrackIpLogs />} />
-//         <Route path="/audits/branch-data" element={<BranchDataMonitor />} />
-//         <Route path="/subscriptions" element={<SubscriptionHome />} />
-//         <Route path="/subscriptions/list" element={<SubscriptionPage />} />
-//         <Route path="/subscriptions/add" element={<AddSubscription />} />
-//         <Route
-//           path="/subscriptions/edit/:uuid"
-//           element={<EditSubscription />}
-//         />
-//         <Route path="/coupons" element={<CouponPage />} />
-//         <Route path="/coupons/add" element={<AddCoupon />} />
-//         <Route path="/coupons/edit/:uuid" element={<EditCoupon />} />
-//         <Route path="/subscribers" element={<SubscribersPage />} />
-//         <Route path="/employment-types" element={<EmploymentTypePage />} />
-//         <Route
-//           path="/employment-types/add"
-//           element={<AddEmploymentTypePage />}
-//         />
-//         <Route
-//           path="/employment-types/edit/:uuid"
-//           element={<EditEmploymentTypePage />}
-//         />
-//         <Route
-//           path="/employment-types/view/:uuid"
-//           element={<ViewEmploymentTypePage />}
-//         />
-//         <Route path="/occupation-types" element={<OccupationTypePage />} />
-//         <Route
-//           path="/occupation-types/add"
-//           element={<AddOccupationTypePage />}
-//         />
-//         <Route
-//           path="/occupation-types/edit/:uuid"
-//           element={<EditOccupationTypePage />}
-//         />
-//         <Route
-//           path="/occupation-types/view/:uuid"
-//           element={<ViewOccupationTypePage />}
-//         />
-//         <Route path="/document" element={<Notification />} />
-//         <Route path="/product-management/list" element={<ProductList />} />
-//         <Route path="/product-management/add" element={<AddProduct />} />
-//         <Route path="/product-management/:id/edit" element={<EditProduct />} />
-//         <Route path="/product-mix/list" element={<ProductMixList />} />
-//         <Route path="/product-mix/add" element={<AddProductMix />} />
-//         <Route path="/product-mix/:id/edit" element={<EditProductMix />} />
-//         <Route path="/fees/list" element={<FeeList />} />
-//         <Route path="/fees/add" element={<AddFees />} />
-//         <Route path="/fees/:id/edit" element={<EditFees />} />
-//         <Route path="/interest/list" element={<InterestList />} />
-//         <Route path="/interest/add" element={<AddInterest />} />
-//         <Route path="/interest/:id" element={<InterestDetail />} />
-//         <Route path="/interest/:id/edit" element={<EditInterest />} />
-//         <Route path="/charges/list" element={<ChargeList />} />
-//         <Route path="/charges/add" element={<AddCharge />} />
-//         <Route path="/charges/:id" element={<ChargeDetail />} />
-//         <Route path="/charges/:id/edit" element={<EditCharge />} />
-//         <Route path="/repayment/list" element={<RepaymentList />} />
-//         <Route path="/repayment/add" element={<AddRepayment />} />
-//         <Route path="/repayment/:id" element={<RepaymentDetail />} />
-//         <Route path="/repayment/:id/edit" element={<EditRepayment />} />
-//         <Route path="/moratorium" element={<MoratoriumList />} />
-//         <Route path="/moratorium/add" element={<AddMoratorium />} />
-//         <Route path="/moratorium/:id" element={<MoratoriumDetail />} />
-//         <Route path="/moratorium/:id/edit" element={<EditMoratorium />} />
-//         <Route path="/penalties" element={<PenaltyList />} />
-//         <Route path="/penalties/add" element={<AddPenalty />} />
-//         <Route path="/penalties/:id" element={<PenaltyDetail />} />
-//         <Route path="/penalties/:id/edit" element={<EditPenalty />} />
-//         <Route path="/loan-improvement" element={<LoanImprovementList />} />
-//         <Route
-//           path="/loan-improvement/:loanId"
-//           element={<LoanImprovementDashboard />}
-//         />
-//         <Route
-//           path="/loan-improvement/:loanId"
-//           element={<LoanImprovementDashboard />}
-//         />
-//         <Route
-//           path="/loan-improvement/:loanId/interest-rate"
-//           element={<ChangeInterestRate />}
-//         />
-//         <Route
-//           path="/loan-improvement/:loanId/tenure"
-//           element={<ChangeRepaymentPeriod />}
-//         />
-//         <Route
-//           path="/loan-improvement/:loanId/emi"
-//           element={<ChangeRepaymentAmount />}
-//         />
-//         <Route
-//           path="/loan-improvement/:loanId/product"
-//           element={<ChangeLoanProduct />}
-//         />
-//         <Route
-//           path="/loan-improvement/:loanId/fees"
-//           element={<ChangeFeesCharges />}
-//         />
-//         <Route
-//           path="/loan-improvement/:loanId/collateral"
-//           element={<ChangeCollateral />}
-//         />
-//         <Route
-//           path="/loan-improvement/:loanId/rationalisation"
-//           element={<RepaymentRationalisation />}
-//         />
-//         <Route
-//           path="/loan-improvement/:loanId/moratorium"
-//           element={<MoratoriumInterest />}
-//         />
-//         <Route
-//           path="/loan-improvement/:loanId/top-up"
-//           element={<TopUpManagement />}
-//         />
-//         /* ================= DOCUMENT MANAGEMENT ================= */ //
-//         Sanction Documents
-//         <Route path="/documents/sanction" element={<SanctionDocumentList />} />
-//         <Route
-//           path="/documents/sanction/add"
-//           element={<AddSanctionDocument />}
-//         />
-//         <Route
-//           path="/documents/sanction/:id/edit"
-//           element={<EditSanctionDocument />}
-//         />
-//         <Route
-//           path="/documents/sanction/:id"
-//           element={<ViewSanctionDocument />}
-//         />
-//         // Loan Documents
-//         <Route path="/documents/loan" element={<LoanDocumentList />} />
-//         <Route path="/documents/loan/add" element={<AddLoanDocument />} />
-//         <Route path="/documents/loan/:id/edit" element={<EditLoanDocument />} />
-//         <Route path="/documents/loan/:id" element={<ViewLoanDocument />} />
-//         // Collateral Documents
-//         <Route
-//           path="/documents/collateral"
-//           element={<CollateralDocumentList />}
-//         />
-//         <Route
-//           path="/documents/collateral/add"
-//           element={<AddCollateralDocument />}
-//         />
-//         <Route
-//           path="/documents/collateral/:id/edit"
-//           element={<EditCollateralDocument />}
-//         />
-//         <Route
-//           path="/documents/collateral/:id"
-//           element={<ViewCollateralDocument />}
-//         />
-//         {/* ================= RISK MANAGEMENT ================= */}
-//         /* ---------- Risk Master ---------- */
-//         <Route path="/risk-management/risks" element={<RiskList />} />
-//         <Route path="/risk-management/risks/add" element={<AddRisk />} />
-//         <Route path="/risk-management/risks/:id/view" element={<ViewRisk />} />
-//         <Route path="/risk-management/risks/:id/edit" element={<EditRisk />} />
-//         /* ---------- Risk Mitigation ---------- */
-//         <Route
-//           path="/risk-management/mitigation"
-//           element={<MitigationList />}
-//         />
-//         <Route
-//           path="/risk-management/mitigation/add"
-//           element={<AddMitigation />}
-//         />
-//         <Route
-//           path="/risk-management/mitigation/:id/view"
-//           element={<ViewMitigation />}
-//         />
-//         <Route
-//           path="/risk-management/mitigation/:id/edit"
-//           element={<EditMitigation />}
-//         />
-//         /* ---------- Deviation Management ---------- */
-//         <Route path="/risk-management/deviations" element={<DeviationList />} />
-//         <Route
-//           path="/risk-management/deviations/add"
-//           element={<AddDeviation />}
-//         />
-//         <Route
-//           path="/risk-management/deviations/:id/view"
-//           element={<ViewDeviation />}
-//         />
-//         <Route
-//           path="/risk-management/deviations/:id/edit"
-//           element={<EditDeviation />}
-//         />
-//         /* ---------- RCU ---------- */
-//         <Route path="/risk-management/rcu" element={<RCUList />} />
-//         <Route path="/risk-management/rcu/add" element={<AddRCU />} />
-//         <Route path="/risk-management/rcu/:id/view" element={<ViewRCU />} />
-//         <Route path="/risk-management/rcu/:id/edit" element={<EditRCU />} />
-//         /* ---------- Fraud Management ---------- */
-//         <Route path="/risk-management/fraud" element={<FraudList />} />
-//         <Route path="/risk-management/fraud/add" element={<AddFraud />} />
-//         <Route path="/risk-management/fraud/:id/view" element={<ViewFraud />} />
-//         <Route path="/risk-management/fraud/:id/edit" element={<EditFraud />} />
-//         /* ---------- Portfolio Limits ---------- */
-//         <Route
-//           path="/risk-management/portfolio-limits"
-//           element={<PortfolioLimitList />}
-//         />
-//         <Route
-//           path="/risk-management/portfolio-limits/add"
-//           element={<AddPortfolioLimit />}
-//         />
-//         <Route
-//           path="/risk-management/portfolio-limits/:id/view"
-//           element={<ViewPortfolioLimit />}
-//         />
-//         <Route
-//           path="/risk-management/portfolio-limits/:id/edit"
-//           element={<EditPortfolioLimit />}
-//         />
-//         /* ---------- Default Limits ---------- */
-//         <Route
-//           path="/risk-management/default-limits"
-//           element={<DefaultLimitList />}
-//         />
-//         <Route
-//           path="/risk-management/default-limits/add"
-//           element={<AddDefaultLimit />}
-//         />
-//         <Route
-//           path="/risk-management/default-limits/:id/view"
-//           element={<ViewDefaultLimit />}
-//         />
-//         <Route
-//           path="/risk-management/default-limits/:id/edit"
-//           element={<EditDefaultLimit />}
-//         />
-//         /* ---------- Other Parameters ---------- */
-//         <Route path="/risk-management/others" element={<OtherList />} />
-//         <Route path="/risk-management/others/add" element={<AddOther />} />
-//         <Route
-//           path="/risk-management/others/:id/view"
-//           element={<ViewOther />}
-//         />
-//         <Route
-//           path="/risk-management/others/:id/edit"
-//           element={<EditOther />}
-//         />
-//         {/* Agent Management -> Channel Partners */}
-//         <Route path="/channel-partners" element={<ChannelPartnerList />} />
-//         <Route path="/channel-partners/add" element={<AddEditAgent />} />
-//         <Route path="/channel-partners/edit/:id" element={<AddEditAgent />} />
-//         <Route
-//           path="/channel-partners/view/:id"
-//           element={<ChannelPartnerView />}
-//         />
-//         <Route path="/channel-partners/payout/:id" element={<UpdatePayout />} />
-//         <Route
-//           path="/channel-partners/recovery/:id"
-//           element={<UpdateRecovery />}
-//         />
-//         <Route
-//           path="/channel-partners/performance/:id"
-//           element={<AgentPerformance />}
-//         />
-//         <Route
-//           path="/channel-partners/tenants/:id"
-//           element={<ManageTenants />}
-//         />
-//         {/* Agent Management -> Collection Agent Management */}
-//         <Route path="/collection-agent" element={<CollectionAgentList />} />
-//         <Route path="/collection-agent/add" element={<CollectionAgentForm />} />
-//         <Route
-//           path="/collection-agent/edit/:id"
-//           element={<CollectionAgentForm />}
-//         />
-//         <Route
-//           path="/collection-agent/view/:id"
-//           element={<CollectionAgentView />}
-//         />
-//         <Route path="/collection-agent/update/:id" element={<UpdateAgent />} />
-//         <Route path="/collection-agent/fees/:id" element={<ManageFees />} />
-//         <Route path="/legal-agent" element={<LegalAgentList />} />
-//         <Route path="/legal-agents/edit/:id" element={<LegalAgentForm />} />
-//         <Route path="/legal-agents/view/:id" element={<LegalAgentView />} />
-//         <Route path="/legal-agents/add" element={<LegalAgentForm />} />
-//         <Route
-//           path="/verification-agency"
-//           element={<VerificationAgencyList />}
-//         />
-//         <Route
-//           path="/verification-agency/edit/:id"
-//           element={<VerificationAgencyForm />}
-//         />
-//         <Route
-//           path="/verification-agency/view/:id"
-//           element={<VerificationAgencyView />}
-//         />
-//         <Route
-//           path="/verification-agency/add"
-//           element={<VerificationAgencyForm />}
-//         />
-//         <Route
-//           path="/verification-agency/manage-fees/:id"
-//           element={<ManageVerificationFees />}
-//         />
-//         <Route path="/controls/language" element={<LanguageList />} />
-//         <Route path="/controls/language/add" element={<LanguageAdd />} />
-//         <Route path="/controls/language/edit/:id" element={<LanguageEdit />} />
-//         <Route path="/controls/language/view/:id" element={<LanguageView />} />
-
-//         <Route path="/controls/geo" element={<GeoLocationList />} />
-//         <Route path="/controls/geo/add" element={<GeoForm />} />
-//         <Route path="/controls/geo/country/add" element={<AddCountry />} />
-//         <Route
-//           path="/controls/geo/country/edit/:id"
-//           element={<EditCountry />}
-//         />
-//         <Route path="/controls/geo/state" element={<StateList />} />
-//         <Route path="/controls/geo/state/add" element={<AddState />} />
-//         <Route path="/controls/geo/state/edit/:id" element={<EditState />} />
-//         <Route path="/controls/geo/city" element={<CityList />} />
-//         <Route path="/controls/geo/city/add" element={<AddCity />} />
-//         <Route path="/controls/geo/city/edit/:id" element={<EditCity />} />
-//         <Route path="/controls/geo/area" element={<AreaList />} />
-//         <Route path="/controls/geo/area/add" element={<AddArea />} />
-//         <Route path="/controls/geo/area/edit/:id" element={<EditArea />} />
-//         <Route path="/controls/login-auth" element={<LoginAuthList />} />
-//         <Route path="/controls/login-auth/add" element={<AddLoginAuth />} />
-//         <Route
-//           path="/controls/login-auth/edit/:id"
-//           element={<EditLoginAuth />}
-//         />
-//         <Route
-//           path="/controls/login-auth/view/:id"
-//           element={<ViewLoginAuth />}
-//         />
-//         <Route path="/controls/co-applicant" element={<CoApplicantList />} />
-//         <Route path="/controls/co-applicant/add" element={<AddCoApplicant />} />
-//         <Route
-//           path="/controls/co-applicant/edit/:id"
-//           element={<EditCoApplicant />}
-//         />
-//         <Route
-//           path="/controls/co-applicant/view/:id"
-//           element={<ViewCoApplicant />}
-//         />
-//         <Route path="/controls/login-fees" element={<LoginFeeList />} />
-//         <Route path="/controls/login-fees/add" element={<AddLoginFee />} />
-//         <Route
-//           path="/controls/login-fees/edit/:id"
-//           element={<EditLoginFee />}
-//         />
-//         <Route
-//           path="/controls/login-fees/view/:id"
-//           element={<ViewLoginFee />}
-//         />
-//         <Route
-//           path="/controls/joint-applicant"
-//           element={<JointApplicantList />}
-//         />
-//         <Route
-//           path="/controls/joint-applicant/add"
-//           element={<AddJointApplicant />}
-//         />
-//         <Route
-//           path="/controls/joint-applicant/edit/:id"
-//           element={<EditJointApplicant />}
-//         />
-//         <Route
-//           path="/controls/joint-applicant/view/:id"
-//           element={<ViewJointApplicant />}
-//         />
-//         <Route path="/controls/references" element={<ReferenceList />} />
-//         <Route path="/controls/references/add" element={<AddReference />} />
-//         <Route
-//           path="/controls/references/edit/:id"
-//           element={<EditReference />}
-//         />
-//         <Route
-//           path="/controls/references/view/:id"
-//           element={<ViewReference />}
-//         />
-//         <Route
-//           path="/controls/application-process"
-//           element={<ApplicationProcessList />}
-//         />
-//         <Route
-//           path="/controls/application-process/processing-mode"
-//           element={<UpdateProcessingMode />}
-//         />
-//         <Route
-//           path="/controls/application-process/update-application"
-//           element={<UpdateApplication />}
-//         />
-//         <Route
-//           path="/controls/application-process/settings"
-//           element={<ApplicationSettings />}
-//         />
-//         <Route
-//           path="/controls/application-process/action-type"
-//           element={<UpdateActionType />}
-//         />
-//         <Route path="/controls/score-card" element={<ScoreCardRatingHome />} />
-//         {/* <Route
-//           path="/controls/score-card/reference-check"
-//           element={<ReferenceCheckList />}
-//         />
-//         <Route
-//           path="/controls/score-card/reference-check/add"
-//           element={<AddReferenceCheck />}
-//         />
-//         <Route
-//           path="/controls/score-card/reference-check/edit/:id"
-//           element={<EditReferenceCheck />}
-//         />
-//         <Route
-//           path="/controls/score-card/credit-history"
-//           element={<CreditHistoryList />}
-//         />
-//         <Route
-//           path="/controls/score-card/credit-history/add"
-//           element={<AddCreditHistory />}
-//         />
-//         <Route
-//           path="/controls/score-card/credit-history/edit/:id"
-//           element={<EditCreditHistory />}
-//         />
-//         <Route
-//           path="/controls/score-card/investigation-report"
-//           element={<InvestigationReportList />}
-//         />
-//         <Route
-//           path="/controls/score-card/investigation-report/add"
-//           element={<AddInvestigationReport />}
-//         />
-//         <Route
-//           path="/controls/score-card/investigation-report/edit/:id"
-//           element={<EditInvestigationReport />}
-//         /> */}
-//         <Route path="/controls/verification" element={<VerificationHome />} />
-//         {/* <Route
-//           path="/controls/verification/tele-verification"
-//           element={<TeleVerificationList />}
-//         />
-//         <Route
-//           path="/controls/verification/tele-verification/add"
-//           element={<AddTeleVerification />}
-//         />
-//         <Route
-//           path="/controls/verification/tele-verification/edit/:id"
-//           element={<EditTeleVerification />}
-//         />
-//         <Route
-//           path="/controls/verification/tele-verification/view/:id"
-//           element={<ViewTeleVerification />}
-//         />
-//         <Route
-//           path="/controls/verification/credit-personal-meetings"
-//           element={<MeetingList />}
-//         />
-//         <Route
-//           path="/controls/verification/credit-personal-meetings/add"
-//           element={<AddMeeting />}
-//         />
-//         <Route
-//           path="/controls/verification/credit-personal-meetings/edit/:id"
-//           element={<EditMeeting />}
-//         />
-//         <Route
-//           path="/controls/verification/credit-personal-meetings/view/:id"
-//           element={<ViewMeeting />}
-//         /> */}
-//         <Route path="/collection-management">
-//           <Route index element={<CollectionManagement />} />
-
-//           <Route path="payment-gateways">
-//             <Route index element={<PaymentGatewayList />} />
-//             <Route path="add" element={<AddPaymentGateway />} />
-//             <Route path=":id/edit" element={<EditPaymentGateway />} />
-//           </Route>
-
-//           <Route path="controls" element={<CollectionControl />} />
-
-//           <Route path="client-team-mapping/add" element={<MapClientTeam />} />
-//           <Route path="client-agent-mapping/add" element={<MapClientAgent />} />
-
-//           <Route path="payouts/add" element={<PayoutManagement />} />
-//         </Route>
-//         <Route path="/disbursement-management">
-//           <Route index element={<DisbursementList />} />
-
-//           <Route path="disbursement">
-//             <Route index element={<DisbursementList />} />
-//             <Route path="add" element={<DisbursementForm />} />
-//             <Route path=":id/edit" element={<DisbursementForm />} />
-//             <Route path=":id/view" element={<DisbursementDetail />} />
-//           </Route>
-
-//           <Route path="agency">
-//             <Route index element={<AgencyList />} />
-//             <Route path="add" element={<AgencyForm />} />
-//             <Route path=":id/edit" element={<AgencyForm />} />
-//             <Route path=":id/view" element={<AgencyDetail />} />
-//           </Route>
-
-//           <Route path="document">
-//             <Route index element={<DocumentList />} />
-//             <Route path="add" element={<DocumentForm />} />
-//             <Route path=":id/edit" element={<DocumentForm />} />
-//             <Route path=":id/view" element={<DocumentDetail />} />
-//           </Route>
-
-//           <Route path="frequency">
-//             <Route index element={<FrequencyList />} />
-//             <Route path="add" element={<FrequencyForm />} />
-//             <Route path=":id/edit" element={<FrequencyForm />} />
-//             <Route path=":id/view" element={<FrequencyDetail />} />
-//           </Route>
-
-//           <Route path="down-payment">
-//             <Route index element={<DownPaymentList />} />
-//             <Route path="add" element={<DownPaymentForm />} />
-//             <Route path=":id/edit" element={<DownPaymentForm />} />
-//             <Route path=":id/view" element={<DownPaymentDetail />} />
-//           </Route>
-
-//           <Route path="stage">
-//             <Route index element={<StageMasterList />} />
-//             <Route path="add" element={<StageMasterForm />} />
-//             <Route path=":id/edit" element={<StageMasterForm />} />
-//             <Route path=":id/view" element={<StageMasterDetail />} />
-//           </Route>
-
-//           <Route path="third-party">
-//             <Route index element={<ThirdPartyList />} />
-//             <Route path="add" element={<ThirdPartyForm />} />
-//             <Route path=":id/edit" element={<ThirdPartyForm />} />
-//             <Route path=":id/view" element={<ThirdPartyDetail />} />
-//           </Route>
-//         </Route>
-//         <Route path="/provisioning-classification">
-//           <Route path="loan-classification">
-//             <Route index element={<ClassificationList />} />
-//             <Route path="add" element={<ClassificationForm />} />
-//             <Route path=":id/edit" element={<ClassificationForm />} />
-//             <Route path=":id/update" element={<ClassificationUpdate />} />
-//             <Route path=":id/manage" element={<ClassificationManage />} />
-//           </Route>
-
-//           <Route path="writeoff">
-//             <Route index element={<WriteoffRuleList />} />
-//             <Route path="add" element={<WriteoffRuleForm />} />
-//             <Route path=":id/edit" element={<WriteoffRuleForm />} />
-//             <Route path=":id/update" element={<WriteoffUpdate />} />
-//             <Route path=":id/manage" element={<WriteoffManage />} />
-//           </Route>
-
-//           <Route path="settlement">
-//             <Route index element={<SettlementRuleList />} />
-//             <Route path="add" element={<SettlementRuleForm />} />
-//             <Route path=":id/edit" element={<SettlementRuleForm />} />
-//             <Route path=":id/update" element={<SettlementUpdate />} />
-//             <Route path=":id/manage" element={<SettlementManage />} />
-//           </Route>
-
-//           <Route path="provisioning-npa">
-//             <Route index element={<ProvisioningRuleList />} />
-//             <Route path="add" element={<ProvisioningRuleForm />} />
-//             <Route path=":id/edit" element={<ProvisioningRuleForm />} />
-//             <Route path=":id/manage" element={<ProvisioningManagerForm />} />
-//           </Route>
-
-//           <Route path="incentive-management">
-//             <Route index element={<IncentiveRuleList />} />
-//             <Route path="add" element={<IncentiveRuleForm />} />
-//             <Route path=":id/edit" element={<IncentiveRuleForm />} />
-//           </Route>
-//         </Route>
-//         <Route path="/currency-management" element={<CurrencyList />} />
-//         <Route path="/currency-management/add" element={<CurrencyForm />} />
-//         <Route
-//           path="/currency-management/edit/:uuid"
-//           element={<CurrencyForm isEdit />}
-//         />
-//         <Route
-//           path="/currency-management/view/:uuid"
-//           element={<CurrencyView />}
-//         />
-//         <Route path="/concession-management" element={<ConcessionList />} />
-//         <Route
-//           path="/concession-management/type/view/:id"
-//           element={<ConcessionView />}
-//         />
-//         <Route
-//           path="/concession-management/type/add"
-//           element={<ConcessionTypeForm />}
-//         />
-//         <Route
-//           path="/concession-management/type/edit/:id"
-//           element={<ConcessionTypeForm />}
-//         />
-//         <Route
-//           path="/concession-management/category/add"
-//           element={<ConcessionCategoryForm />}
-//         />
-//         <Route
-//           path="/concession-management/category/edit/:id"
-//           element={<ConcessionCategoryForm />}
-//         />
-//         <Route
-//           path="/concession-management/category/view/:id"
-//           element={<ConcessionView />}
-//         />
-//         <Route path="rule-management/rule-master" element={<RuleNameList />} />
-//         <Route
-//           path="/rule-management/rule-master/add"
-//           element={<AddRuleName />}
-//         />
-//         <Route
-//           path="/rule-management/rule-master/edit/:id"
-//           element={<EditRuleName />}
-//         />
-//         <Route
-//           path="/rule-management/rule-master/view/:id"
-//           element={<ViewRuleName />}
-//         />
-//         <Route
-//           path="/rule-management/impact-values"
-//           element={<ImpactValueList />}
-//         />
-//         <Route
-//           path="/rule-management/impact-values/add"
-//           element={<AddImpactValue />}
-//         />
-//         <Route
-//           path="/rule-management/impact-values/edit/:id"
-//           element={<EditImpactValue />}
-//         />
-//         <Route
-//           path="/rule-management/impact-values/view/:id"
-//           element={<ViewImpactValue />}
-//         />
-//         <Route
-//           path="/rule-management/client-profile"
-//           element={<ClientProfileRuleList />}
-//         />
-//         <Route
-//           path="/rule-management/client-profile/add"
-//           element={<AddClientProfileRule />}
-//         />
-//         <Route
-//           path="/rule-management/client-profile/edit/:id"
-//           element={<EditClientProfileRule />}
-//         />
-//         <Route
-//           path="/rule-management/client-profile/view/:id"
-//           element={<ViewClientProfileRule />}
-//         />
-//         <Route
-//           path="/rule-management/verification"
-//           element={<VerificationRuleHome />}
-//         />
-//         <Route
-//           path="/rule-management/verification/internal"
-//           element={<InternalVerificationRule />}
-//         />
-//          <Route
-//           path="/rule-management/verification/internal/add"
-//           element={<AddInternalVerificationRule />}
-//         />
-//         <Route
-//           path="/rule-management/verification/internal/edit/:id"
-//           element={<EditInternalVerificationRule />}
-//         />
-//         <Route
-//           path="/rule-management/verification/internal/view/:id"
-//           element={<ViewInternalVerificationRule />}
-//         />
-//         <Route
-//           path="/rule-management/verification/agency"
-//           element={<AgencyVerificationRule />}
-//         />
-//          <Route
-//           path="/rule-management/verification/agency/add"
-//           element={<AddAgencyVerificationRule />}
-//         />
-//         <Route
-//           path="/rule-management/verification/agency/edit/:id"
-//           element={<EditAgencyVerificationRule />}
-//         />
-//         <Route
-//           path="/rule-management/verification/agency/view/:id"
-//           element={<ViewAgencyVerificationRule />}
-//         />
-//         <Route
-//           path="/rule-management/collateral-quality"
-//           element={<CollateralRuleList />}
-//         />
-//         <Route
-//           path="/rule-management/collateral-quality/add"
-//           element={<AddCollateralRule />}
-//         />
-//         <Route
-//           path="/rule-management/collateral-quality/edit/:id"
-//           element={<EditCollateralRule />}
-//         />
-//         <Route
-//           path="/rule-management/collateral-quality/view/:id"
-//           element={<ViewCollateralRule />}
-//         />
-//         <Route
-//           path="/rule-management/financial-eligibility"
-//           element={<FinancialRuleList />}
-//         />
-//         <Route
-//           path="/rule-management/financial-eligibility/add"
-//           element={<AddFinancialRule />}
-//         />
-//         <Route
-//           path="/rule-management/financial-eligibility/edit/:id"
-//           element={<EditFinancialRule />}
-//         />
-//         <Route
-//           path="/rule-management/financial-eligibility/view/:id"
-//           element={<ViewFinancialRule />}
-//         />
-
-//         <Route path="/rule-management/scorecard" element={<ScorecardHome />} />
-
-//         <Route
-//           path="/rule-management/scorecard/internal"
-//           element={<InternalScoreRuleList />}
-//         />
-//         <Route
-//           path="/rule-management/scorecard/internal/add"
-//           element={<AddInternalScoreRule />}
-//         />
-//         <Route
-//           path="/rule-management/scorecard/internal/edit/:id"
-//           element={<EditInternalScoreRule />}
-//         />
-//         <Route
-//           path="/rule-management/scorecard/internal/view/:id"
-//           element={<ViewInternalScoreRule />}
-//         />
-//         <Route
-//           path="/rule-management/scorecard/geo"
-//           element={<GeoLocationRuleList />}
-//         />
-//         <Route
-//           path="/rule-management/scorecard/geo/add"
-//           element={<AddGeoLocationRule />}
-//         />
-//         <Route
-//           path="/rule-management/scorecard/geo/edit/:id"
-//           element={<EditGeoLocationRule />}
-//         />
-//         <Route
-//           path="/rule-management/scorecard/geo/view/:id"
-//           element={<ViewGeoLocationRule />}
-//         />
-//         <Route
-//           path="/rule-management/risk-mitigation"
-//           element={<RiskMitigationRuleList />}
-//         />
-//         <Route
-//           path="/rule-management/risk-mitigation/add"
-//           element={<AddRiskMitigationRule />}
-//         />
-//         <Route
-//           path="/rule-management/risk-mitigation/edit/:id"
-//           element={<EditRiskMitigationRule />}
-//         />
-//         <Route
-//           path="/rule-management/risk-mitigation/view/:id"
-//           element={<ViewRiskMitigationRule />}
-//         />
-//         <Route path="/rule-management/scorecard/credit-history" element={<CreditHistoryRuleList />} />
-//         <Route path="/rule-management/scorecard/credit-history/add" element={<AddCreditHistoryRule />} />
-//         <Route path="/rule-management/scorecard/credit-history/edit/:id" element={<EditCreditHistoryRule />} />
-//         <Route path="/rule-management/scorecard/credit-history/view/:id" element={<ViewCreditHistoryRule />} />
-
-//         <Route path="/profile-management/vendor" element={<VendorList />} />
-//         <Route path="/profile-management/vendor/add" element={<VendorAdd />} />
-//         <Route path="/profile-management/vendor/edit/:id" element={<VendorMasterEdit />} />
-//         <Route path="/profile-management/vendor/view/:id" element={<VendorView />} />
-
-//         <Route path="/profile-management/agent" element={<AgentList />} />
-//         <Route path="/profile-management/agent/add" element={<AgentAdd />} />
-//         <Route path="/profile-management/agent/edit/:id" element={<AgencyForm />} />
-//         <Route path="/profile-management/agent/view/:id" element={<AgentView />} />
-
-//         <Route path="/profile-management/client" element={<ClientList />} />
-//         <Route path="/profile-management/client/add" element={<ClientAdd />} />
-//         <Route path="/profile-management/client/edit/:id" element={<ClientMasterEdit />} />
-//         <Route path="/profile-management/client/view/:id" element={<ClientView />} />
-
-//         <Route path="/controls-management/geo/form" element={<GeoForm />} />
-//         <Route path="/controls-management/geo/list" element={<GeoList />} />
-
-//       </Routes>
-//     </Router>
-//   );
-// }
-
-// export default App;
