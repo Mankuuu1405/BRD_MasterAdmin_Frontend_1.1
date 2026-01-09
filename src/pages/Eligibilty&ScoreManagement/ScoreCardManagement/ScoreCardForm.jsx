@@ -1,102 +1,123 @@
 import React, { useEffect, useState } from "react";
-import MainLayout from "../../../layout/MainLayout";
-import { FiSave, FiArrowLeft } from "react-icons/fi";
+import { FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
+
+import MainLayout from "../../../layout/MainLayout";
+import {
+  SubPageHeader,
+  InputField,
+  SelectField,
+  FormCard,
+  Button,
+} from "../../../components/Controls/SharedUIHelpers";
+
+import { scoreCardManagementService } from "../../../services/eligibilityManagementService";
 
 /* OPTIONS */
 const RISK_IMPACT_OPTIONS = ["Low", "Medium", "High"];
-const STATUS_OPTIONS = ["Active", "Inactive"];
+const STATUS_OPTIONS = [
+  { label: "Active", value: true },
+  { label: "Inactive", value: false },
+];
 
-const ScoreCardForm = () => {
+export default function ScoreCardForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id);
 
+  const [loading, setLoading] = useState(false);
+
   const [form, setForm] = useState({
     impact_type: "",
     risk_impact: "",
-    template: "",
     professionals: "",
     employees: "",
     groups: "",
     corporates: "",
     others: "",
-    status: "Active",
+    is_active: true,
   });
 
+  /* ================= FETCH (EDIT) ================= */
   useEffect(() => {
-    if (isEdit) {
-      /* MOCK FETCH */
+    if (!isEdit) return;
+
+    const fetchData = async () => {
+      const data = await scoreCardManagementService.retrieve(id);
+      if (!data) return;
+
       setForm({
-        impact_type: "Credit Risk",
-        risk_impact: "High",
-        template: "Retail Loan",
-        professionals: 720,
-        employees: 650,
-        groups: 540,
-        corporates: 810,
-        others: 300,
-        status: "Active",
+        impact_type: data.impact_type,
+        risk_impact: data.risk_impact,
+        professionals: data.professionals_config?.score || "",
+        employees: data.employees_config?.score || "",
+        groups: data.groups_config?.score || "",
+        corporates: data.corporates_config?.score || "",
+        others: data.others_config?.score || "",
+        is_active: data.is_active,
       });
-    }
+    };
+
+    fetchData();
   }, [id, isEdit]);
 
+  /* ================= HANDLERS ================= */
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((p) => ({ ...p, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(isEdit ? "Update" : "Create", form);
-    navigate("/score-cards");
+    setLoading(true);
+
+    const payload = {
+      impact_type: form.impact_type,
+      risk_impact: form.risk_impact,
+      professionals_config: { score: Number(form.professionals) },
+      employees_config: { score: Number(form.employees) },
+      groups_config: { score: Number(form.groups) },
+      corporates_config: { score: Number(form.corporates) },
+      others_config: { score: Number(form.others) },
+      is_active: form.is_active,
+    };
+
+    if (isEdit) {
+      await scoreCardManagementService.update(id, payload);
+    } else {
+      await scoreCardManagementService.create(payload);
+    }
+
+    navigate("/score-card");
+    setLoading(false);
   };
 
   return (
     <MainLayout>
-      {/* HEADER */}
-      <div className="flex items-center gap-3 mb-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition shadow-sm"
-        >
-          <FiArrowLeft className="text-gray-700 text-xl" />
-        </button>
+      <SubPageHeader
+        title={`${isEdit ? "Edit" : "Add"} Score Card`}
+        subtitle="Configure score card rules"
+        onBack={() => navigate(-1)}
+      />
 
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">
-            {isEdit ? "Edit" : "Add"} Score Card
-          </h1>
-          <p className="text-gray-500 text-sm">Configure score card rules</p>
-        </div>
-      </div>
-
-      {/* FORM CARD */}
-      <div className="bg-white p-8 rounded-2xl shadow-md max-w-4xl">
+      <FormCard className="max-w-4xl">
         <form
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-2 gap-6"
         >
           <InputField
-            label="Impact Type *"
+            label="Impact Type"
             name="impact_type"
             value={form.impact_type}
             onChange={handleChange}
           />
 
           <SelectField
-            label="Risk Impact *"
+            label="Risk Impact"
             name="risk_impact"
             value={form.risk_impact}
             onChange={handleChange}
             options={RISK_IMPACT_OPTIONS}
-          />
-
-          <InputField
-            label="Score Template *"
-            name="template"
-            value={form.template}
-            onChange={handleChange}
           />
 
           <InputField
@@ -140,57 +161,25 @@ const ScoreCardForm = () => {
           />
 
           <SelectField
-            label="Status *"
-            name="status"
-            value={form.status}
-            onChange={handleChange}
+            label="Status"
+            value={form.is_active}
+            onChange={(v) =>
+              setForm((p) => ({ ...p, is_active: v }))
+            }
             options={STATUS_OPTIONS}
           />
 
-          {/* SUBMIT BUTTON */}
           <div className="md:col-span-2">
-            <button className="w-full bg-blue-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition shadow-md">
-              <FiSave />
-              {isEdit ? "Update" : "Save"} Score Card
-            </button>
+            <Button
+              type="submit"
+              fullWidth
+              icon={<FiSave />}
+              label={isEdit ? "Update Score Card" : "Save Score Card"}
+              disabled={loading}
+            />
           </div>
         </form>
-      </div>
+      </FormCard>
     </MainLayout>
   );
-};
-
-/* -------------------- REUSABLE UI FIELDS -------------------- */
-const InputField = ({ label, type = "text", name, value, onChange }) => (
-  <div className="flex flex-col">
-    <label className="text-gray-700 text-sm font-medium">{label}</label>
-    <input
-      type={type}
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="mt-2 p-3 rounded-xl bg-gray-50 shadow-sm focus:bg-white outline-none"
-    />
-  </div>
-);
-
-const SelectField = ({ label, name, value, onChange, options }) => (
-  <div className="flex flex-col">
-    <label className="text-gray-700 text-sm font-medium">{label}</label>
-    <select
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="mt-2 p-3 rounded-xl bg-gray-50 shadow-sm outline-none focus:bg-white"
-    >
-      <option value="">Select {label}</option>
-      {options.map((op) => (
-        <option key={op} value={op}>
-          {op}
-        </option>
-      ))}
-    </select>
-  </div>
-);
-
-export default ScoreCardForm;
+}

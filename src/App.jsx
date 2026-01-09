@@ -502,7 +502,7 @@ export default function App() {
           <Route
             path="organizations/add"
             element={
-              <RBACRoute permission="organizations.create">
+              <RBACRoute permission="organization.create">
                 <AddOrganization />
               </RBACRoute>
             }
@@ -602,7 +602,7 @@ export default function App() {
             path="/eligibility/edit/:id"
             element={
               <RBACRoute permission="eligibility.update">
-                <EligibilityForm />
+                <EligibilityForm isEdit="true" />
               </RBACRoute>
             }
           />
@@ -639,7 +639,7 @@ export default function App() {
             path="/banking/edit/:id"
             element={
               <RBACRoute permission="banking.update">
-                <BankingForm />
+                <BankingForm isEdit="true"/ >
               </RBACRoute>
             }
           />
@@ -717,6 +717,129 @@ export default function App() {
               </RBACRoute>
             }
           />
+
+          {/* ================= APPROVALS ================= */}
+          <Route
+            path="/approvals"
+            element={
+              <RBACRoute permission="approval.view">
+                <ApprovalList />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="/manage-approvals"
+            element={
+              <RBACRoute permission="approval.manage">
+                <ManageApprovalPage />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="/escalation"
+            element={
+              <RBACRoute permission="approval.escalation">
+                <EscalationPage />
+              </RBACRoute>
+            }
+          />
+
+          {/* ================= AUDITS ================= */}
+          <Route
+            path="/audits"
+            element={
+              <RBACRoute permission="audit.view">
+                <AuditMain />
+              </RBACRoute>
+            }
+          />
+
+          {/* ================= ROLES AND PERMISSION ================= */}
+          <Route
+            path="roles/"
+            element={
+              <RBACRoute permission="roles.view">
+                <Roles />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="roles/list"
+            element={
+              <RBACRoute permission="roles.view">
+                <RoleList />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="roles/create"
+            element={
+              <RBACRoute permission="roles.manage">
+                <CreateRole />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="roles/set-permissions/"
+            element={
+              <RBACRoute permission="roles.manage">
+                <SetPermissions />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="roles/assign-permissions/"
+            element={
+              <RBACRoute permission="roles.manage">
+                <AssignPermissions />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="roles/add-permission/"
+            element={
+              <RBACRoute permission="roles.manage">
+                <AddPermission />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="subscriptions/"
+            element={
+              <RBACRoute permission="roles.manage">
+                <SubscriptionHome />
+              </RBACRoute>
+            }
+          />
+          
+          <Route
+            path="subscriptions/list/"
+            element={
+              <RBACRoute permission="roles.manage">
+                <SubscribersPage />
+              </RBACRoute>
+            }
+          />
+
+          <Route
+            path="subscriptions/add/"
+            element={
+              <RBACRoute permission="roles.manage">
+                <AddSubscription />
+              </RBACRoute>
+            }
+          />
+
+
+          
         </Route>
 
         {/* ============ FALLBACKS ============ */}
