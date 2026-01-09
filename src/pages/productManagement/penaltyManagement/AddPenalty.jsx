@@ -1,169 +1,103 @@
-// import React, { useMemo, useState } from "react";
-// import MainLayout from "../../../layout/MainLayout";
-// import { FiSave } from "react-icons/fi";
-// import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import MainLayout from "../../../layout/MainLayout";
+import { FiPlus, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
-// import {
-//   PageHeader,
-//   FormCard,
-//   FormGrid,
-//   Input,
-//   Select,
-//   Button,
-// } from "../../../components/Controls/SharedUIHelpers";
+import {
+  PageHeader,
+  SearchFilterBar,
+  ListView,
+  Button,
+  DeleteConfirmButton,
+} from "../../../components/Controls/SharedUIHelpers";
 
-// // import { penaltyService } from "../../../services/penaltyService";
+import { penaltiesService } from "../../../services/productManagementService";
 
-// /* ---------------- OPTIONS ---------------- */
-// const FREQUENCY_OPTIONS = ["Recurring", "One-time"];
-// const BASIS_OPTIONS = ["Fixed", "Percentage", "Slab"];
-// const RECOVERY_STAGE_OPTIONS = ["Missed EMI", "Post Default"];
-// const RECOVERY_MODE_OPTIONS = ["Auto", "Manual"];
+export default function PenaltyList() {
+  const navigate = useNavigate();
 
-// export default function AddPenalty() {
-//   const navigate = useNavigate();
+  const [penalties, setPenalties] = useState([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [deleteRow, setDeleteRow] = useState(null);
 
-//   const [form, setForm] = useState({
-//     name: "",
-//     frequency: "",
-//     basis: "",
-//     recovery_stage: "",
-//     recovery_mode: "",
-//     rate: "",
-//   });
+  // Load penalties
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await penaltiesService.getPenalties();
+        setPenalties(data || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
-//   const [submitting, setSubmitting] = useState(false);
+  // Filter
+  const filteredData = penalties.filter((p) =>
+    p.penalty_name.toLowerCase().includes(search.toLowerCase())
+  );
 
-//   /* ---------------- VALIDATION ---------------- */
-//   const errors = useMemo(() => {
-//     const e = {};
+  const columns = [
+    { key: "penalty_name", label: "Penalty Name" },
+    { key: "frequency", label: "Frequency" },
+    { key: "basis_of_recovery", label: "Basis" },
+    { key: "recovery_stage", label: "Recovery Stage" },
+    { key: "recovery_mode", label: "Mode" },
+    { key: "rate_of_penalty", label: "Rate" },
+    { key: "is_active", label: "Status", type: "status" },
+  ];
 
-//     if (!form.name.trim()) e.name = "Penalty name is required";
-//     if (!form.frequency) e.frequency = "Frequency is required";
-//     if (!form.basis) e.basis = "Basis of recovery is required";
-//     if (!form.recovery_stage) e.recovery_stage = "Recovery stage is required";
-//     if (!form.recovery_mode) e.recovery_mode = "Recovery mode is required";
+  const actions = [
+    { icon: <FiEye />, color: "gray", onClick: (row) => navigate(`/penalties/${row.id}`) },
+    { icon: <FiEdit />, color: "blue", onClick: (row) => navigate(`/penalties/${row.id}/edit`) },
+    { icon: <FiTrash2 />, color: "red", onClick: (row) => setDeleteRow(row) },
+  ];
 
-//     if (form.rate === "") e.rate = "Penalty rate is required";
-//     else if (+form.rate <= 0) e.rate = "Rate must be greater than 0";
+  const handleDelete = async () => {
+    try {
+      await penaltiesService.deletePenalty(deleteRow.id);
+      setPenalties((prev) => prev.filter((p) => p.id !== deleteRow.id));
+      setDeleteRow(null);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-//     return e;
-//   }, [form]);
+  return (
+    <MainLayout>
+      <PageHeader
+        title="Penalties Management"
+        subtitle="Manage penalty rules for defaults and late payments"
+        actionLabel="Add Penalty"
+        actionIcon={<FiPlus />}
+        onAction={() => navigate("/penalties/add")}
+      />
 
-//   const hasErrors = Object.keys(errors).length > 0;
+      <SearchFilterBar
+        search={search}
+        onSearchChange={setSearch}
+        placeholder="Search penalty name..."
+      />
 
-//   /* ---------------- HANDLERS ---------------- */
-//   const handleChange = (name, value) => {
-//     setForm((p) => ({ ...p, [name]: value }));
-//   };
+      {loading ? (
+        <p className="text-gray-500">Loading penalties...</p>
+      ) : filteredData.length === 0 ? (
+        <p className="text-gray-500 text-sm">No penalties found.</p>
+      ) : (
+        <ListView data={filteredData} columns={columns} actions={actions} rowKey="id" />
+      )}
 
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     if (hasErrors) return;
-
-//     setSubmitting(true);
-//     try {
-//       /*
-//       await penaltyService.addPenalty({
-//         ...form,
-//         rate: Number(form.rate),
-//       });
-//       */
-//       navigate("/penalties");
-//     } finally {
-//       setSubmitting(false);
-//     }
-//   };
-
-//   return (
-//     <MainLayout>
-//       {/* HEADER */}
-//       <PageHeader
-//         title="Add Penalty"
-//         subtitle="Configure penalty rules for non-compliance"
-//         onBack={() => navigate(-1)}
-//       />
-
-//       {/* FORM */}
-//       <FormCard>
-//         <form onSubmit={handleSubmit}>
-//           <FormGrid>
-//             <Input
-//               label="Penalty Name"
-//               value={form.name}
-//               onChange={(v) => handleChange("name", v)}
-//               error={errors.name}
-//               required
-//             />
-
-//             <Select
-//               label="Frequency"
-//               value={form.frequency}
-//               options={FREQUENCY_OPTIONS}
-//               onChange={(v) => handleChange("frequency", v)}
-//               error={errors.frequency}
-//               required
-//             />
-
-//             <Select
-//               label="Basis of Recovery"
-//               value={form.basis}
-//               options={BASIS_OPTIONS}
-//               onChange={(v) => handleChange("basis", v)}
-//               error={errors.basis}
-//               required
-//             />
-
-//             <Select
-//               label="Recovery Stage"
-//               value={form.recovery_stage}
-//               options={RECOVERY_STAGE_OPTIONS}
-//               onChange={(v) => handleChange("recovery_stage", v)}
-//               error={errors.recovery_stage}
-//               required
-//             />
-
-//             <Select
-//               label="Mode of Recovery"
-//               value={form.recovery_mode}
-//               options={RECOVERY_MODE_OPTIONS}
-//               onChange={(v) => handleChange("recovery_mode", v)}
-//               error={errors.recovery_mode}
-//               required
-//             />
-
-//             <Input
-//               label="Rate of Penalties"
-//               type="number"
-//               value={form.rate}
-//               onChange={(v) => handleChange("rate", v)}
-//               error={errors.rate}
-//               required
-//             />
-//           </FormGrid>
-
-//           {/* ACTION */}
-//           <div className="mt-6">
-//             <Button
-//               type="submit"
-//               icon={<FiSave />}
-//               disabled={hasErrors || submitting}
-//               loading={submitting}
-//               fullWidth
-//             >
-//               Add Penalty
-//             </Button>
-//           </div>
-//         </form>
-//       </FormCard>
-//     </MainLayout>
-//   );
-// }
-
-export default function AddPenalty(){
-  return(
-    <>
-      hello
-    </>
-  )
+      {deleteRow && (
+        <DeleteConfirmButton
+          title="Delete Penalty"
+          message={`Are you sure you want to delete "${deleteRow.penalty_name}"?`}
+          onCancel={() => setDeleteRow(null)}
+          onConfirm={handleDelete}
+        />
+      )}
+    </MainLayout>
+  );
 }

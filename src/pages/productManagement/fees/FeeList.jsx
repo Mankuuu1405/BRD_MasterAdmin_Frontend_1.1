@@ -10,7 +10,7 @@ import {
   DeleteConfirmButton,
 } from "../../../components/Controls/SharedUIHelpers";
 
-// import { feesService } from "../../../services/feesService";
+import { feesService } from "../../../services/productManagementService";
 
 const FeeList = () => {
   const navigate = useNavigate();
@@ -24,39 +24,24 @@ const FeeList = () => {
   useEffect(() => {
     (async () => {
       try {
-        /*
         const data = await feesService.getFees();
         setFees(data || []);
-        */
-
-        // TEMP MOCK DATA
-        setFees([
-          {
-            id: 1,
-            name: "Processing Fee",
-            frequency: "One-time",
-            basis: "Percentage",
-            recovery_stage: "Disbursement",
-            recovery_mode: "Auto-debit",
-            rate: "2%",
-            status: true,
-          },
-          {
-            id: 2,
-            name: "Late Payment Fee",
-            frequency: "Monthly",
-            basis: "Fixed",
-            recovery_stage: "Ongoing",
-            recovery_mode: "Cash",
-            rate: "₹500",
-            status: true,
-          },
-        ]);
       } finally {
         setLoading(false);
       }
     })();
   }, []);
+
+  /* ================= DELETE FEE ================= */
+  const handleDelete = async (id) => {
+    try {
+      await feesService.deleteFee(id);
+      setFees((prev) => prev.filter((f) => f.id !== id));
+      setDeleteId(null);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   /* ================= FILTER ================= */
   const filteredFees = fees.filter((fee) =>
@@ -69,6 +54,7 @@ const FeeList = () => {
     { key: "frequency", label: "Frequency" },
     { key: "basis", label: "Basis" },
     { key: "recovery_stage", label: "Recovery Stage" },
+    { key: "recovery_mode", label: "Mode" },
     { key: "rate", label: "Rate" },
     { key: "status", label: "Status", type: "status" },
   ];
@@ -124,7 +110,7 @@ const FeeList = () => {
           title="Delete Fee"
           message="Are you sure you want to delete this fee?"
           onCancel={() => setDeleteId(null)}
-          onConfirm={() => setDeleteId(null)}
+          onConfirm={() => handleDelete(deleteId)}
         />
       )}
     </MainLayout>

@@ -9,7 +9,7 @@ import {
   ListView,
 } from "../../../components/Controls/SharedUIHelpers";
 
-// import { interestService } from "../../../services/interestService";
+import { interestService } from "../../../services/productManagementService";
 
 const InterestList = () => {
   const navigate = useNavigate();
@@ -22,34 +22,10 @@ const InterestList = () => {
   useEffect(() => {
     (async () => {
       try {
-        /*
         const data = await interestService.getInterests();
         setInterests(data || []);
-        */
-
-        // TEMP MOCK DATA
-        setInterests([
-          {
-            id: 1,
-            benchmark_type: "MCLR",
-            interest_type: "Floating",
-            accrual_method: "Compound",
-            benchmark_rate: 8.5,
-            benchmark_markup: 1.5,
-            apr: 10.0,
-            status: true,
-          },
-          {
-            id: 2,
-            benchmark_type: "RBI Rate",
-            interest_type: "Fixed",
-            accrual_method: "Simple",
-            benchmark_rate: 6.5,
-            benchmark_markup: 2.0,
-            apr: 8.5,
-            status: true,
-          },
-        ]);
+      } catch (err) {
+        console.error("Failed to fetch interests:", err);
       } finally {
         setLoading(false);
       }
@@ -68,20 +44,21 @@ const InterestList = () => {
     { key: "benchmark_type", label: "Benchmark" },
     { key: "interest_type", label: "Interest Type" },
     { key: "accrual_method", label: "Accrual Method" },
-    {
-      key: "benchmark_rate",
-      label: "Benchmark Rate",
-    },
-    {
-      key: "benchmark_markup",
-      label: "Mark Up",
-    },
-    {
-      key: "apr",
-      label: "APR",
-    },
-    { key: "status", label: "Status", type: "status" },
+    { key: "benchmark_rate", label: "Benchmark Rate" },
+    { key: "mark_up", label: "Mark Up" },
+    { key: "interest_rate", label: "APR (%)" },
+    { key: "is_active", label: "Status", type: "status" },
   ];
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this interest?")) return;
+    try {
+      await interestService.deleteInterest(id);
+      setInterests((prev) => prev.filter((i) => i.id !== id));
+    } catch (err) {
+      console.error("Delete failed:", err);
+    }
+  };
 
   const actions = [
     {
@@ -96,13 +73,12 @@ const InterestList = () => {
     {
       icon: <FiTrash2 />,
       color: "red",
-      onClick: () => {},
+      onClick: (row) => handleDelete(row.id),
     },
   ];
 
   return (
     <MainLayout>
-      {/* ================= HEADER ================= */}
       <PageHeader
         title="Interest Management"
         subtitle="Manage interest, benchmark and APR configurations"
@@ -111,23 +87,16 @@ const InterestList = () => {
         onAction={() => navigate("/interest/add")}
       />
 
-      {/* ================= SEARCH ================= */}
       <SearchFilterBar
         search={search}
         onSearchChange={setSearch}
         placeholder="Search benchmark or interest type..."
       />
 
-      {/* ================= LIST ================= */}
       {loading ? (
         <p className="text-gray-500 text-sm">Loading interest configurations...</p>
       ) : (
-        <ListView
-          data={filtered}
-          columns={columns}
-          actions={actions}
-          rowKey="id"
-        />
+        <ListView data={filtered} columns={columns} actions={actions} rowKey="id" />
       )}
 
       {!loading && filtered.length === 0 && (

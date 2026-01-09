@@ -1,132 +1,94 @@
-// import React, { useEffect, useMemo, useState } from "react";
-// import MainLayout from "../../../layout/MainLayout";
-// import { FiEye, FiEdit, FiTrash2 } from "react-icons/fi";
-// import { useNavigate } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import MainLayout from "../../../layout/MainLayout";
+import { FiEye, FiEdit, FiTrash2 } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
-// // import {
-// //   PageHeader,
-// //   SearchFilterBar,
-// //   DataTable,
-// //   StatusBadge,
-// //   IconButton,
-// // } from "../../../components/Controls/SharedUIHelpers";
+import { PageHeader, SearchFilterBar, ListView, DeleteConfirmButton } from "../../../components/Controls/SharedUIHelpers";
+import { repaymentsService } from "../../../services/productManagementService";
 
-// // import { repaymentService } from "../../../services/repaymentService";
+export default function RepaymentList() {
+  const navigate = useNavigate();
 
-// export default function RepaymentList() {
-//   const navigate = useNavigate();
+  const [data, setData] = useState([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [deleteItem, setDeleteItem] = useState(null);
 
-//   const [data, setData] = useState([]);
-//   const [search, setSearch] = useState("");
-//   const [loading, setLoading] = useState(true);
+  // ---------------- LOAD LIST ----------------
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await repaymentsService.getRepayments();
+        setData(res || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
-//   /* ---------------- LOAD LIST ---------------- */
-//   useEffect(() => {
-//     (async () => {
-//       try {
-//         /*
-//         const res = await repaymentService.getRepayments();
-//         setData(res || []);
-//         */
+  // ---------------- FILTER ----------------
+  const filtered = useMemo(() => {
+    return data.filter((r) =>
+      r.repayment_type.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [data, search]);
 
-//         // TEMP MOCK
-//         setData([
-//           {
-//             id: 1,
-//             type: "EMI",
-//             frequency: "Monthly",
-//             tenure: 24,
-//             no_of_repayments: 24,
-//             collection_mode: "NACH",
-//             status: "Active",
-//           },
-//           {
-//             id: 2,
-//             type: "Bullet",
-//             frequency: "Bi-weekly",
-//             tenure: 12,
-//             no_of_repayments: 6,
-//             collection_mode: "Online",
-//             status: "Active",
-//           },
-//         ]);
-//       } finally {
-//         setLoading(false);
-//       }
-//     })();
-//   }, []);
+  // ---------------- TABLE ----------------
+  const columns = [
+    { key: "repayment_type", label: "Type" },
+    { key: "frequency", label: "Frequency" },
+    { key: "limit_in_month", label: "Tenure (Months)" },
+    { key: "number_of_repayments", label: "No. of Repayments" },
+    { key: "mode_of_collection", label: "Collection Mode" },
+    { key: "is_active", label: "Status" },
+  ];
 
-//   /* ---------------- FILTER ---------------- */
-//   const filtered = useMemo(() => {
-//     return data.filter((r) =>
-//       r.type.toLowerCase().includes(search.toLowerCase())
-//     );
-//   }, [data, search]);
+  const actions = [
+    { icon: <FiEye />, onClick: (row) => navigate(`/repayment/${row.id}`) },
+    { icon: <FiEdit />, onClick: (row) => navigate(`/repayment/${row.id}/edit`) },
+    { icon: <FiTrash2 />, onClick: (row) => setDeleteItem(row) },
+  ];
 
-//   /* ---------------- TABLE CONFIG ---------------- */
-//   const columns = [
-//     { key: "type", label: "Type" },
-//     { key: "frequency", label: "Frequency" },
-//     { key: "tenure", label: "Tenure (Months)" },
-//     { key: "no_of_repayments", label: "No. of Repayments" },
-//     { key: "collection_mode", label: "Collection Mode" },
-//     {
-//       key: "status",
-//       label: "Status",
-//       render: (row) => <StatusBadge value={row.status} />,
-//     },
-//   ];
+  return (
+    <MainLayout>
+      <PageHeader
+        title="Repayment Management"
+        subtitle="Manage loan repayment rules and schedules"
+        actionLabel="Add Repayment Rule"
+        onAction={() => navigate("/repayment/add")}
+      />
 
-//   const actions = [
-//     {
-//       icon: <FiEye />,
-//       onClick: (row) => navigate(`/repayment/${row.id}`),
-//     },
-//     {
-//       icon: <FiEdit />,
-//       onClick: (row) => navigate(`/repayment/${row.id}/edit`),
-//     },
-//     {
-//       icon: <FiTrash2 />,
-//       danger: true,
-//       onClick: (row) => console.log("Delete", row.id),
-//     },
-//   ];
+      <SearchFilterBar
+        search={search}
+        onSearchChange={setSearch}
+        placeholder="Search by repayment type..."
+      />
 
-//   return (
-//     <MainLayout>
-//       {/* HEADER */}
-//       <PageHeader
-//         title="Repayment Management"
-//         subtitle="Manage loan repayment rules and schedules"
-//         actionLabel="Add Repayment Rule"
-//         onAction={() => navigate("/repayment/add")}
-//       />
+      <ListView
+        data={filtered}
+        columns={columns}
+        actions={actions}
+        rowKey="id"
+      />
 
-//       {/* SEARCH */}
-//       <SearchFilterBar
-//         search={search}
-//         onSearchChange={setSearch}
-//         placeholder="Search by repayment type..."
-//       />
-
-//       {/* TABLE */}
-//       <DataTable
-//         loading={loading}
-//         columns={columns}
-//         data={filtered}
-//         actions={actions}
-//         emptyText="No repayment rules found."
-//       />
-//     </MainLayout>
-//   );
-// }
-
-
-export default function RepaymentList(){
-  return(
-    <>
-      hello
-    </>
-  )
+      {deleteItem && (
+        <DeleteConfirmButton
+          title="Delete Repayment Rule"
+          message={`Are you sure you want to delete "${deleteItem.repayment_type}"?`}
+          onConfirm={async () => {
+            try {
+              await repaymentsService.deleteRepayment(deleteItem.id);
+              setData(data.filter(d => d.id !== deleteItem.id));
+            } finally {
+              setDeleteItem(null);
+            }
+          }}
+          onCancel={() => setDeleteItem(null)}
+        />
+      )}
+    </MainLayout>
+  );
 }
