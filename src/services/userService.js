@@ -35,6 +35,6 @@ export const userService = {
 
   // DELETE USER
   async deleteUser(id) {
-    return axiosInstance.delete(`${BASE_URL}${id}/`); // ✅ trailing slash
+    return axiosInstance.delete(`${BASE_URL}/${id}/`); // ✅ trailing slash
   },
 };
