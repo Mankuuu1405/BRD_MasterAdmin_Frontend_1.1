@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import MainLayout from "../../layout/MainLayout";
 import subscriptionService from "../../services/subscriptionService";
-import { FiPlus, FiEdit3, FiTrash2 } from "react-icons/fi";
+import { FiPlus, FiEdit3, FiTrash2, FiArrowLeft } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -92,13 +92,38 @@ export default function SubscriptionPage() {
   return (
     <MainLayout>
       {/* ================= HEADER ================= */}
-      <PageHeader
+      {/* <PageHeader
         title="Subscriptions"
         subtitle="Manage subscription plans and pricing"
         actionLabel="Add Subscription"
         actionIcon={<FiPlus />}
         onAction={() => navigate("/subscriptions/add")}
-      />
+      /> */}
+
+      {/* HEADER */}
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => navigate(-1)}
+                  className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 shadow-sm transition"
+                >
+                  <FiArrowLeft className="text-gray-700 text-xl" />
+                </button>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-800">Subscriptions</h1>
+                  <p className="text-gray-500 text-sm">
+                    Manage subscription plans and pricing
+                  </p>
+                </div>
+              </div>
+      
+              <button
+                onClick={() => navigate("/subscriptions/add/")}
+                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-blue-700 shadow-sm"
+              >
+                <FiPlus className="text-lg" /> Add Subscription
+              </button>
+            </div>
 
       {/* ================= SEARCH ================= */}
       <SearchFilterBar

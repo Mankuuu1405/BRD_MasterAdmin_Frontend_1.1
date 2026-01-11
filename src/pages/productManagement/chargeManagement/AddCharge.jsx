@@ -87,7 +87,7 @@ const AddCharge = () => {
         ...form,
         rate_of_charges: Number(form.rate_of_charges),
       });
-      navigate("/charges");
+      navigate("/charges/list");
     } catch (err) {
       console.error("Add charge error:", err);
     } finally {

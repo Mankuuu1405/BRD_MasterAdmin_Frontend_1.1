@@ -299,10 +299,10 @@ import ViewReference from "./pages/ControlsManagement/ManageReferences/ViewRefer
 // import EditCreditHistory from "./pages/ControlsManagement/ManageScoreCardRating/CreditHistory/EditCreditHistory";
 // import AddInvestigationReport from "./pages/ControlsManagement/ManageScoreCardRating/InvastigationReport/AddInvestigationReport";
 // import EditInvestigationReport from "./pages/ControlsManagement/ManageScoreCardRating/InvastigationReport/EditInvestigationReport";
-// import InvestigationReportList from "./pages/ControlsManagement/ManageScoreCardRating/InvastigationReport/InvestigationReportList";
+import InvestigationReportList from "./pages/ControlsManagement/ManageScoreCardRating/InvastigationReport/InvestigationReportList";
 // import TeleVerificationList from "./pages/ControlsManagement/ManageVerification/TeleVerification/TeleVerificationList";
 // import MeetingList from "./pages/ControlsManagement/ManageVerification/CreditPersonalMeetings/MeetingList";
-import VerificationHome from "./pages/ControlsManagement/ManageVerification/VerificationHome";
+// import VerificationHome from "./pages/ControlsManagement/ManageVerification/VerificationHome";
 // import AddTeleVerification from "./pages/ControlsManagement/ManageVerification/TeleVerification/AddTeleVerification";
 // import EditTeleVerification from "./pages/ControlsManagement/ManageVerification/TeleVerification/EditTeleVerification";
 // import ViewTeleVerification from "./pages/ControlsManagement/ManageVerification/TeleVerification/ViewTeleVerification";
@@ -312,24 +312,24 @@ import VerificationHome from "./pages/ControlsManagement/ManageVerification/Veri
 import DisbursementList from "./pages/disbursment-management/disbursement/DisbursementList";
 import DisbursementForm from "./pages/disbursment-management/disbursement/DisbursementForm";
 import DisbursementDetail from "./pages/disbursment-management/disbursement/DisbursementDetail";
-import AgencyList from "./pages/disbursment-management/agency/AgencyList";
-import AgencyDetail from "./pages/disbursment-management/agency/AgencyDetail";
+// import AgencyList from "./pages/disbursment-management/agency/AgencyList";
+// import AgencyDetail from "./pages/disbursment-management/agency/AgencyDetail";
 import AgencyForm from "./pages/disbursment-management/agency/AgencyForm";
-import DocumentDetail from "./pages/disbursment-management/document/DocumentDetail";
-import DocumentList from "./pages/disbursment-management/document/DocumentList";
-import DocumentForm from "./pages/disbursment-management/document/DocumentForm";
-import DownPaymentDetail from "./pages/disbursment-management/downPayment/DownPaymentDetail";
-import DownPaymentList from "./pages/disbursment-management/downPayment/DownPaymentList";
-import DownPaymentForm from "./pages/disbursment-management/downPayment/DownPaymentForm";
-import FrequencyForm from "./pages/disbursment-management/frequency/FrequencyForm";
-import FrequencyList from "./pages/disbursment-management/frequency/FrequencyList";
-import FrequencyDetail from "./pages/disbursment-management/frequency/FrequencyDetail";
-import ThirdPartyDetail from "./pages/disbursment-management/third-party/ThirdPartyDetail";
-import ThirdPartyList from "./pages/disbursment-management/third-party/ThirdPartyList";
-import ThirdPartyForm from "./pages/disbursment-management/third-party/ThirdPartyForm";
-import StageMasterDetail from "./pages/disbursment-management/stage/StageMasterDetail";
-import StageMasterList from "./pages/disbursment-management/stage/StageMasterList";
-import StageMasterForm from "./pages/disbursment-management/stage/StageMasterForm";
+// import DocumentDetail from "./pages/disbursment-management/document/DocumentDetail";
+// import DocumentList from "./pages/disbursment-management/document/DocumentList";
+// import DocumentForm from "./pages/disbursment-management/document/DocumentForm";
+// import DownPaymentDetail from "./pages/disbursment-management/downPayment/DownPaymentDetail";
+// import DownPaymentList from "./pages/disbursment-management/downPayment/DownPaymentList";
+// import DownPaymentForm from "./pages/disbursment-management/downPayment/DownPaymentForm";
+// import FrequencyForm from "./pages/disbursment-management/frequency/FrequencyForm";
+// import FrequencyList from "./pages/disbursment-management/frequency/FrequencyList";
+// import FrequencyDetail from "./pages/disbursment-management/frequency/FrequencyDetail";
+// import ThirdPartyDetail from "./pages/disbursment-management/third-party/ThirdPartyDetail";
+// import ThirdPartyList from "./pages/disbursment-management/third-party/ThirdPartyList";
+// import ThirdPartyForm from "./pages/disbursment-management/third-party/ThirdPartyForm";
+// import StageMasterDetail from "./pages/disbursment-management/stage/StageMasterDetail";
+// import StageMasterList from "./pages/disbursment-management/stage/StageMasterList";
+// import StageMasterForm from "./pages/disbursment-management/stage/StageMasterForm";
 
 import ClassificationForm from "./pages/provisioning-classification/loan-classification/ClassificationForm";
 import ClassificationList from "./pages/provisioning-classification/loan-classification/ClassificationList";
@@ -420,6 +420,9 @@ import ApplicationSettings from "./pages/ControlsManagement/ManageApplicationPro
 import UpdateActionType from "./pages/ControlsManagement/ManageApplicationProcess/UpdateActionType";
 import MainLayout from "./layout/MainLayout";
 import Unauthorized from "./components/Unauthorized";
+import ReferenceCheckList from "./pages/ControlsManagement/ManageScoreCardRating/ReferenceCheck/ReferenceCheckList";
+import ViewProduct from "./pages/productManagement/product/ViewProduct";
+import AddBank from "./pages/bank-funds/AddBank";
 
 export default function App() {
   //  AUTH + RBAC HELPERS
@@ -588,7 +591,7 @@ export default function App() {
         <Route
           path="roles/set-permissions/"
           element={
-            <RBACRoute permission="permission.view">
+            <RBACRoute permission="permission.assign">
               <SetPermissions />
             </RBACRoute>
           }
@@ -771,9 +774,18 @@ export default function App() {
         />
 
         <Route
+          path="/approvals/add/"
+          element={
+            <RBACRoute permission="approval.create">
+              <AddApproval />
+            </RBACRoute>
+          }
+        />
+
+        <Route
           path="/manage-approvals"
           element={
-            <RBACRoute permission="approval.manage">
+            <RBACRoute permission="approval.assign">
               <ManageApprovalPage />
             </RBACRoute>
           }
@@ -798,11 +810,10 @@ export default function App() {
           }
         />
 
-
         <Route
           path="subscriptions/"
           element={
-            <RBACRoute permission="roles.manage">
+            <RBACRoute permission="subscriptions.view">
               <SubscriptionHome />
             </RBACRoute>
           }
@@ -811,8 +822,8 @@ export default function App() {
         <Route
           path="subscriptions/list/"
           element={
-            <RBACRoute permission="roles.manage">
-              <SubscribersPage />
+            <RBACRoute permission="subscriptions.view">
+              <SubscriptionPage />
             </RBACRoute>
           }
         />
@@ -820,7 +831,7 @@ export default function App() {
         <Route
           path="subscriptions/add/"
           element={
-            <RBACRoute permission="roles.manage">
+            <RBACRoute permission="subscriptions.create">
               <AddSubscription />
             </RBACRoute>
           }
@@ -970,7 +981,7 @@ export default function App() {
         <Route
           path="subscriptions/add/"
           element={
-            <RBACRoute permission="subscriptions.view">
+            <RBACRoute permission="subscriptions.create">
               <AddSubscription />
             </RBACRoute>
           }
@@ -978,7 +989,7 @@ export default function App() {
         <Route
           path="subscriptions/edit/:uuid"
           element={
-            <RBACRoute permission="subscriptions.modify">
+            <RBACRoute permission="subscriptions.update">
               <EditSubscription />
             </RBACRoute>
           }
@@ -989,16 +1000,7 @@ export default function App() {
         <Route
           path="coupons/"
           element={
-            <RBACRoute permission="coupons.view">
-              <CouponPage />
-            </RBACRoute>
-          }
-        />
-
-        <Route
-          path="coupons/"
-          element={
-            <RBACRoute permission="coupons.view">
+            <RBACRoute permission="coupon.view">
               <CouponPage />
             </RBACRoute>
           }
@@ -1007,7 +1009,7 @@ export default function App() {
         <Route
           path="coupons/add"
           element={
-            <RBACRoute permission="coupons.add">
+            <RBACRoute permission="coupon.create">
               <AddCoupon />
             </RBACRoute>
           }
@@ -1016,7 +1018,7 @@ export default function App() {
         <Route
           path="coupons/edit/:uuid"
           element={
-            <RBACRoute permission="coupons.edit">
+            <RBACRoute permission="coupon.update">
               <EditCoupon />
             </RBACRoute>
           }
@@ -1027,7 +1029,7 @@ export default function App() {
         <Route
           path="subscribers/"
           element={
-            <RBACRoute permission="subscribers.view">
+            <RBACRoute permission="subscriber.view">
               <SubscribersPage />
             </RBACRoute>
           }
@@ -1123,7 +1125,7 @@ export default function App() {
         <Route
           path="product-management/list"
           element={
-            <RBACRoute permission="products.view">
+            <RBACRoute permission="product.view">
               <ProductList />
             </RBACRoute>
           }
@@ -1132,7 +1134,7 @@ export default function App() {
         <Route
           path="product-management/add"
           element={
-            <RBACRoute permission="products.add">
+            <RBACRoute permission="product.create">
               <AddProduct />
             </RBACRoute>
           }
@@ -1141,8 +1143,16 @@ export default function App() {
         <Route
           path="product-management/:id/edit"
           element={
-            <RBACRoute permission="products.edit">
+            <RBACRoute permission="product.update">
               <EditProduct />
+            </RBACRoute>
+          }
+        />
+        <Route
+          path="product-management/:id/view"
+          element={
+            <RBACRoute permission="product.view">
+              <ViewProduct />
             </RBACRoute>
           }
         />
@@ -1161,7 +1171,7 @@ export default function App() {
         <Route
           path="product-mix/add"
           element={
-            <RBACRoute permission="product_mix.add">
+            <RBACRoute permission="product_mix.create">
               <AddProductMix />
             </RBACRoute>
           }
@@ -1170,7 +1180,7 @@ export default function App() {
         <Route
           path="product-mix/:id/edit"
           element={
-            <RBACRoute permission="product_mix.edit">
+            <RBACRoute permission="product_mix.update">
               <EditProductMix />
             </RBACRoute>
           }
@@ -1190,7 +1200,7 @@ export default function App() {
         <Route
           path="fees/add"
           element={
-            <RBACRoute permission="fees.add">
+            <RBACRoute permission="fees.create">
               <AddFees />
             </RBACRoute>
           }
@@ -1199,7 +1209,7 @@ export default function App() {
         <Route
           path="fees/:id/edit"
           element={
-            <RBACRoute permission="fees.edit">
+            <RBACRoute permission="fees.update">
               <EditFees />
             </RBACRoute>
           }
@@ -1219,7 +1229,7 @@ export default function App() {
         <Route
           path="interest/add"
           element={
-            <RBACRoute permission="interest.add">
+            <RBACRoute permission="interest.create">
               <AddInterest />
             </RBACRoute>
           }
@@ -1228,7 +1238,7 @@ export default function App() {
         <Route
           path="interest/:id"
           element={
-            <RBACRoute permission="interest.view">
+            <RBACRoute permission="interest.update">
               <InterestDetail />
             </RBACRoute>
           }
@@ -1237,7 +1247,7 @@ export default function App() {
         <Route
           path="interest/:id/edit"
           element={
-            <RBACRoute permission="interest.edit">
+            <RBACRoute permission="interest.update">
               <EditInterest />
             </RBACRoute>
           }
@@ -1257,7 +1267,7 @@ export default function App() {
         <Route
           path="charges/add"
           element={
-            <RBACRoute permission="charges.add">
+            <RBACRoute permission="charges.create">
               <AddCharge />
             </RBACRoute>
           }
@@ -1266,16 +1276,16 @@ export default function App() {
         <Route
           path="charges/:id"
           element={
-            <RBACRoute permission="charges.view">
+            <RBACRoute permission="charges.update">
               <ChargeDetail />
             </RBACRoute>
           }
         />
 
         <Route
-          path="charges/:id/edit"
+          path="charges/edit/:id"
           element={
-            <RBACRoute permission="charges.edit">
+            <RBACRoute permission="charges.update">
               <EditCharge />
             </RBACRoute>
           }
@@ -1295,7 +1305,7 @@ export default function App() {
         <Route
           path="repayment/add"
           element={
-            <RBACRoute permission="repayment.add">
+            <RBACRoute permission="repayment.create">
               <AddRepayment />
             </RBACRoute>
           }
@@ -1304,7 +1314,7 @@ export default function App() {
         <Route
           path="repayment/:id"
           element={
-            <RBACRoute permission="repayment.view">
+            <RBACRoute permission="repayment.update">
               <RepaymentDetail />
             </RBACRoute>
           }
@@ -1313,7 +1323,7 @@ export default function App() {
         <Route
           path="repayment/:id/edit"
           element={
-            <RBACRoute permission="repayment.edit">
+            <RBACRoute permission="repayment.update">
               <EditRepayment />
             </RBACRoute>
           }
@@ -1333,7 +1343,7 @@ export default function App() {
         <Route
           path="moratorium/add"
           element={
-            <RBACRoute permission="moratorium.add">
+            <RBACRoute permission="moratorium.create">
               <AddMoratorium />
             </RBACRoute>
           }
@@ -1342,7 +1352,7 @@ export default function App() {
         <Route
           path="moratorium/:id"
           element={
-            <RBACRoute permission="moratorium.view">
+            <RBACRoute permission="moratorium.update">
               <MoratoriumDetail />
             </RBACRoute>
           }
@@ -1351,7 +1361,7 @@ export default function App() {
         <Route
           path="moratorium/:id/edit"
           element={
-            <RBACRoute permission="moratorium.edit">
+            <RBACRoute permission="moratorium.update">
               <EditMoratorium />
             </RBACRoute>
           }
@@ -1371,7 +1381,7 @@ export default function App() {
         <Route
           path="penalties/add"
           element={
-            <RBACRoute permission="penalties.add">
+            <RBACRoute permission="penalties.create">
               <AddPenalty />
             </RBACRoute>
           }
@@ -1380,7 +1390,7 @@ export default function App() {
         <Route
           path="penalties/:id"
           element={
-            <RBACRoute permission="penalties.view">
+            <RBACRoute permission="penalties.update">
               <PenaltyDetail />
             </RBACRoute>
           }
@@ -1389,7 +1399,7 @@ export default function App() {
         <Route
           path="penalties/:id/edit"
           element={
-            <RBACRoute permission="penalties.edit">
+            <RBACRoute permission="penalties.update">
               <EditPenalty />
             </RBACRoute>
           }
@@ -1418,7 +1428,7 @@ export default function App() {
         <Route
           path="loan-improvement/:loanId/interest-rate"
           element={
-            <RBACRoute permission="loan_improvement.edit">
+            <RBACRoute permission="loan_improvement.update">
               <ChangeInterestRate />
             </RBACRoute>
           }
@@ -1427,7 +1437,7 @@ export default function App() {
         <Route
           path="loan-improvement/:loanId/tenure"
           element={
-            <RBACRoute permission="loan_improvement.edit">
+            <RBACRoute permission="loan_improvement.update">
               <ChangeRepaymentPeriod />
             </RBACRoute>
           }
@@ -1436,7 +1446,7 @@ export default function App() {
         <Route
           path="loan-improvement/:loanId/emi"
           element={
-            <RBACRoute permission="loan_improvement.edit">
+            <RBACRoute permission="loan_improvement.update">
               <ChangeRepaymentAmount />
             </RBACRoute>
           }
@@ -1445,7 +1455,7 @@ export default function App() {
         <Route
           path="loan-improvement/:loanId/product"
           element={
-            <RBACRoute permission="loan_improvement.edit">
+            <RBACRoute permission="loan_improvement.update">
               <ChangeLoanProduct />
             </RBACRoute>
           }
@@ -1454,7 +1464,7 @@ export default function App() {
         <Route
           path="loan-improvement/:loanId/fees"
           element={
-            <RBACRoute permission="loan_improvement.edit">
+            <RBACRoute permission="loan_improvement.update">
               <ChangeFeesCharges />
             </RBACRoute>
           }
@@ -1463,7 +1473,7 @@ export default function App() {
         <Route
           path="loan-improvement/:loanId/collateral"
           element={
-            <RBACRoute permission="loan_improvement.edit">
+            <RBACRoute permission="loan_improvement.update">
               <ChangeCollateral />
             </RBACRoute>
           }
@@ -1472,7 +1482,7 @@ export default function App() {
         <Route
           path="loan-improvement/:loanId/rationalisation"
           element={
-            <RBACRoute permission="loan_improvement.edit">
+            <RBACRoute permission="loan_improvement.update">
               <RepaymentRationalisation />
             </RBACRoute>
           }
@@ -1481,7 +1491,7 @@ export default function App() {
         <Route
           path="loan-improvement/:loanId/moratorium"
           element={
-            <RBACRoute permission="loan_improvement.edit">
+            <RBACRoute permission="loan_improvement.update">
               <MoratoriumInterest />
             </RBACRoute>
           }
@@ -1490,8 +1500,199 @@ export default function App() {
         <Route
           path="loan-improvement/:loanId/top-up"
           element={
-            <RBACRoute permission="loan_improvement.edit">
+            <RBACRoute permission="loan_improvement.update">
               <TopUpManagement />
+            </RBACRoute>
+          }
+        />
+
+        {/* Template Management */}
+
+        <Route
+          path="predefine-template/"
+          element={
+            <RBACRoute permission="template.predefine">
+              <PredefinedTemplateList />
+            </RBACRoute>
+          }
+        />
+        <Route
+          path="customize-template/"
+          element={
+            <RBACRoute permission="template.customize">
+              <CustomizeTemplateList />
+            </RBACRoute>
+          }
+        />
+
+        {/* Bank & Fund */}
+
+        <Route
+          path="bank-management/"
+          element={
+            <RBACRoute permission="bank.view">
+              <BankManagement />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="bank-management/add"
+          element={
+            <RBACRoute permission="bank.create">
+              <AddBank />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="bank-management/edit/:id"
+          element={
+            <RBACRoute permission="bank.update">
+              <EditBank />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="fund-management/"
+          element={
+            <RBACRoute permission="fund.view">
+              <FundManagement />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="fund-management/add"
+          element={
+            <RBACRoute permission="fund.create">
+              <AddFund />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="fund-management/edit/:id"
+          element={
+            <RBACRoute permission="fund.update">
+              <EditFund />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="portfolio-management/"
+          element={
+            <RBACRoute permission="fund.view">
+              <PortfolioManagement />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="portfolio-management/add"
+          element={
+            <RBACRoute permission="fund.create">
+              <AddPortfolio />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="portfolio-management/edit/:id"
+          element={
+            <RBACRoute permission="fund.update">
+              <EditPortfolio />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="mode-of-bank/"
+          element={
+            <RBACRoute permission="fund.view">
+              <ModeOfBank />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="mode-of-bank/add"
+          element={
+            <RBACRoute permission="fund.create">
+              <ModeFormPage modeType="add" />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="mode-of-bank/edit/:id"
+          element={
+            <RBACRoute permission="fund.update">
+              <ModeFormPage modeType="edit" />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="taxation-management/"
+          element={
+            <RBACRoute permission="fund.view">
+              <TaxationManagement />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="taxation-management/add"
+          element={
+            <RBACRoute permission="fund.create">
+              <TaxFormPage modeType="add" />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="taxation-management/edit/:id"
+          element={
+            <RBACRoute permission="fund.update">
+              <TaxFormPage modeType="edit" />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="business-model/"
+          element={
+            <RBACRoute permission="fund.view">
+              <BusinessModel />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="business-model/add"
+          element={
+            <RBACRoute permission="fund.create">
+              <BusinessModelFormPage modeType="add" />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="business-model/edit/:id"
+          element={
+            <RBACRoute permission="fund.update">
+              <BusinessModelFormPage modeType="edit" />
+            </RBACRoute>
+          }
+        />
+        <Route
+          path="business-model/view/:id"
+          element={
+            <RBACRoute permission="fund.update">
+              <BusinessModelViewPage />
             </RBACRoute>
           }
         />
@@ -1925,7 +2126,7 @@ export default function App() {
         <Route
           path="channel-partners/add"
           element={
-            <RBACRoute permission="channel_partners.add">
+            <RBACRoute permission="channel_partners.create">
               <AddEditAgent />
             </RBACRoute>
           }
@@ -1934,7 +2135,7 @@ export default function App() {
         <Route
           path="channel-partners/edit/:id"
           element={
-            <RBACRoute permission="channel_partners.edit">
+            <RBACRoute permission="channel_partners.update">
               <AddEditAgent />
             </RBACRoute>
           }
@@ -1952,7 +2153,7 @@ export default function App() {
         <Route
           path="channel-partners/payout/:id"
           element={
-            <RBACRoute permission="channel_partners.edit">
+            <RBACRoute permission="channel_partners.update">
               <UpdatePayout />
             </RBACRoute>
           }
@@ -1961,7 +2162,7 @@ export default function App() {
         <Route
           path="channel-partners/recovery/:id"
           element={
-            <RBACRoute permission="channel_partners.edit">
+            <RBACRoute permission="channel_partners.update">
               <UpdateRecovery />
             </RBACRoute>
           }
@@ -1979,7 +2180,7 @@ export default function App() {
         <Route
           path="channel-partners/tenants/:id"
           element={
-            <RBACRoute permission="channel_partners.edit">
+            <RBACRoute permission="channel_partners.update">
               <ManageTenants />
             </RBACRoute>
           }
@@ -1990,7 +2191,7 @@ export default function App() {
         <Route
           path="collection-agent"
           element={
-            <RBACRoute permission="collection_agents.view">
+            <RBACRoute permission="collection_agent.view">
               <CollectionAgentList />
             </RBACRoute>
           }
@@ -1999,7 +2200,7 @@ export default function App() {
         <Route
           path="collection-agent/add"
           element={
-            <RBACRoute permission="collection_agents.add">
+            <RBACRoute permission="collection_agent.create">
               <CollectionAgentForm />
             </RBACRoute>
           }
@@ -2008,7 +2209,7 @@ export default function App() {
         <Route
           path="collection-agent/edit/:id"
           element={
-            <RBACRoute permission="collection_agents.edit">
+            <RBACRoute permission="collection_agent.update">
               <CollectionAgentForm />
             </RBACRoute>
           }
@@ -2017,7 +2218,7 @@ export default function App() {
         <Route
           path="collection-agent/view/:id"
           element={
-            <RBACRoute permission="collection_agents.view">
+            <RBACRoute permission="collection_agent.view">
               <CollectionAgentView />
             </RBACRoute>
           }
@@ -2026,7 +2227,7 @@ export default function App() {
         <Route
           path="collection-agent/update/:id"
           element={
-            <RBACRoute permission="collection_agents.edit">
+            <RBACRoute permission="collection_agent.update">
               <UpdateAgent />
             </RBACRoute>
           }
@@ -2035,7 +2236,7 @@ export default function App() {
         <Route
           path="collection-agent/fees/:id"
           element={
-            <RBACRoute permission="collection_agents.edit">
+            <RBACRoute permission="collection_agent.update">
               <ManageFees />
             </RBACRoute>
           }
@@ -2045,7 +2246,7 @@ export default function App() {
         <Route
           path="legal-agent"
           element={
-            <RBACRoute permission="legal_agents.view">
+            <RBACRoute permission="legal_agent.view">
               <LegalAgentList />
             </RBACRoute>
           }
@@ -2054,7 +2255,7 @@ export default function App() {
         <Route
           path="legal-agents/add"
           element={
-            <RBACRoute permission="legal_agents.add">
+            <RBACRoute permission="legal_agent.create">
               <LegalAgentForm />
             </RBACRoute>
           }
@@ -2063,7 +2264,7 @@ export default function App() {
         <Route
           path="legal-agents/edit/:id"
           element={
-            <RBACRoute permission="legal_agents.edit">
+            <RBACRoute permission="legal_agent.update">
               <LegalAgentForm />
             </RBACRoute>
           }
@@ -2072,7 +2273,7 @@ export default function App() {
         <Route
           path="legal-agents/view/:id"
           element={
-            <RBACRoute permission="legal_agents.view">
+            <RBACRoute permission="legal_agent.view">
               <LegalAgentView />
             </RBACRoute>
           }
@@ -2089,7 +2290,7 @@ export default function App() {
         <Route
           path="verification-agency/add"
           element={
-            <RBACRoute permission="verification_agency.add">
+            <RBACRoute permission="verification_agency.create">
               <VerificationAgencyForm />
             </RBACRoute>
           }
@@ -2098,7 +2299,7 @@ export default function App() {
         <Route
           path="verification-agency/edit/:id"
           element={
-            <RBACRoute permission="verification_agency.edit">
+            <RBACRoute permission="verification_agency.update">
               <VerificationAgencyForm />
             </RBACRoute>
           }
@@ -2116,7 +2317,7 @@ export default function App() {
         <Route
           path="verification-agency/manage-fees/:id"
           element={
-            <RBACRoute permission="verification_agency.edit">
+            <RBACRoute permission="verification_agency.update">
               <ManageVerificationFees />
             </RBACRoute>
           }
@@ -2126,7 +2327,7 @@ export default function App() {
         <Route
           path="controls/language"
           element={
-            <RBACRoute permission="controls_language.view">
+            <RBACRoute permission="language.view">
               <LanguageList />
             </RBACRoute>
           }
@@ -2135,7 +2336,7 @@ export default function App() {
         <Route
           path="controls/language/add"
           element={
-            <RBACRoute permission="controls_language.add">
+            <RBACRoute permission="language.create">
               <LanguageAdd />
             </RBACRoute>
           }
@@ -2144,7 +2345,7 @@ export default function App() {
         <Route
           path="controls/language/edit/:id"
           element={
-            <RBACRoute permission="controls_language.edit">
+            <RBACRoute permission="language.update">
               <LanguageEdit />
             </RBACRoute>
           }
@@ -2153,11 +2354,316 @@ export default function App() {
         <Route
           path="controls/language/view/:id"
           element={
-            <RBACRoute permission="controls_language.view">
+            <RBACRoute permission="language.view">
               <LanguageView />
             </RBACRoute>
           }
         />
+
+        <Route
+          path="controls/geo"
+          element={
+            <RBACRoute permission="geo.view">
+              <GeoLocationList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/geo/add"
+          element={
+            <RBACRoute permission="geo.create">
+              <AddGeoLocationRule />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/geo/edit/:id"
+          element={
+            <RBACRoute permission="geo.update">
+              <EditGeoLocationRule />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/geo/view/:id"
+          element={
+            <RBACRoute permission="geo.view">
+              <ViewGeoLocationRule />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/login-auth"
+          element={
+            <RBACRoute permission="login_auth.view">
+              <LoginAuthList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/login-auth/add"
+          element={
+            <RBACRoute permission="login_auth.create">
+              <AddLoginAuth />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/login-auth/edit/:id"
+          element={
+            <RBACRoute permission="login_auth.update">
+              <EditLoginAuth />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/login-auth/view/:id"
+          element={
+            <RBACRoute permission="login_auth.view">
+              <ViewLoginAuth />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/co-applicant"
+          element={
+            <RBACRoute permission="coapplicant.view">
+              <CoApplicantList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/co-applicant/add"
+          element={
+            <RBACRoute permission="coapplicant.create">
+              <AddCoApplicant />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/co-applicant/edit/:id"
+          element={
+            <RBACRoute permission="coapplicant.update">
+              <EditCoApplicant />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/co-applicant/view/:id"
+          element={
+            <RBACRoute permission="coapplicant.view">
+              <ViewCoApplicant />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/login-fees"
+          element={
+            <RBACRoute permission="loginfee.view">
+              <LoginFeeList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/login-fees/add"
+          element={
+            <RBACRoute permission="loginfee.create">
+              <AddLoginFee />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/login-fees/edit/:id"
+          element={
+            <RBACRoute permission="loginfee.update">
+              <EditLoginFee />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/login-fees/view/:id"
+          element={
+            <RBACRoute permission="loginfee.view">
+              <ViewLoginFee />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/joint-applicant"
+          element={
+            <RBACRoute permission="joint_applicant.view">
+              <JointApplicantList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/joint-applicant/add"
+          element={
+            <RBACRoute permission="joint_applicant.create">
+              <AddJointApplicant />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/joint-applicant/edit/:id"
+          element={
+            <RBACRoute permission="joint_applicant.update">
+              <EditJointApplicant />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/joint-applicant/view/:id"
+          element={
+            <RBACRoute permission="joint_applicant.view">
+              <ViewJointApplicant />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/references"
+          element={
+            <RBACRoute permission="references.view">
+              <ReferenceList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/references/add"
+          element={
+            <RBACRoute permission="references.create">
+              <AddReference />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/references/edit/:id"
+          element={
+            <RBACRoute permission="reference.update">
+              <EditReference />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/references/view/:id"
+          element={
+            <RBACRoute permission="references.view">
+              <ViewReference />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/application-process"
+          element={
+            <RBACRoute permission="application.view">
+              <ApplicationProcessList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/application-process/add"
+          element={
+            <RBACRoute permission="application.update">
+              <ApplicationSettings />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/application-process/action-type"
+          element={
+            <RBACRoute permission="application.update">
+              <UpdateActionType />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/application-process/processing-mode"
+          element={
+            <RBACRoute permission="application.update">
+              <UpdateProcessingMode />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/application-process/update-application"
+          element={
+            <RBACRoute permission="application.update">
+              <UpdateApplication />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/score-card"
+          element={
+            <RBACRoute permission="scorecard.view">
+              <ScoreCardRatingHome />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/score-card/reference-check"
+          element={
+            <RBACRoute permission="scorecard.view">
+              <ReferenceCheckList />
+            </RBACRoute>
+          }
+        />
+        <Route
+          path="controls/score-card/credit-history"
+          element={
+            <RBACRoute permission="scorecard.view">
+              <CreditHistoryRuleList />
+            </RBACRoute>
+          }
+        />
+        <Route
+          path="controls/score-card/investigation-report"
+          element={
+            <RBACRoute permission="scorecard.view">
+              <InvestigationReportList />
+            </RBACRoute>
+          }
+        />
+
+        <Route
+          path="controls/verification"
+          element={
+            <RBACRoute permission="verification.view">
+              <VerificationDashboard />
+            </RBACRoute>
+          }
+        />
+
         {/* Collection Management */}
 
         <Route path="collection-management">
@@ -2498,7 +3004,7 @@ export default function App() {
         <Route
           path="/currency-management/add"
           element={
-            <RBACRoute permission="currency.add">
+            <RBACRoute permission="currency.create">
               <CurrencyForm />
             </RBACRoute>
           }
@@ -2507,7 +3013,7 @@ export default function App() {
         <Route
           path="/currency-management/edit/:uuid"
           element={
-            <RBACRoute permission="currency.edit">
+            <RBACRoute permission="currency.update">
               <CurrencyForm isEdit />
             </RBACRoute>
           }
@@ -2541,7 +3047,7 @@ export default function App() {
           <Route
             path="type/add"
             element={
-              <RBACRoute permission="concession.type.add">
+              <RBACRoute permission="concession_type.create">
                 <ConcessionTypeForm />
               </RBACRoute>
             }
@@ -2550,7 +3056,7 @@ export default function App() {
           <Route
             path="type/edit/:id"
             element={
-              <RBACRoute permission="concession.type.edit">
+              <RBACRoute permission="concession_type.update">
                 <ConcessionTypeForm />
               </RBACRoute>
             }
@@ -2559,7 +3065,7 @@ export default function App() {
           <Route
             path="type/view/:id"
             element={
-              <RBACRoute permission="concession.type.view">
+              <RBACRoute permission="concession_type.view">
                 <ConcessionView />
               </RBACRoute>
             }
@@ -2570,7 +3076,7 @@ export default function App() {
           <Route
             path="category/add"
             element={
-              <RBACRoute permission="concession.category.add">
+              <RBACRoute permission="concession_category.create">
                 <ConcessionCategoryForm />
               </RBACRoute>
             }
@@ -2579,7 +3085,7 @@ export default function App() {
           <Route
             path="category/edit/:id"
             element={
-              <RBACRoute permission="concession.category.edit">
+              <RBACRoute permission="concession_category.update">
                 <ConcessionCategoryForm />
               </RBACRoute>
             }
@@ -2588,7 +3094,7 @@ export default function App() {
           <Route
             path="category/view/:id"
             element={
-              <RBACRoute permission="concession.category.view">
+              <RBACRoute permission="concession_category.view">
                 <ConcessionView />
               </RBACRoute>
             }
@@ -2991,19 +3497,28 @@ export default function App() {
 
           {/* PROFILE MANAGEMENT */}
 
-          <Route
-            path="profile-management/vendor"
+          {/* <Route
+            path="profile-management/ven"
             element={
               <RBACRoute permission="vendor.view">
                 <VendorList />
               </RBACRoute>
             }
-          />
+          /> */}
+
+          <Route
+          path="vendor"
+          element={
+            <RBACRoute permission="vendor.view">
+              <VendorList />
+            </RBACRoute>
+          }
+        ></Route>
 
           <Route
             path="profile-management/vendor/add"
             element={
-              <RBACRoute permission="vendor.add">
+              <RBACRoute permission="vendor.create">
                 <VendorAdd />
               </RBACRoute>
             }
@@ -3012,7 +3527,7 @@ export default function App() {
           <Route
             path="profile-management/vendor/edit/:id"
             element={
-              <RBACRoute permission="vendor.edit">
+              <RBACRoute permission="vendor.update">
                 <VendorMasterEdit />
               </RBACRoute>
             }
@@ -3041,7 +3556,7 @@ export default function App() {
           <Route
             path="profile-management/agent/add"
             element={
-              <RBACRoute permission="agent.add">
+              <RBACRoute permission="agent.create">
                 <AgentAdd />
               </RBACRoute>
             }
@@ -3050,7 +3565,7 @@ export default function App() {
           <Route
             path="profile-management/agent/edit/:id"
             element={
-              <RBACRoute permission="agent.edit">
+              <RBACRoute permission="agent.update">
                 <AgencyForm />
               </RBACRoute>
             }
@@ -3079,7 +3594,7 @@ export default function App() {
           <Route
             path="profile-management/client/add"
             element={
-              <RBACRoute permission="client.add">
+              <RBACRoute permission="client.create">
                 <ClientAdd />
               </RBACRoute>
             }
@@ -3088,7 +3603,7 @@ export default function App() {
           <Route
             path="profile-management/client/edit/:id"
             element={
-              <RBACRoute permission="client.edit">
+              <RBACRoute permission="client.update">
                 <ClientMasterEdit />
               </RBACRoute>
             }
@@ -3130,4 +3645,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-

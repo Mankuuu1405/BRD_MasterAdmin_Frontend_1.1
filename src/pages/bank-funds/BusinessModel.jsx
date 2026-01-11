@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MainLayout from "../../layout/MainLayout";
 import {
   FiPlus,
@@ -8,49 +8,60 @@ import {
   FiEye,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { bankFundService } from "../../services/bankFundService";
 
-const BusinessModel = () => {
+const BusinessModelPage = () => {
   const navigate = useNavigate();
 
-  const [models, setModels] = useState([
-    {
-      id: 1,
-      name: "Mark-up Model",
-      description: "Margin applied over the base rate or fund cost",
-      status: "Active",
-    },
-    {
-      id: 2,
-      name: "Payout Model",
-      description: "Revenue sharing with partners or DSAs",
-      status: "Active",
-    },
-    {
-      id: 3,
-      name: "Lease Model",
-      description: "Asset financing under lease agreements",
-      status: "Inactive",
-    },
-    {
-      id: 4,
-      name: "Co-Lending Model",
-      description: "Multiple lenders share risk and fund flow",
-      status: "Active",
-    },
-  ]);
-
+  const [models, setModels] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // Fetch business models on mount
+  useEffect(() => {
+    fetchBusinessModels();
+  }, []);
+
+  const fetchBusinessModels = async () => {
+    setLoading(true);
+    try {
+      const data = await bankFundService.getBusinessModels();
+      setModels(data);
+    } catch (err) {
+      console.error("Error fetching business models:", err);
+      alert("Failed to fetch business models");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this business model?")) return;
+    setLoading(true);
+    try {
+      await bankFundService.deleteBusinessModel(id);
+      setModels(models.filter((m) => m.id !== id));
+      alert("Business model deleted successfully");
+    } catch (err) {
+      console.error("Failed to delete business model:", err);
+      alert("Error deleting business model");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredModels = models.filter(
     (m) =>
-      m.name.toLowerCase().includes(search.toLowerCase()) ||
-      m.description.toLowerCase().includes(search.toLowerCase())
+      m.model_type.toLowerCase().includes(search.toLowerCase()) ||
+      (m.description && m.description.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const handleDelete = (id) => {
-    if (!window.confirm("Delete this business model?")) return;
-    setModels(models.filter((m) => m.id !== id));
-  };
+  if (loading)
+    return (
+      <MainLayout>
+        <div className="text-center py-10">Loading...</div>
+      </MainLayout>
+    );
 
   return (
     <MainLayout>
@@ -100,7 +111,7 @@ const BusinessModel = () => {
           >
             {/* Name */}
             <div className="font-medium text-gray-900">
-              {model.name}
+              {model.model_type}
             </div>
 
             {/* Description */}
@@ -111,7 +122,7 @@ const BusinessModel = () => {
             {/* Status */}
             <span
               className={`px-3 py-1 text-xs rounded-full justify-self-start ${
-                model.status === "Active"
+                model.status === "ACTIVE"
                   ? "bg-green-100 text-green-700"
                   : "bg-red-100 text-red-600"
               }`}
@@ -123,17 +134,13 @@ const BusinessModel = () => {
             <div className="flex justify-end gap-2 col-span-2 md:col-span-1">
               <IconButton
                 color="gray"
-                onClick={() =>
-                  navigate(`/business-model/view/${model.id}`)
-                }
+                onClick={() => navigate(`/business-model/view/${model.id}`)}
               >
                 <FiEye />
               </IconButton>
               <IconButton
                 color="blue"
-                onClick={() =>
-                  navigate(`/business-model/edit/${model.id}`)
-                }
+                onClick={() => navigate(`/business-model/edit/${model.id}`)}
               >
                 <FiEdit3 />
               </IconButton>
@@ -146,20 +153,30 @@ const BusinessModel = () => {
             </div>
           </div>
         ))}
+
+        {filteredModels.length === 0 && (
+          <div className="text-center text-gray-500 py-10">
+            No business models found.
+          </div>
+        )}
       </div>
     </MainLayout>
   );
 };
 
-export default BusinessModel;
+export default BusinessModelPage;
 
 /* ---------------- HELPERS ---------------- */
+const IconButton = ({ children, onClick, color }) => {
+  const colors = {
+    gray: "bg-gray-100 hover:bg-gray-200 text-gray-600",
+    blue: "bg-blue-100 hover:bg-blue-200 text-blue-600",
+    red: "bg-red-100 hover:bg-red-200 text-red-600",
+  };
 
-const IconButton = ({ children, onClick, color }) => (
-  <button
-    onClick={onClick}
-    className={`p-2 rounded-full bg-${color}-100 hover:bg-${color}-200`}
-  >
-    <span className={`text-${color}-600`}>{children}</span>
-  </button>
-);
+  return (
+    <button onClick={onClick} className={`p-2 rounded-full ${colors[color]}`}>
+      {children}
+    </button>
+  );
+};

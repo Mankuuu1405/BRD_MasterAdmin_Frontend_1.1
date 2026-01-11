@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { useNavigate } from "react-router-dom";
 import { FiSave } from "react-icons/fi";
-
+import { productManagementService, productMixService } from "../../../services/productManagementService";
 import {
   SubPageHeader,
   InputField,
@@ -11,7 +11,6 @@ import {
   Button,
 } from "../../../components/Controls/SharedUIHelpers";
 
-/* ================= OPTIONS ================= */
 const CATEGORY_OPTIONS = [
   { label: "Loan", value: "Loan" },
   { label: "Credit", value: "Credit" },
@@ -22,15 +21,10 @@ const TYPE_OPTIONS = [
   { label: "Home Loan", value: "Home Loan" },
 ];
 
-const FACILITY_OPTIONS = [
-  { label: "Top-up", value: "Top-up" },
-  { label: "Insurance", value: "Insurance" },
-];
-
 const PERIOD_UNITS = [
-  { label: "Days", value: "Days" },
-  { label: "Months", value: "Months" },
-  { label: "Years", value: "Years" },
+  { label: "Days", value: "DAYS" },
+  { label: "Months", value: "MONTHS" },
+  { label: "Years", value: "YEARS" },
 ];
 
 const AddProductMix = () => {
@@ -40,49 +34,90 @@ const AddProductMix = () => {
     category: "",
     type: "",
     name: "",
-    facilities: [],
     amount: "",
     periodValue: "",
-    periodUnit: "Months",
+    periodUnit: "MONTHS",
   });
+
+  const [allProducts, setAllProducts] = useState([]); // options for MultiSelect
+  const [selectedProducts, setSelectedProducts] = useState([]); // selected products
+  const [loading, setLoading] = useState(false);
+
+  /* ================= FETCH PRODUCTS ================= */
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await productManagementService.getProducts();
+        if (!Array.isArray(data)) return;
+
+        const options = data.map((p) => ({
+          label: p.product_name,
+          value: p.id, // ✅ UUID
+        }));
+        setAllProducts(options);
+        console.log(allProducts)
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+        alert("Cannot load products");
+      }
+    };
+    fetchProducts();
+  }, []);
 
   /* ================= HANDLERS ================= */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
+  const handleProductSelect = (selected) => {
+  // selected is [{label, value}, ...]
+  setSelectedProducts(selected);
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(selectedProducts)
 
-    /*
-      Backend payload (ready)
-      const payload = {
-        mix_category: form.category,
-        mix_type: form.type,
-        mix_name: form.name,
-        mix_facilities: form.facilities,
-        mix_amount: Number(form.amount),
-        mix_period: {
-          value: Number(form.periodValue),
-          unit: form.periodUnit,
-        },
-      };
-    */
+    if (!selectedProducts.length) {
+      alert("Please select at least one product.");
+      return;
+    }
 
-    navigate(-1);
+    setLoading(true);
+
+    const payload = {
+      product_category: form.category,
+      product_type: form.type,
+      product_mix_name: form.name,
+      product_mix_amount: parseFloat(form.amount),
+      product_period_value: parseInt(form.periodValue, 10),
+      product_period_unit: form.periodUnit,
+      products: selectedProducts // array of UUIDs
+    };
+
+    console.log("Selected Products:", selectedProducts);
+    console.log("Payload:", payload); // check what is being sent
+
+    try {
+      await productMixService.createProductMix(payload);
+      navigate("/product-mix/list");
+    } catch (error) {
+      console.error("Failed to create product mix:", error.response?.data || error);
+      alert("Error creating product mix");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <MainLayout>
-      {/* ================= HEADER ================= */}
       <SubPageHeader
         title="Add Product Mix"
         subtitle="Create a bundled product offering"
         onBack={() => navigate(-1)}
       />
 
-      {/* ================= FORM ================= */}
       <div className="bg-white p-8 rounded-2xl shadow-md max-w-3xl">
         <form
           onSubmit={handleSubmit}
@@ -94,7 +129,7 @@ const AddProductMix = () => {
             value={form.category}
             onChange={handleChange}
             options={CATEGORY_OPTIONS}
-            placeholder="Select Category"
+            required
           />
 
           <SelectField
@@ -103,7 +138,7 @@ const AddProductMix = () => {
             value={form.type}
             onChange={handleChange}
             options={TYPE_OPTIONS}
-            placeholder="Select Type"
+            required
           />
 
           <InputField
@@ -111,6 +146,7 @@ const AddProductMix = () => {
             name="name"
             value={form.name}
             onChange={handleChange}
+            required
           />
 
           <InputField
@@ -119,9 +155,9 @@ const AddProductMix = () => {
             name="amount"
             value={form.amount}
             onChange={handleChange}
+            required
           />
 
-          {/* -------- PERIOD -------- */}
           <div className="grid grid-cols-2 gap-3">
             <InputField
               label="Period Value"
@@ -129,6 +165,7 @@ const AddProductMix = () => {
               name="periodValue"
               value={form.periodValue}
               onChange={handleChange}
+              required
             />
 
             <SelectField
@@ -137,26 +174,26 @@ const AddProductMix = () => {
               value={form.periodUnit}
               onChange={handleChange}
               options={PERIOD_UNITS}
+              required
             />
           </div>
 
-          {/* -------- FACILITIES -------- */}
+          {/* MultiSelect for Products */}
           <MultiSelectField
-            label="Product Facilities"
-            values={form.facilities}
-            onChange={(values) =>
-              setForm((prev) => ({ ...prev, facilities: values }))
-            }
-            options={FACILITY_OPTIONS}
+            label="Select Products"
+            values={selectedProducts} // must be {label, value} array
+            onChange={handleProductSelect}
+            options={allProducts}
+            placeholder="Choose products..."
           />
 
-          {/* -------- SUBMIT -------- */}
           <div className="md:col-span-2 pt-4">
             <Button
               type="submit"
               fullWidth
               icon={<FiSave />}
-              label="Add Product Mix"
+              label={loading ? "Saving..." : "Add Product Mix"}
+              disabled={loading}
             />
           </div>
         </form>

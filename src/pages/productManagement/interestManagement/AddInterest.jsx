@@ -85,7 +85,7 @@ const AddInterest = () => {
     setSubmitting(true);
     try {
       await interestService.createInterest(form);
-      navigate("/interest");
+      navigate("/interest/list");
     } catch (err) {
       console.error("Failed to create interest:", err);
     } finally {

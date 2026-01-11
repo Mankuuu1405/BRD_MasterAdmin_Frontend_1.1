@@ -8,9 +8,35 @@ import {
   SearchFilterBar,
   ListView,
   DeleteConfirmButton,
+  StatusBadge,
 } from "../../../components/Controls/SharedUIHelpers";
 
 import { feesService } from "../../../services/productManagementService";
+
+/* ================= HELPER MAPS ================= */
+const FREQUENCY_LABELS = {
+  ONE_TIME: "One-time",
+  MONTHLY: "Monthly",
+  ANNUALLY: "Annually",
+};
+
+const BASIS_LABELS = {
+  FIXED: "Fixed",
+  PERCENTAGE: "Percentage",
+  SLAB: "Slab-based",
+};
+
+const RECOVERY_STAGE_LABELS = {
+  DISBURSEMENT: "Disbursement",
+  ONGOING: "Ongoing",
+  CLOSURE: "Closure",
+};
+
+const RECOVERY_MODE_LABELS = {
+  DIRECT_DEBIT: "Direct Debit",
+  AUTO_DEBIT: "Auto-debit",
+  CASH: "Cash",
+};
 
 const FeeList = () => {
   const navigate = useNavigate();
@@ -51,12 +77,29 @@ const FeeList = () => {
   /* ================= LIST CONFIG ================= */
   const columns = [
     { key: "name", label: "Fee Name" },
-    { key: "frequency", label: "Frequency" },
-    { key: "basis", label: "Basis" },
-    { key: "recovery_stage", label: "Recovery Stage" },
-    { key: "recovery_mode", label: "Mode" },
-    { key: "rate", label: "Rate" },
-    { key: "status", label: "Status", type: "status" },
+    {
+      key: "fees_frequency",
+      label: "Frequency",
+      render: (row) => FREQUENCY_LABELS[row.fees_frequency] || row.fees_frequency,
+    },
+    {
+      key: "basis_of_fees",
+      label: "Basis",
+      render: (row) => BASIS_LABELS[row.basis_of_fees] || row.basis_of_fees,
+    },
+    {
+      key: "fees_recovery_stage",
+      label: "Recovery Stage",
+      render: (row) =>
+        RECOVERY_STAGE_LABELS[row.fees_recovery_stage] || row.fees_recovery_stage,
+    },
+    {
+      key: "fees_recovery_mode",
+      label: "Mode",
+      render: (row) => RECOVERY_MODE_LABELS[row.fees_recovery_mode] || row.fees_recovery_mode,
+    },
+    { key: "fees_rate", label: "Rate" },
+    
   ];
 
   const actions = [

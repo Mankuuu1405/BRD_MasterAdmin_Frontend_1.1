@@ -1,14 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import MainLayout from "../../layout/MainLayout";
-import { FiArrowLeft, FiSave } from "react-icons/fi";
-import { useNavigate, useParams } from "react-router-dom";
+import { FiSave } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 import {
   PageHeader,
+  FormCard,
   InputField,
   SelectField,
   Button,
-  FormCard,
 } from "../../components/Controls/SharedUIHelpers";
 
 import { bankFundService } from "../../services/bankFundService";
@@ -20,61 +20,29 @@ const ACCOUNT_TYPE_OPTIONS = [
   { label: "Escrow", value: "Escrow" },
 ];
 
-const STATUS_OPTIONS = [
-  { label: "Active", value: "Active" },
-  { label: "Inactive", value: "Inactive" },
-];
-
 const getValue = (v) => {
   if (typeof v === "string") return v;
   if (v?.target?.value) return v.target.value;
   return "";
 };
 
-export default function EditBank() {
+export default function AddBank() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState({
     bank_name: "",
     ifsc_code: "",
     branch: "",
     bank_account_type: "",
-    status: "Active",
   });
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
 
-  /* ---------------- FETCH BANK ---------------- */
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await bankFundService.getBank(id);
-        setForm({
-          bank_name: data.bank_name || "",
-          ifsc_code: data.ifsc_code || "",
-          branch: data.branch || "",
-          bank_account_type: data.bank_account_type || "",
-          status: data.status || "Active",
-        });
-      } catch (err) {
-        console.error("Failed to load bank:", err);
-        alert("Failed to load bank details.");
-        navigate(-1);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [id, navigate]);
-
-  /* ---------------- VALIDATION ---------------- */
   const errors = useMemo(() => {
     const e = {};
     if (!String(form.bank_name).trim()) e.bank_name = "Bank name is required";
     if (!String(form.ifsc_code).trim()) e.ifsc_code = "IFSC code is required";
     if (!String(form.branch).trim()) e.branch = "Branch is required";
-    if (!form.bank_account_type)
-      e.bank_account_type = "Account type is required";
+    if (!form.bank_account_type) e.bank_account_type = "Account type is required";
     return e;
   }, [form]);
 
@@ -83,42 +51,32 @@ export default function EditBank() {
   const update = (key, value) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
-  /* ---------------- SUBMIT ---------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (hasErrors || submitting) return;
 
     setSubmitting(true);
     try {
-      await bankFundService.updateBank(id, {
+      await bankFundService.createBank({
         bank_name: String(form.bank_name).trim(),
         ifsc_code: String(form.ifsc_code).trim().toUpperCase(),
         branch: String(form.branch).trim(),
         bank_account_type: String(form.bank_account_type).trim(),
-        status: String(form.status),
       });
-      alert("Bank updated successfully!");
-      navigate("/bank-management");
+      navigate(-1);
     } catch (err) {
-      console.error("Update bank failed:", err);
-      alert("Failed to update bank. Check console for details.");
+      console.error("Create bank failed:", err);
+      alert("Failed to create bank. Please check console for details.");
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (loading)
-    return (
-      <MainLayout>
-        <p className="text-gray-500">Loading bank details...</p>
-      </MainLayout>
-    );
-
   return (
     <MainLayout>
       <PageHeader
-        title="Edit Bank"
-        subtitle="Update bank details and account type"
+        title="Add Bank"
+        subtitle="Register a new operational bank"
         onBack={() => navigate(-1)}
       />
 
@@ -160,13 +118,6 @@ export default function EditBank() {
             required
           />
 
-          <SelectField
-            label="Status"
-            value={form.status}
-            onChange={(v) => update("status", getValue(v))}
-            options={STATUS_OPTIONS}
-          />
-
           <div className="md:col-span-2">
             <Button
               type="submit"
@@ -174,7 +125,7 @@ export default function EditBank() {
               fullWidth
               disabled={hasErrors || submitting}
             >
-              {submitting ? "Updating..." : "Update Bank"}
+              {submitting ? "Saving..." : "Create Bank"}
             </Button>
           </div>
         </form>

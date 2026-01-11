@@ -6,10 +6,29 @@ import MainLayout from "../../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { productManagementService } from "../../../services/productManagementService";
 
-const CATEGORY_OPTIONS = ["Loan", "Credit"];
-const TYPE_OPTIONS = ["Personal Loan", "Home Loan"];
-const FACILITY_OPTIONS = ["Top-up", "Insurance"];
-const PERIOD_UNITS = ["Days", "Months", "Years"];
+import {
+  SubPageHeader,
+  InputField,
+  SelectField,
+  Button,
+} from "../../../components/Controls/SharedUIHelpers";
+
+/* ================= OPTIONS ================= */
+const CATEGORY_OPTIONS = [
+  { label: "Loan", value: "Loan" },
+  { label: "Credit", value: "Credit" },
+];
+
+const TYPE_OPTIONS = [
+  { label: "Personal Loan", value: "Personal Loan" },
+  { label: "Home Loan", value: "Home Loan" },
+];
+
+const PERIOD_UNITS = [
+  { label: "Days", value: "DAYS" },
+  { label: "Months", value: "MONTHS" },
+  { label: "Years", value: "YEARS" },
+];
 
 const EditProduct = () => {
   const navigate = useNavigate();
@@ -22,13 +41,12 @@ const EditProduct = () => {
     category: "",
     type: "",
     name: "",
-    facilities: [],
     amount: "",
     periodValue: "",
-    periodUnit: "Months",
+    periodUnit: "MONTHS",
   });
 
-  /* -------------------- LOAD PRODUCT -------------------- */
+  /* ================= LOAD PRODUCT ================= */
   useEffect(() => {
     (async () => {
       try {
@@ -36,13 +54,12 @@ const EditProduct = () => {
         const data = await productManagementService.getProduct(id);
 
         setForm({
-          category: data.product_category,
-          type: data.product_type,
-          name: data.product_name,
-          facilities: data.product_facilities || [],
-          amount: data.product_amount,
-          periodValue: data.product_period_value,
-          periodUnit: data.product_period_unit || "Months",
+          category: data.product_category || "",
+          type: data.product_type || "",
+          name: data.product_name || "",
+          amount: data.product_amount || "",
+          periodValue: data.product_period_value || "",
+          periodUnit: data.product_period_unit || "MONTHS",
         });
       } catch (error) {
         console.error("Failed to fetch product:", error);
@@ -53,15 +70,10 @@ const EditProduct = () => {
     })();
   }, [id]);
 
-  /* -------------------- HANDLERS -------------------- */
+  /* ================= HANDLERS ================= */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFacilitiesChange = (e) => {
-    const values = Array.from(e.target.selectedOptions, (o) => o.value);
-    setForm((prev) => ({ ...prev, facilities: values }));
   };
 
   const handleSubmit = async (e) => {
@@ -73,17 +85,18 @@ const EditProduct = () => {
         product_category: form.category,
         product_type: form.type,
         product_name: form.name,
-        product_facilities: form.facilities,
-        product_amount: Number(form.amount),
-        product_period_value: Number(form.periodValue),
+        product_amount: parseFloat(form.amount),
+        product_period_value: parseInt(form.periodValue, 10),
         product_period_unit: form.periodUnit,
       };
+
+      console.log("Updating Payload:", payload);
 
       await productManagementService.updateProduct(id, payload);
       navigate("/product-management/list");
     } catch (error) {
-      console.error("Failed to update product:", error);
-      alert("Error updating product. Please try again.");
+      console.error("Failed to update product:", error?.response?.data || error);
+      alert("Error updating product");
     } finally {
       setSubmitLoading(false);
     }
@@ -99,23 +112,13 @@ const EditProduct = () => {
 
   return (
     <MainLayout>
-      {/* HEADER */}
-      <div className="flex items-center gap-3 mb-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition shadow-sm"
-        >
-          <FiArrowLeft className="text-gray-700 text-xl" />
-        </button>
+      <SubPageHeader
+        title="Edit Product"
+        subtitle="Update product configuration"
+        onBack={() => navigate(-1)}
+      />
 
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Edit Product</h1>
-          <p className="text-gray-500 text-sm">Update product configuration</p>
-        </div>
-      </div>
-
-      {/* FORM CARD */}
-      <div className="bg-white p-8 rounded-2xl shadow-md max-w-3xl">
+      <div className="bg-white p-8 rounded-2xl shadow-md max-w-4xl">
         <form
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-2 gap-6"
@@ -126,6 +129,7 @@ const EditProduct = () => {
             value={form.category}
             onChange={handleChange}
             options={CATEGORY_OPTIONS}
+            required
           />
 
           <SelectField
@@ -134,6 +138,7 @@ const EditProduct = () => {
             value={form.type}
             onChange={handleChange}
             options={TYPE_OPTIONS}
+            required
           />
 
           <InputField
@@ -141,6 +146,7 @@ const EditProduct = () => {
             name="name"
             value={form.name}
             onChange={handleChange}
+            required
           />
 
           <InputField
@@ -149,98 +155,42 @@ const EditProduct = () => {
             name="amount"
             value={form.amount}
             onChange={handleChange}
+            required
           />
 
-          {/* Product Period */}
-          <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-medium">Product Period</label>
-            <div className="mt-2 flex gap-3">
-              <input
-                type="number"
-                name="periodValue"
-                value={form.periodValue}
-                onChange={handleChange}
-                className="p-3 rounded-xl bg-gray-50 shadow-sm outline-none w-1/2"
-              />
-              <select
-                name="periodUnit"
-                value={form.periodUnit}
-                onChange={handleChange}
-                className="p-3 rounded-xl bg-gray-50 shadow-sm outline-none w-1/2"
-              >
-                {PERIOD_UNITS.map((u) => (
-                  <option key={u} value={u}>
-                    {u}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="grid grid-cols-2 gap-3">
+            <InputField
+              label="Product Period"
+              type="number"
+              name="periodValue"
+              value={form.periodValue}
+              onChange={handleChange}
+              required
+            />
+
+            <SelectField
+              label="Unit"
+              name="periodUnit"
+              value={form.periodUnit}
+              onChange={handleChange}
+              options={PERIOD_UNITS}
+              required
+            />
           </div>
 
-          {/* Product Facilities */}
-          <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-medium">Product Facilities</label>
-            <select
-              multiple
-              value={form.facilities}
-              onChange={handleFacilitiesChange}
-              className="mt-2 p-3 rounded-xl bg-gray-50 shadow-sm outline-none h-28"
-            >
-              {FACILITY_OPTIONS.map((f) => (
-                <option key={f} value={f}>
-                  {f}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* SUBMIT */}
-          <div className="md:col-span-2">
-            <button
+          <div className="md:col-span-2 pt-4">
+            <Button
               type="submit"
+              fullWidth
+              icon={<FiSave />}
+              label={submitLoading ? "Updating..." : "Update Product"}
               disabled={submitLoading}
-              className="w-full bg-blue-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition shadow-md"
-            >
-              <FiSave /> {submitLoading ? "Updating..." : "Update Product"}
-            </button>
+            />
           </div>
         </form>
       </div>
     </MainLayout>
   );
 };
-
-/* ---------- Reused Components ---------- */
-const InputField = ({ label, type = "text", name, value, onChange }) => (
-  <div className="flex flex-col">
-    <label className="text-gray-700 text-sm font-medium">{label}</label>
-    <input
-      type={type}
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="mt-2 p-3 rounded-xl bg-gray-50 focus:bg-white shadow-sm outline-none"
-    />
-  </div>
-);
-
-const SelectField = ({ label, name, value, onChange, options }) => (
-  <div className="flex flex-col">
-    <label className="text-gray-700 text-sm font-medium">{label}</label>
-    <select
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="mt-2 p-3 rounded-xl bg-gray-50 shadow-sm outline-none"
-    >
-      <option value="">Select {label}</option>
-      {options.map((op, i) => (
-        <option key={i} value={op}>
-          {op}
-        </option>
-      ))}
-    </select>
-  </div>
-);
 
 export default EditProduct;

@@ -38,13 +38,30 @@ export default function ChannelPartnerList() {
   const filtered = agents.filter(
     (a) =>
       a.agent_name?.toLowerCase().includes(search.toLowerCase()) ||
-      a.agent_type?.toLowerCase().includes(search.toLowerCase())
+      a.agent_type_name?.toLowerCase().includes(search.toLowerCase())
   );
 
   /* ================= DELETE ================= */
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm("Delete this channel partner?")) return;
-    setAgents((prev) => prev.filter((a) => a.id !== id));
+
+    try {
+      await agentManagementService.deleteChannelPartner(id);
+      setAgents((prev) => prev.filter((a) => a.id !== id));
+    } catch (err) {
+      console.error("Failed to delete agent", err);
+      alert("Failed to delete agent. Try again.");
+    }
+  };
+
+  /* ================= STATUS TOGGLE ================= */
+  const handleToggleStatus = async (id) => {
+    try {
+      await agentManagementService.toggleStatus(id);
+      fetchChannelPartners(); // refresh list
+    } catch (err) {
+      console.error("Failed to toggle status", err);
+    }
   };
 
   return (
@@ -104,15 +121,17 @@ export default function ChannelPartnerList() {
               {/* ================= DESKTOP ROW ================= */}
               <div className="hidden md:grid bg-white rounded-2xl px-5 py-4 shadow-sm grid-cols-5 items-center text-sm">
                 <div className="font-medium truncate">{a.agent_name}</div>
-                <div className="text-gray-600">{a.agent_type}</div>
-                <div className="text-gray-600">{a.agent_category}</div>
+                <div className="text-gray-600">{a.agent_type_name || "-"}</div>
+                <div className="text-gray-600">{a.agent_category_name || "-"}</div>
 
                 <span
-                  className={`w-fit px-3 py-1 text-xs rounded-full ${
+                  className={`w-fit px-3 py-1 text-xs rounded-full cursor-pointer ${
                     a.status === "ACTIVE"
                       ? "bg-green-100 text-green-700"
                       : "bg-red-100 text-red-600"
                   }`}
+                  onClick={() => handleToggleStatus(a.id)}
+                  title="Toggle Status"
                 >
                   {a.status}
                 </span>
@@ -173,17 +192,19 @@ export default function ChannelPartnerList() {
 
                 {/* BODY */}
                 <div className="px-4 py-3 space-y-3 text-sm">
-                  <Row label="Type" value={a.agent_type} />
-                  <Row label="Category" value={a.agent_category} />
+                  <Row label="Type" value={a.agent_type_name} />
+                  <Row label="Category" value={a.agent_category_name} />
 
                   <div className="flex items-center justify-between">
                     <span className="text-gray-400 text-xs">Status</span>
                     <span
-                      className={`px-3 py-1 text-xs rounded-full ${
+                      className={`px-3 py-1 text-xs rounded-full cursor-pointer ${
                         a.status === "ACTIVE"
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-600"
                       }`}
+                      onClick={() => handleToggleStatus(a.id)}
+                      title="Toggle Status"
                     >
                       {a.status}
                     </span>
@@ -199,7 +220,6 @@ export default function ChannelPartnerList() {
 }
 
 /* ================= HELPERS ================= */
-
 const Row = ({ label, value }) => (
   <div className="flex justify-between gap-4">
     <span className="text-gray-400 text-xs">{label}</span>
