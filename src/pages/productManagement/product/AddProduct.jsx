@@ -8,7 +8,6 @@ import {
   SubPageHeader,
   InputField,
   SelectField,
-  MultiSelectField,
   Button,
 } from "../../../components/Controls/SharedUIHelpers";
 
@@ -23,15 +22,10 @@ const TYPE_OPTIONS = [
   { label: "Home Loan", value: "Home Loan" },
 ];
 
-const FACILITY_OPTIONS = [
-  { label: "Top-up", value: "Top-up" },
-  { label: "Insurance", value: "Insurance" },
-];
-
 const PERIOD_UNITS = [
-  { label: "Days", value: "Days" },
-  { label: "Months", value: "Months" },
-  { label: "Years", value: "Years" },
+  { label: "Days", value: "DAYS" },
+  { label: "Months", value: "MONTHS" },
+  { label: "Years", value: "YEARS" },
 ];
 
 const AddProduct = () => {
@@ -43,8 +37,7 @@ const AddProduct = () => {
     name: "",
     amount: "",
     periodValue: "",
-    periodUnit: "Months",
-    facilities: [],
+    periodUnit: "MONTHS",
   });
 
   const [loading, setLoading] = useState(false);
@@ -64,19 +57,17 @@ const AddProduct = () => {
         product_category: form.category,
         product_type: form.type,
         product_name: form.name,
-        product_amount: Number(form.amount),
-        product_period_value: Number(form.periodValue),
+        product_amount: parseFloat(form.amount),
+        product_period_value: parseInt(form.periodValue, 10),
         product_period_unit: form.periodUnit,
-        product_facilities: form.facilities,
       };
 
-      console.log(payload)
 
       await productManagementService.createProduct(payload);
       navigate("/product-management/list");
     } catch (error) {
-      console.error("Failed to create product:", error);
-      alert("Error creating product. Please try again.");
+      console.error("Failed to create product:", error?.response?.data || error);
+      alert("Error creating product. Please check inputs.");
     } finally {
       setLoading(false);
     }
@@ -84,20 +75,17 @@ const AddProduct = () => {
 
   return (
     <MainLayout>
-      {/* ===== SUB HEADER ===== */}
       <SubPageHeader
         title="Add New Product"
         subtitle="Enter product details and configuration"
         onBack={() => navigate(-1)}
       />
 
-      {/* ===== FORM CARD ===== */}
       <div className="bg-white p-8 rounded-2xl shadow-md max-w-4xl">
         <form
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-2 gap-6"
         >
-          {/* Product Category */}
           <SelectField
             label="Product Category"
             name="category"
@@ -105,9 +93,9 @@ const AddProduct = () => {
             onChange={handleChange}
             options={CATEGORY_OPTIONS}
             placeholder="Select Product Category"
+            required
           />
 
-          {/* Product Type */}
           <SelectField
             label="Product Type"
             name="type"
@@ -115,18 +103,18 @@ const AddProduct = () => {
             onChange={handleChange}
             options={TYPE_OPTIONS}
             placeholder="Select Product Type"
+            required
           />
 
-          {/* Product Name */}
           <InputField
             label="Product Name"
             name="name"
             value={form.name}
             onChange={handleChange}
             placeholder="Enter product name"
+            required
           />
 
-          {/* Product Amount */}
           <InputField
             label="Product Amount"
             name="amount"
@@ -134,9 +122,9 @@ const AddProduct = () => {
             value={form.amount}
             onChange={handleChange}
             placeholder="Enter amount"
+            required
           />
 
-          {/* Product Period */}
           <div className="grid grid-cols-2 gap-3">
             <InputField
               label="Product Period"
@@ -145,6 +133,7 @@ const AddProduct = () => {
               value={form.periodValue}
               onChange={handleChange}
               placeholder="Enter value"
+              required
             />
 
             <SelectField
@@ -153,20 +142,10 @@ const AddProduct = () => {
               value={form.periodUnit}
               onChange={handleChange}
               options={PERIOD_UNITS}
+              required
             />
           </div>
 
-          {/* Product Facilities */}
-          <MultiSelectField
-            label="Product Facilities"
-            values={form.facilities}
-            onChange={(values) =>
-              setForm((prev) => ({ ...prev, facilities: values }))
-            }
-            options={FACILITY_OPTIONS}
-          />
-
-          {/* SUBMIT BUTTON */}
           <div className="md:col-span-2 pt-4">
             <Button
               type="submit"

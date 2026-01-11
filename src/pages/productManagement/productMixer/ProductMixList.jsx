@@ -17,19 +17,15 @@ const ProductMixList = () => {
   const [mixes, setMixes] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [deleteId, setDeleteId] = useState(null);
 
   /* ================= FETCH ================= */
   const loadMixes = async () => {
     setLoading(true);
-    setError("");
     try {
       const data = await productMixService.getProductMixes();
       setMixes(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load product mixes.");
+      console.log(mixes)
     } finally {
       setLoading(false);
     }
@@ -41,29 +37,32 @@ const ProductMixList = () => {
 
   /* ================= DELETE ================= */
   const confirmDelete = async () => {
-    try {
-      await productMixService.deleteProductMix(deleteId);
-      setDeleteId(null);
-      loadMixes();
-    } catch (err) {
-      console.error(err);
-      alert("Failed to delete the product mix.");
-    }
+    await productMixService.deleteProductMix(deleteId);
+    setDeleteId(null);
+    loadMixes();
   };
 
   /* ================= FILTER ================= */
   const filteredMixes = mixes.filter((m) =>
-    m.name?.toLowerCase().includes(search.toLowerCase())
+    m.product_mix_name?.toLowerCase().includes(search.toLowerCase())
   );
 
   /* ================= LIST CONFIG ================= */
   const columns = [
-    { key: "name", label: "Mix Name" },
+    { key: "product_mix_name", label: "Mix Name" },
     { key: "product_category", label: "Category" },
     { key: "product_type", label: "Type" },
-    { key: "amount", label: "Amount" },
-    { key: "period", label: "Period" },
-    { key: "facilities", label: "Facilities" },
+    {
+      key: "product_mix_amount",
+      label: "Amount",
+      render: (v) => `₹${Number(v).toLocaleString()}`,
+    },
+    {
+      key: "product_period_value",
+      label: "Period",
+      render: (_, row) =>
+        `${row.mix_period_value} ${row.mix_period_unit}`,
+    },
     { key: "is_active", label: "Status", type: "status" },
   ];
 
@@ -82,7 +81,6 @@ const ProductMixList = () => {
 
   return (
     <MainLayout>
-      {/* ================= HEADER ================= */}
       <PageHeader
         title="Product Mix Management"
         subtitle="Manage bundled product offerings"
@@ -91,18 +89,14 @@ const ProductMixList = () => {
         onAction={() => navigate("/product-mix/add")}
       />
 
-      {/* ================= SEARCH ================= */}
       <SearchFilterBar
         search={search}
         onSearchChange={setSearch}
         placeholder="Search product mix..."
       />
 
-      {/* ================= LIST ================= */}
       {loading ? (
         <p className="text-gray-500 text-sm">Loading product mixes...</p>
-      ) : error ? (
-        <p className="text-red-500 text-sm">{error}</p>
       ) : filteredMixes.length === 0 ? (
         <p className="text-gray-500 text-sm">No product mixes found.</p>
       ) : (
@@ -114,7 +108,6 @@ const ProductMixList = () => {
         />
       )}
 
-      {/* ================= DELETE CONFIRM ================= */}
       {deleteId && (
         <DeleteConfirmButton
           title="Delete Product Mix"

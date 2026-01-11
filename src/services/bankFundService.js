@@ -8,23 +8,23 @@ export const bankFundService = {
   // Banks
   // ---------------------------
   async getBanks() {
-    const response = await api.get("/banks/");
+    const response = await api.get("/adminpanel/bank-funds-management/banks/");
     return response.data;
   },
   async getBank(id) {
-    const response = await api.get(`/banks/${id}/`);
+    const response = await api.get(`/adminpanel/bank-funds-management/banks/${id}/`);
     return response.data;
   },
   async createBank(data) {
-    const response = await api.post("/banks/", data);
+    const response = await api.post("/adminpanel/bank-funds-management/banks/", data);
     return response.data;
   },
   async updateBank(id, data) {
-    const response = await api.put(`/banks/${id}/`, data);
+    const response = await api.put(`/adminpanel/bank-funds-management/banks/${id}/`, data);
     return response.data;
   },
   async deleteBank(id) {
-    const response = await api.delete(`/banks/${id}/`);
+    const response = await api.delete(`/adminpanel/bank-funds-management/banks/${id}/`);
     return response.data;
   },
 
@@ -56,23 +56,23 @@ export const bankFundService = {
   // Fund Types
   // ---------------------------
   async getFundTypes() {
-    const response = await api.get("/fund-types/");
+    const response = await api.get("/adminpanel/bank-funds-management/fund-types/");
     return response.data;
   },
   async getFundType(id) {
-    const response = await api.get(`/fund-types/${id}/`);
+    const response = await api.get(`/adminpanel/bank-funds-management/fund-types/${id}/`);
     return response.data;
   },
   async createFundType(data) {
-    const response = await api.post("/fund-types/", data);
+    const response = await api.post("/adminpanel/bank-funds-management/fund-types/", data);
     return response.data;
   },
   async updateFundType(id, data) {
-    const response = await api.put(`/fund-types/${id}/`, data);
+    const response = await api.put(`/adminpanel/bank-funds-management/fund-types/${id}/`, data);
     return response.data;
   },
   async deleteFundType(id) {
-    const response = await api.delete(`/fund-types/${id}/`);
+    const response = await api.delete(`/adminpanel/bank-funds-management/fund-types/${id}/`);
     return response.data;
   },
 
@@ -80,23 +80,23 @@ export const bankFundService = {
   // Funds
   // ---------------------------
   async getFunds() {
-    const response = await api.get("/funds/");
+    const response = await api.get("/adminpanel/bank-funds-management/funds/");
     return response.data;
   },
   async getFund(id) {
-    const response = await api.get(`/funds/${id}/`);
+    const response = await api.get(`/adminpanel/bank-funds-management/funds/${id}/`);
     return response.data;
   },
   async createFund(data) {
-    const response = await api.post("/funds/", data);
+    const response = await api.post("/adminpanel/bank-funds-management/funds/", data);
     return response.data;
   },
   async updateFund(id, data) {
-    const response = await api.put(`/funds/${id}/`, data);
+    const response = await api.put(`/adminpanel/bank-funds-management/funds/${id}/`, data);
     return response.data;
   },
   async deleteFund(id) {
-    const response = await api.delete(`/funds/${id}/`);
+    const response = await api.delete(`/adminpanel/bank-funds-management/funds/${id}/`);
     return response.data;
   },
 
@@ -104,23 +104,23 @@ export const bankFundService = {
   // Business Models
   // ---------------------------
   async getBusinessModels() {
-    const response = await api.get("/business-models/");
+    const response = await api.get("/adminpanel/bank-funds-management/business-models/");
     return response.data;
   },
   async getBusinessModel(id) {
-    const response = await api.get(`/business-models/${id}/`);
+    const response = await api.get(`/adminpanel/bank-funds-management/business-models/${id}/`);
     return response.data;
   },
   async createBusinessModel(data) {
-    const response = await api.post("/business-models/", data);
+    const response = await api.post("/adminpanel/bank-funds-management/business-models/", data);
     return response.data;
   },
   async updateBusinessModel(id, data) {
-    const response = await api.put(`/business-models/${id}/`, data);
+    const response = await api.put(`/adminpanel/bank-funds-management/business-models/${id}/`, data);
     return response.data;
   },
   async deleteBusinessModel(id) {
-    const response = await api.delete(`/business-models/${id}/`);
+    const response = await api.delete(`/adminpanel/bank-funds-management/business-models/${id}/`);
     return response.data;
   },
 
@@ -128,23 +128,23 @@ export const bankFundService = {
   // Portfolios
   // ---------------------------
   async getPortfolios() {
-    const response = await api.get("/portfolios/");
+    const response = await api.get("/adminpanel/bank-funds-management/portfolios/");
     return response.data;
   },
   async getPortfolio(id) {
-    const response = await api.get(`/portfolios/${id}/`);
+    const response = await api.get(`/adminpanel/bank-funds-management/portfolios/${id}/`);
     return response.data;
   },
   async createPortfolio(data) {
-    const response = await api.post("/portfolios/", data);
+    const response = await api.post("/adminpanel/bank-funds-management/portfolios/", data);
     return response.data;
   },
   async updatePortfolio(id, data) {
-    const response = await api.put(`/portfolios/${id}/`, data);
+    const response = await api.put(`/adminpanel/bank-funds-management/portfolios/${id}/`, data);
     return response.data;
   },
   async deletePortfolio(id) {
-    const response = await api.delete(`/portfolios/${id}/`);
+    const response = await api.delete(`/adminpanel/bank-funds-management/portfolios/${id}/`);
     return response.data;
   },
 
@@ -152,23 +152,23 @@ export const bankFundService = {
   // Transaction Modes
   // ---------------------------
   async getTransactionModes() {
-    const response = await api.get("/transaction-modes/");
+    const response = await api.get("/adminpanel/bank-funds-management/modes-of-bank/");
     return response.data;
   },
   async getTransactionMode(id) {
-    const response = await api.get(`/transaction-modes/${id}/`);
+    const response = await api.get(`/adminpanel/bank-funds-management/modes-of-bank/${id}/`);
     return response.data;
   },
   async createTransactionMode(data) {
-    const response = await api.post("/transaction-modes/", data);
+    const response = await api.post("/adminpanel/bank-funds-management/modes-of-bank/", data);
     return response.data;
   },
   async updateTransactionMode(id, data) {
-    const response = await api.put(`/transaction-modes/${id}/`, data);
+    const response = await api.put(`/adminpanel/bank-funds-management/modes-of-bank/${id}/`, data);
     return response.data;
   },
   async deleteTransactionMode(id) {
-    const response = await api.delete(`/transaction-modes/${id}/`);
+    const response = await api.delete(`/adminpanel/bank-funds-management/modes-of-bank/${id}/`);
     return response.data;
   },
 
@@ -176,23 +176,23 @@ export const bankFundService = {
   // Taxes
   // ---------------------------
   async getTaxes() {
-    const response = await api.get("/taxes/");
+    const response = await api.get("/adminpanel/bank-funds-management/taxes/");
     return response.data;
   },
   async getTax(id) {
-    const response = await api.get(`/taxes/${id}/`);
+    const response = await api.get(`/adminpanel/bank-funds-management/taxes/${id}/`);
     return response.data;
   },
   async createTax(data) {
-    const response = await api.post("/taxes/", data);
+    const response = await api.post("/adminpanel/bank-funds-management/taxes/", data);
     return response.data;
   },
   async updateTax(id, data) {
-    const response = await api.put(`/taxes/${id}/`, data);
+    const response = await api.put(`/adminpanel/bank-funds-management/taxes/${id}/`, data);
     return response.data;
   },
   async deleteTax(id) {
-    const response = await api.delete(`/taxes/${id}/`);
+    const response = await api.delete(`/adminpanel/bank-funds-management/taxes/${id}/`);
     return response.data;
   },
 };

@@ -2,41 +2,77 @@ import React, { useState, useEffect } from "react";
 import MainLayout from "../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
+import { bankFundService } from "../../services/bankFundService";
 
 const MODEL_TYPES = ["Mark-up Model", "Payout Model", "Lease Model", "Co-Lending Model"];
-const STATUS = ["Active", "Inactive"];
+const STATUS = ["ACTIVE", "INACTIVE"];
 
 const BusinessModelFormPage = ({ modeType }) => {
   const navigate = useNavigate();
   const { id } = useParams();
 
   const [form, setForm] = useState({
-    name: "",
+    model_type: "",
     description: "",
-    status: "Active",
+    status: "ACTIVE",
   });
+  const [loading, setLoading] = useState(false);
 
+  // Fetch existing business model if in edit mode
   useEffect(() => {
     if (modeType === "edit" && id) {
-      const existingModel = {
-        name: "Mark-up Model",
-        description: "Margin is applied over the base rate or fund cost",
-        status: "Active",
-      };
-      setForm(existingModel);
+      fetchBusinessModel(id);
     }
   }, [id, modeType]);
+
+  const fetchBusinessModel = async (id) => {
+    setLoading(true);
+    try {
+      const data = await bankFundService.getBusinessModel(id);
+      setForm({
+        model_type: data.model_type,
+        description: data.description,
+        status: data.status,
+      });
+    } catch (err) {
+      console.error("Failed to fetch business model:", err);
+      alert("Error fetching business model");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data:", form);
-    navigate("/business-model");
+    setLoading(true);
+    try {
+      if (modeType === "add") {
+        await bankFundService.createBusinessModel(form);
+        alert("Business model created successfully");
+      } else if (modeType === "edit" && id) {
+        await bankFundService.updateBusinessModel(id, form);
+        alert("Business model updated successfully");
+      }
+      navigate("/business-model");
+    } catch (err) {
+      console.error("Error saving business model:", err);
+      alert("Failed to save business model");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (loading)
+    return (
+      <MainLayout>
+        <div className="text-center py-10">Loading...</div>
+      </MainLayout>
+    );
 
   return (
     <MainLayout>
@@ -61,9 +97,9 @@ const BusinessModelFormPage = ({ modeType }) => {
           className="bg-white p-6 rounded-2xl shadow-md grid grid-cols-1 gap-4"
         >
           <Select
-            label="Model Name"
-            name="name"
-            value={form.name}
+            label="Model Type"
+            name="model_type"
+            value={form.model_type}
             onChange={handleChange}
             options={MODEL_TYPES}
             required

@@ -63,7 +63,7 @@ const Sidebar = ({ open, setOpen }) => {
       permission: "approval.view",
       submenu: [
         { title: "Approvals", path: "/approvals", permission: "approval.view" },
-        { title: "Manage Approvals", path: "/manage-approvals", permission: "approval.manage" },
+        { title: "Manage Approvals", path: "/manage-approvals", permission: "approval.assign" },
         { title: "Escalation", path: "/escalation", permission: "approval.escalation" },
       ],
     },
@@ -73,8 +73,8 @@ const Sidebar = ({ open, setOpen }) => {
       icon: <Icons.FiBox size={18} />,
       permission: "product.view",
       submenu: [
-        { title: "Product Management", path: "/product-management/list", permission: "product.manage" },
-        { title: "Product Mix Management", path: "/product-mix/list", permission: "product.mix" },
+        { title: "Product Management", path: "/product-management/list", permission: "product.view" },
+        { title: "Product Mix Management", path: "/product-mix/list", permission: "product_mix.view" },
         { title: "Fees Management", path: "/fees/list", permission: "fees.view" },
         { title: "Charges Management", path: "/charges/list", permission: "charges.view" },
         { title: "Interest Management", path: "/interest/list", permission: "interest.view" },
@@ -84,7 +84,7 @@ const Sidebar = ({ open, setOpen }) => {
       ],
     },
 
-    { title: "Loan Improvement", icon: <Icons.FiRefreshCcw size={18} />, path: "/loan-improvement", permission: "loan.view" },
+    { title: "Loan Improvement", icon: <Icons.FiRefreshCcw size={18} />, path: "/loan-improvement", permission: "loan_improvement.view" },
     { title: "Currency Management", icon: <HiCurrencyRupee size={18} />, path: "/currency-management", permission: "currency.view" },
     { title: "Concession Management", icon: <Icons.FiTag size={18} />, path: "/concession-management", permission: "concession.view" },
 
@@ -127,11 +127,11 @@ const Sidebar = ({ open, setOpen }) => {
     {
       title: "Profile Management",
       icon: <Icons.FiUser size={18} />,
-      permission: "profile.view",
+      permission: "profile_management.view",
       submenu: [
-        { title: "Vendor Profile", path: "/profile-management/vendor", permission: "profile.vendor" },
-        { title: "Agent Profile", path: "/profile-management/agent", permission: "profile.agent" },
-        { title: "Client Profile", path: "/profile-management/client", permission: "profile.client" },
+        { title: "Vendor Profile", path: "/vendor", permission: "vendor.view" },
+        { title: "Agent Profile", path: "/profile-management/agent", permission: "agent.view" },
+        { title: "Client Profile", path: "/profile-management/client", permission: "client.view" },
       ],
     },
 
@@ -140,10 +140,10 @@ const Sidebar = ({ open, setOpen }) => {
       icon: <Icons.FiUsers size={18} />,
       permission: "agent.view",
       submenu: [
-        { title: "Channel Partners", path: "/channel-partners", permission: "agent.channel" },
-        { title: "Verification Agency", path: "/verification-agency", permission: "agent.verification" },
-        { title: "Collection Agent", path: "/collection-agent", permission: "agent.collection" },
-        { title: "Legal Agent", path: "/legal-agent", permission: "agent.legal" },
+        { title: "Channel Partners", path: "/channel-partners", permission: "channel_partners.view" },
+        { title: "Verification Agency", path: "/verification-agency", permission: "verification_agency.view" },
+        { title: "Collection Agent", path: "/collection-agent", permission: "collection_agent.view" },
+        { title: "Legal Agent", path: "/legal-agent", permission: "legal_agent.view" },
       ],
     },
 
@@ -152,16 +152,16 @@ const Sidebar = ({ open, setOpen }) => {
       icon: <Icons.FiSettings size={18} />,
       permission: "controls.view",
       submenu: [
-        { title: "Manage Language", path: "/controls/language", permission: "controls.language" },
-        { title: "Geo Location", path: "/controls/geo", permission: "controls.geo" },
-        { title: "Login Authentication", path: "/controls/login-auth", permission: "controls.login" },
-        { title: "CoApplicant", path: "/controls/co-applicant", permission: "controls.coapplicant" },
-        { title: "Login Fee", path: "/controls/login-fees", permission: "controls.loginfee" },
-        { title: "Joint Applicant", path: "/controls/joint-applicant", permission: "controls.joint" },
-        { title: "References", path: "/controls/references", permission: "controls.references" },
-        { title: "Application Process", path: "/controls/application-process", permission: "controls.application" },
-        { title: "Score Card Rating", path: "/controls/score-card", permission: "controls.scorecard" },
-        { title: "Verification", path: "/controls/verification", permission: "controls.verification" },
+        { title: "Manage Language", path: "/controls/language", permission: "language.view" },
+        { title: "Geo Location", path: "/controls/geo", permission: "geo.view" },
+        { title: "Login Authentication", path: "/controls/login-auth", permission: "login_auth.view" },
+        { title: "CoApplicant", path: "/controls/co-applicant", permission: "coapplicant.view" },
+        { title: "Login Fee", path: "/controls/login-fees", permission: "loginfee.view" },
+        { title: "Joint Applicant", path: "/controls/joint-applicant", permission: "joint_applicant.view" },
+        { title: "References", path: "/controls/references", permission: "references.view" },
+        { title: "Application Process", path: "/controls/application-process", permission: "application.view" },
+        { title: "Score Card Rating", path: "/controls/score-card", permission: "scorecard.view" },
+        { title: "Verification", path: "/controls/verification", permission: "verification.view" },
       ],
     },
 
@@ -184,9 +184,7 @@ const Sidebar = ({ open, setOpen }) => {
     // Add more menus (Documents, Risk, Disbursement, Collection, Provisioning) in the same format
     { title: "Audit & Security", icon: <Icons.FiShield size={18} />, path: "/audits", permission: "audit.view" },
     { title: "Reports & Analytics", icon: <Icons.FiBarChart2 size={18} />, path: "/reports", permission: "reports.view" },
-    { section: "User Master" },
-    { title: "Employment Types", icon: <Icons.FiUserCheck size={18} />, path: "/employment-types", permission: "employment.view" },
-    { title: "Occupation Types", icon: <Icons.FiBriefcase size={18} />, path: "/occupation-types", permission: "occupation.view" },
+    
   ];
 
   // --- State for open submenus dynamically ---

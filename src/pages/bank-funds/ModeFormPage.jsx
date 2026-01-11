@@ -2,31 +2,42 @@ import React, { useState, useEffect } from "react";
 import MainLayout from "../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
-
-const RECEIPT_MODES = ["NEFT", "RTGS", "IMPS", "UPI", "Cheque"];
-const PAYMENT_MODES = ["ECS", "NACH", "Cheque", "UPI"];
-const STATUS = ["Active", "Inactive"];
+import { bankFundService } from "../../services/bankFundService";
 
 const ModeFormPage = ({ modeType }) => {
   const navigate = useNavigate();
   const { id } = useParams();
 
   const [form, setForm] = useState({
-    receipt_mode: "",
-    payment_mode: "",
+    mode_type: "RECEIPT", // RECEIPT | PAYMENT
+    mode_name: "",
     is_default: false,
-    status: "Active",
+    status: "ACTIVE",
   });
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (modeType === "edit" && id) {
-      const existingMode = {
-        receipt_mode: "NEFT",
-        payment_mode: "ECS",
-        is_default: true,
-        status: "Active",
+      // fetch existing mode
+      const fetchMode = async () => {
+        setLoading(true);
+        try {
+          const data = await bankFundService.getTransactionMode(id);
+          setForm({
+            mode_type: data.mode_type,
+            mode_name: data.mode_name,
+            is_default: data.is_default,
+            status: data.status,
+          });
+        } catch (err) {
+          console.error(err);
+          alert("Failed to load mode");
+        } finally {
+          setLoading(false);
+        }
       };
-      setForm(existingMode);
+      fetchMode();
     }
   }, [id, modeType]);
 
@@ -38,10 +49,24 @@ const ModeFormPage = ({ modeType }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data:", form);
-    navigate("/mode-of-bank");
+    setLoading(true);
+    try {
+      if (modeType === "add") {
+        await bankFundService.createTransactionMode(form);
+        alert("Mode added successfully");
+      } else {
+        await bankFundService.updateTransactionMode(id, form);
+        alert("Mode updated successfully");
+      }
+      navigate("/mode-of-bank");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save mode");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -56,56 +81,63 @@ const ModeFormPage = ({ modeType }) => {
             <FiArrowLeft />
           </button>
           <div>
-            <h1 className="text-2xl font-bold">{modeType === "add" ? "Add Mode" : "Edit Mode"}</h1>
+            <h1 className="text-2xl font-bold">
+              {modeType === "add" ? "Add Mode" : "Edit Mode"}
+            </h1>
             <p className="text-gray-500 text-sm">Configure bank modes</p>
           </div>
         </div>
 
-        {/* FORM */}
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white p-6 rounded-2xl shadow-md grid grid-cols-1 gap-4"
-        >
-          <Select
-            label="Receipt Mode"
-            name="receipt_mode"
-            value={form.receipt_mode}
-            onChange={handleChange}
-            options={RECEIPT_MODES}
-            required
-          />
-
-          <Select
-            label="Payment Mode"
-            name="payment_mode"
-            value={form.payment_mode}
-            onChange={handleChange}
-            options={PAYMENT_MODES}
-            required
-          />
-
-          <Checkbox
-            label="Set as Default"
-            checked={form.is_default}
-            onChange={handleChange}
-            name="is_default"
-          />
-
-          <Select
-            label="Status"
-            name="status"
-            value={form.status}
-            onChange={handleChange}
-            options={STATUS}
-          />
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-xl flex justify-center items-center gap-2 hover:bg-blue-700"
+        {loading ? (
+          <p className="text-center py-10">Loading...</p>
+        ) : (
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white p-6 rounded-2xl shadow-md grid grid-cols-1 gap-4"
           >
-            <FiSave /> Save
-          </button>
-        </form>
+            <Select
+              label="Mode Type"
+              name="mode_type"
+              value={form.mode_type}
+              onChange={handleChange}
+              options={["RECEIPT", "PAYMENT"]}
+              required
+            />
+
+            <Input
+              label="Mode Name"
+              name="mode_name"
+              value={form.mode_name}
+              onChange={handleChange}
+              required
+            />
+
+            <Checkbox
+              label="Set as Default"
+              checked={form.is_default}
+              name="is_default"
+              onChange={handleChange}
+            />
+
+            <Select
+              label="Status"
+              name="status"
+              value={form.status}
+              onChange={handleChange}
+              options={["ACTIVE", "INACTIVE"]}
+              required
+            />
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 text-white py-3 rounded-xl flex justify-center items-center gap-2 hover:bg-blue-700"
+            >
+              <FiSave />
+              {modeType === "add" ? "Add Mode" : "Update Mode"}
+            </button>
+          </form>
+        )}
       </div>
     </MainLayout>
   );
@@ -114,6 +146,16 @@ const ModeFormPage = ({ modeType }) => {
 export default ModeFormPage;
 
 /* ---------------- REUSABLE ---------------- */
+const Input = ({ label, ...props }) => (
+  <div>
+    <label className="text-sm font-medium text-gray-700">{label}</label>
+    <input
+      {...props}
+      className="mt-2 w-full p-3 bg-gray-50 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+  </div>
+);
+
 const Select = ({ label, options, ...props }) => (
   <div>
     <label className="text-sm font-medium text-gray-700">{label}</label>

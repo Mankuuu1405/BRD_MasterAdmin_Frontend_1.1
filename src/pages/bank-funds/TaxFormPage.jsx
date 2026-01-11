@@ -2,35 +2,48 @@ import React, { useState, useEffect } from "react";
 import MainLayout from "../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
+import { bankFundService } from "../../services/bankFundService";
 
 const TAX_TYPES = ["GST", "TDS", "Surcharge"];
 const TAX_CATEGORIES = ["Processing Fee", "Interest", "Foreclosure"];
-const STATUS = ["Active", "Inactive"];
+const STATUS = ["ACTIVE", "INACTIVE"]; // Match your backend values
 
 const TaxFormPage = ({ modeType }) => {
   const navigate = useNavigate();
   const { id } = useParams();
 
   const [form, setForm] = useState({
-    type: "",
-    category: "",
-    rate: "",
+    tax_type: "",
+    tax_category: "",
+    tax_rate: "",
     valid_from: "",
     valid_to: "",
-    status: "Active",
+    status: "ACTIVE",
   });
 
+  const [loading, setLoading] = useState(false);
+
+  // Fetch existing tax for editing
   useEffect(() => {
     if (modeType === "edit" && id) {
-      const existingTax = {
-        type: "GST",
-        category: "Processing Fee",
-        rate: 18,
-        valid_from: "2024-01-01",
-        valid_to: "2025-12-31",
-        status: "Active",
-      };
-      setForm(existingTax);
+      setLoading(true);
+      bankFundService
+        .getTax(id)
+        .then((data) => {
+          setForm({
+            tax_type: data.tax_type,
+            tax_category: data.tax_category,
+            tax_rate: data.tax_rate,
+            valid_from: data.valid_from,
+            valid_to: data.valid_to,
+            status: data.status,
+          });
+        })
+        .catch((err) => {
+          console.error("Failed to fetch tax:", err);
+          alert("Error fetching tax details");
+        })
+        .finally(() => setLoading(false));
     }
   }, [id, modeType]);
 
@@ -39,15 +52,29 @@ const TaxFormPage = ({ modeType }) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data:", form);
-    navigate("/taxation-management");
+    try {
+      if (modeType === "add") {
+        await bankFundService.createTax(form);
+        alert("Tax created successfully");
+      } else {
+        await bankFundService.updateTax(id, form);
+        alert("Tax updated successfully");
+      }
+      navigate("/taxation-management");
+    } catch (err) {
+      console.error("Failed to save tax:", err);
+      alert("Error saving tax");
+    }
   };
+
+  if (loading) return <MainLayout><div className="text-center py-10">Loading...</div></MainLayout>;
 
   return (
     <MainLayout>
       <div className="max-w-md">
+        {/* HEADER */}
         <div className="flex items-center gap-3 mb-6">
           <button
             onClick={() => navigate(-1)}
@@ -56,18 +83,21 @@ const TaxFormPage = ({ modeType }) => {
             <FiArrowLeft />
           </button>
           <div>
-            <h1 className="text-2xl font-bold">{modeType === "add" ? "Add Tax" : "Edit Tax"}</h1>
+            <h1 className="text-2xl font-bold">
+              {modeType === "add" ? "Add Tax" : "Edit Tax"}
+            </h1>
             <p className="text-gray-500 text-sm">Configure taxation details</p>
           </div>
         </div>
 
+        {/* FORM */}
         <form
           onSubmit={handleSubmit}
           className="bg-white p-6 rounded-2xl shadow-md grid grid-cols-1 gap-4"
         >
-          <Select label="Tax Type" name="type" value={form.type} onChange={handleChange} options={TAX_TYPES} required />
-          <Select label="Category" name="category" value={form.category} onChange={handleChange} options={TAX_CATEGORIES} required />
-          <Input label="Rate (%)" name="rate" value={form.rate} onChange={handleChange} type="number" required />
+          <Select label="Tax Type" name="tax_type" value={form.tax_type} onChange={handleChange} options={TAX_TYPES} required />
+          <Select label="Category" name="tax_category" value={form.tax_category} onChange={handleChange} options={TAX_CATEGORIES} required />
+          <Input label="Rate (%)" name="tax_rate" value={form.tax_rate} onChange={handleChange} type="number" required />
 
           <div className="grid grid-cols-2 gap-2">
             <Input label="Valid From" name="valid_from" value={form.valid_from} onChange={handleChange} type="date" />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../../layout/MainLayout";
 import {
   FiPlus,
@@ -9,40 +9,51 @@ import {
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
-const FundManagement = () => {
+import { bankFundService } from "../../services/bankFundService";
+import { IconButton } from "../../components/Controls/SharedUIHelpers";
+
+export default function FundManagement() {
   const navigate = useNavigate();
-
-  const [funds, setFunds] = useState([
-    {
-      id: 1,
-      fund_type: "Internal Fund",
-      fund_source: "Company Reserve",
-      available_amount: 50000000,
-      allocation_logic: "Use first for retail loans",
-      status: "Active",
-    },
-    {
-      id: 2,
-      fund_type: "Borrowed Fund",
-      fund_source: "NBFC Partner",
-      available_amount: 25000000,
-      allocation_logic: "Fallback after internal fund",
-      status: "Inactive",
-    },
-  ]);
-
+  const [funds, setFunds] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
+  /* ---------------- FETCH FUNDS ---------------- */
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await bankFundService.getFunds();
+        setFunds(data);
+        console.log(data)
+      } catch (err) {
+        console.error("Failed to load funds:", err);
+        alert("Failed to load fund data.");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  /* ---------------- SEARCH FILTER ---------------- */
   const filteredFunds = funds.filter(
     (f) =>
-      f.fund_type.toLowerCase().includes(search.toLowerCase()) ||
-      f.fund_source.toLowerCase().includes(search.toLowerCase())
+      f.fund_type?.toLowerCase().includes(search.toLowerCase()) ||
+      f.fund_source?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleDelete = (id) => {
-    if (!window.confirm("Delete this fund configuration?")) return;
-    setFunds(funds.filter((f) => f.id !== id));
+  /* ---------------- DELETE ---------------- */
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this fund?")) return;
+    try {
+      await bankFundService.deleteFund(id);
+      setFunds((prev) => prev.filter((f) => f.id !== id));
+    } catch (err) {
+      console.error("Delete fund failed:", err);
+      alert("Failed to delete fund.");
+    }
   };
+
+  if (loading) return <MainLayout>Loading fund data...</MainLayout>;
 
   return (
     <MainLayout>
@@ -86,29 +97,25 @@ const FundManagement = () => {
           <div className="text-right">Actions</div>
         </div>
 
-        {/* ROWS */}
+        {/* TABLE ROWS */}
         {filteredFunds.map((fund) => (
           <div
             key={fund.id}
             className="bg-white rounded-2xl px-5 py-4 shadow-sm grid grid-cols-2 md:grid-cols-6 gap-y-2 items-center text-sm"
           >
             {/* Fund Type */}
-            <div className="font-medium text-gray-900">
-              {fund.fund_type}
-            </div>
+            <div className="font-medium text-gray-900">{fund.fund_type}</div>
 
             {/* Source */}
             <div className="text-gray-600">{fund.fund_source}</div>
 
             {/* Amount */}
             <div className="text-gray-600">
-              ₹ {fund.available_amount.toLocaleString()}
+              ₹ {Number(fund.available_amount || 0).toLocaleString()}
             </div>
 
             {/* Allocation Logic */}
-            <div className="text-gray-600 truncate">
-              {fund.allocation_logic}
-            </div>
+            <div className="text-gray-600 truncate">{fund.fund_allocation_logic}</div>
 
             {/* Status */}
             <span
@@ -125,26 +132,19 @@ const FundManagement = () => {
             <div className="flex justify-end gap-2 col-span-2 md:col-span-1">
               <IconButton
                 color="gray"
-                onClick={() =>
-                  navigate(`/fund-management/view/${fund.id}`)
-                }
+                onClick={() => navigate(`/fund-management/view/${fund.id}`)}
               >
                 <FiEye />
               </IconButton>
 
               <IconButton
                 color="blue"
-                onClick={() =>
-                  navigate(`/fund-management/edit/${fund.id}`)
-                }
+                onClick={() => navigate(`/fund-management/edit/${fund.id}`)}
               >
                 <FiEdit3 />
               </IconButton>
 
-              <IconButton
-                color="red"
-                onClick={() => handleDelete(fund.id)}
-              >
+              <IconButton color="red" onClick={() => handleDelete(fund.id)}>
                 <FiTrash2 />
               </IconButton>
             </div>
@@ -153,24 +153,4 @@ const FundManagement = () => {
       </div>
     </MainLayout>
   );
-};
-
-export default FundManagement;
-
-/* ------------ HELPERS ------------ */
-const IconButton = ({ children, onClick, color }) => {
-  const styles = {
-    gray: "bg-gray-100 hover:bg-gray-200 text-gray-600",
-    blue: "bg-blue-100 hover:bg-blue-200 text-blue-600",
-    red: "bg-red-100 hover:bg-red-200 text-red-600",
-  };
-
-  return (
-    <button
-      onClick={onClick}
-      className={`p-2 rounded-full ${styles[color]}`}
-    >
-      {children}
-    </button>
-  );
-};
+}

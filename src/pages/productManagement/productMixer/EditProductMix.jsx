@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import MainLayout from "../../../layout/MainLayout";
 import { useNavigate, useParams } from "react-router-dom";
 import { FiSave } from "react-icons/fi";
-
+import {
+  productManagementService,
+  productMixService,
+} from "../../../services/productManagementService";
 import {
   SubPageHeader,
   InputField,
@@ -22,15 +25,10 @@ const TYPE_OPTIONS = [
   { label: "Home Loan", value: "Home Loan" },
 ];
 
-const FACILITY_OPTIONS = [
-  { label: "Top-up", value: "Top-up" },
-  { label: "Insurance", value: "Insurance" },
-];
-
 const PERIOD_UNITS = [
-  { label: "Days", value: "Days" },
-  { label: "Months", value: "Months" },
-  { label: "Years", value: "Years" },
+  { label: "Days", value: "DAYS" },
+  { label: "Months", value: "MONTHS" },
+  { label: "Years", value: "YEARS" },
 ];
 
 const EditProductMix = () => {
@@ -38,49 +36,74 @@ const EditProductMix = () => {
   const { id } = useParams();
 
   const [loading, setLoading] = useState(true);
-
   const [form, setForm] = useState({
     category: "",
     type: "",
     name: "",
-    facilities: [],
     amount: "",
     periodValue: "",
-    periodUnit: "Months",
+    periodUnit: "MONTHS",
   });
 
-  /* ================= LOAD PRODUCT MIX ================= */
+  const [allProducts, setAllProducts] = useState([]);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+
+  /* ================= LOAD PRODUCTS AND PRODUCT MIX ================= */
   useEffect(() => {
-    (async () => {
+    const fetchData = async () => {
+      setLoading(true);
       try {
-        /*
-        const data = await productMixService.getProductMixById(id);
+        // 1️⃣ fetch all products
+        const products = await productManagementService.getProducts();
+        const options = products.map((p) => ({
+          label: p.product_name,
+          value: p.id,
+        }));
+        setAllProducts(options);
 
-        setForm({
-          category: data.product_category,
-          type: data.product_type,
-          name: data.product_name,
-          facilities: data.product_facilities || [],
-          amount: data.product_amount,
-          periodValue: data.product_period?.value,
-          periodUnit: data.product_period?.unit || "Months",
-        });
-        */
+        // 2️⃣ fetch existing product mix
+        const mix = await productMixService.getProductMix(id);
 
-        // TEMP MOCK (remove after API)
+        // 3️⃣ set form fields
         setForm({
-          category: "Loan",
-          type: "Personal Loan",
-          name: "Personal Loan Combo",
-          facilities: ["Top-up", "Insurance"],
-          amount: 550000,
-          periodValue: 24,
-          periodUnit: "Months",
+          category: mix.product_category || "",
+          type: mix.product_type || "",
+          name: mix.product_mix_name || "",
+          amount: mix.product_mix_amount || "",
+          periodValue: mix.product_period_value || "",
+          periodUnit: mix.product_period_unit || "MONTHS",
         });
+
+        // 4️⃣ safely map selected products
+        const selected = (mix.products || [])
+          .map((p) => {
+            if (!p) return null;
+
+            // If backend sends objects: {id, product_name}
+            if (typeof p === "object" && p.id && p.product_name) {
+              return { label: p.product_name, value: p.id };
+            }
+
+            // If backend sends UUID string
+            if (typeof p === "string") {
+              const found = options.find((o) => o.value === p);
+              return found || null; // skip if not found
+            }
+
+            return null;
+          })
+          .filter(Boolean); // remove null/undefined
+
+        setSelectedProducts(selected);
+      } catch (err) {
+        console.error("Failed to load product mix or products:", err);
+        alert("Cannot load data");
       } finally {
         setLoading(false);
       }
-    })();
+    };
+
+    fetchData();
   }, [id]);
 
   /* ================= HANDLERS ================= */
@@ -92,23 +115,38 @@ const EditProductMix = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    /*
-      const payload = {
-        product_category: form.category,
-        product_type: form.type,
-        product_name: form.name,
-        product_facilities: form.facilities,
-        product_amount: Number(form.amount),
-        product_period: {
-          value: Number(form.periodValue),
-          unit: form.periodUnit,
-        },
-      };
+    if (!selectedProducts.length) {
+      alert("Please select at least one product.");
+      return;
+    }
 
+    setLoading(true);
+
+    const payload = {
+      product_category: form.category,
+      product_type: form.type,
+      product_mix_name: form.name,
+      product_mix_amount: parseFloat(form.amount),
+      product_period_value: parseInt(form.periodValue, 10),
+      product_period_unit: form.periodUnit,
+      products: selectedProducts.map((p) => p.value).filter(Boolean), // ✅ only valid UUIDs
+    };
+
+    console.log("Payload:", payload);
+
+    try {
       await productMixService.updateProductMix(id, payload);
-    */
-
-    navigate(-1);
+      alert("Product Mix updated successfully");
+      navigate("/product-mix/list");
+    } catch (err) {
+      console.error(
+        "Failed to update product mix:",
+        err.response?.data || err
+      );
+      alert("Error updating product mix");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) {
@@ -121,14 +159,12 @@ const EditProductMix = () => {
 
   return (
     <MainLayout>
-      {/* ================= HEADER ================= */}
       <SubPageHeader
         title="Edit Product Mix"
         subtitle="Update bundled product configuration"
         onBack={() => navigate(-1)}
       />
 
-      {/* ================= FORM ================= */}
       <div className="bg-white p-8 rounded-2xl shadow-md max-w-3xl">
         <form
           onSubmit={handleSubmit}
@@ -140,7 +176,7 @@ const EditProductMix = () => {
             value={form.category}
             onChange={handleChange}
             options={CATEGORY_OPTIONS}
-            placeholder="Select Category"
+            required
           />
 
           <SelectField
@@ -149,7 +185,7 @@ const EditProductMix = () => {
             value={form.type}
             onChange={handleChange}
             options={TYPE_OPTIONS}
-            placeholder="Select Type"
+            required
           />
 
           <InputField
@@ -157,6 +193,7 @@ const EditProductMix = () => {
             name="name"
             value={form.name}
             onChange={handleChange}
+            required
           />
 
           <InputField
@@ -165,9 +202,9 @@ const EditProductMix = () => {
             name="amount"
             value={form.amount}
             onChange={handleChange}
+            required
           />
 
-          {/* -------- PERIOD -------- */}
           <div className="grid grid-cols-2 gap-3">
             <InputField
               label="Period Value"
@@ -175,6 +212,7 @@ const EditProductMix = () => {
               name="periodValue"
               value={form.periodValue}
               onChange={handleChange}
+              required
             />
 
             <SelectField
@@ -183,26 +221,26 @@ const EditProductMix = () => {
               value={form.periodUnit}
               onChange={handleChange}
               options={PERIOD_UNITS}
+              required
             />
           </div>
 
-          {/* -------- FACILITIES -------- */}
+          {/* MultiSelect for Products */}
           <MultiSelectField
-            label="Product Facilities"
-            values={form.facilities}
-            onChange={(values) =>
-              setForm((prev) => ({ ...prev, facilities: values }))
-            }
-            options={FACILITY_OPTIONS}
+            label="Select Products"
+            values={selectedProducts}
+            onChange={setSelectedProducts}
+            options={allProducts}
+            placeholder="Choose products..."
           />
 
-          {/* -------- SUBMIT -------- */}
           <div className="md:col-span-2 pt-4">
             <Button
               type="submit"
               fullWidth
               icon={<FiSave />}
-              label="Update Product Mix"
+              label={loading ? "Saving..." : "Update Product Mix"}
+              disabled={loading}
             />
           </div>
         </form>

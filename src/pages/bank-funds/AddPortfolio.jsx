@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MainLayout from "../../layout/MainLayout";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { bankFundService } from "../../services/bankFundService";
 
 const PORTFOLIO_TYPES = ["Retail", "MSME", "Housing"];
-const BANKS_LIST = ["HDFC Bank", "ICICI Bank", "SBI", "Axis Bank"];
 
 export default function AddPortfolio() {
   const navigate = useNavigate();
@@ -12,23 +12,48 @@ export default function AddPortfolio() {
   const [form, setForm] = useState({
     portfolio_name: "",
     portfolio_type: "",
-    banks: [],
+    banks: [], // store bank IDs
     is_active: true,
   });
 
-  const toggleBank = (bank) => {
+  const [banksList, setBanksList] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch banks
+  useEffect(() => {
+    async function fetchBanks() {
+      try {
+        const data = await bankFundService.getBanks();
+        setBanksList(data); // data has { id, bank_name, ... }
+      } catch (err) {
+        console.error("Failed to fetch banks:", err);
+        alert("Error fetching banks");
+      }
+    }
+    fetchBanks();
+  }, []);
+
+  const toggleBank = (bankId) => {
     setForm((prev) => ({
       ...prev,
-      banks: prev.banks.includes(bank)
-        ? prev.banks.filter((b) => b !== bank)
-        : [...prev.banks, bank],
+      banks: prev.banks.includes(bankId)
+        ? prev.banks.filter((b) => b !== bankId)
+        : [...prev.banks, bankId],
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Add Portfolio:", form);
-    navigate("/portfolio-management");
+    setLoading(true);
+    try {
+      await bankFundService.createPortfolio(form);
+      navigate("/portfolio-management");
+    } catch (err) {
+      console.error("Failed to create portfolio:", err);
+      alert("Error creating portfolio");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -51,17 +76,19 @@ export default function AddPortfolio() {
         >
           <Input
             label="Portfolio Name"
-            name="portfolio_name"
             value={form.portfolio_name}
-            onChange={(e) => setForm({ ...form, portfolio_name: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, portfolio_name: e.target.value })
+            }
             required
           />
 
           <Select
             label="Portfolio Type"
-            name="portfolio_type"
             value={form.portfolio_type}
-            onChange={(e) => setForm({ ...form, portfolio_type: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, portfolio_type: e.target.value })
+            }
             options={PORTFOLIO_TYPES}
             required
           />
@@ -70,23 +97,32 @@ export default function AddPortfolio() {
           <div>
             <label className="text-sm font-medium mb-2 block">Map Banks</label>
             <div className="grid grid-cols-2 gap-2">
-              {BANKS_LIST.map((bank) => (
-                <label key={bank} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={form.banks.includes(bank)}
-                    onChange={() => toggleBank(bank)}
-                  />
-                  {bank}
-                </label>
-              ))}
+              {banksList.length ? (
+                banksList.map((bank) => (
+                  <label
+                    key={bank.id}
+                    className="flex items-center gap-2 text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={form.banks.includes(bank.id)}
+                      onChange={() => toggleBank(bank.id)}
+                    />
+                    {bank.bank_name}
+                  </label>
+                ))
+              ) : (
+                <p className="text-gray-400 text-sm">Loading banks...</p>
+              )}
             </div>
           </div>
 
           <Checkbox
             label="Active"
             checked={form.is_active}
-            onChange={() => setForm({ ...form, is_active: !form.is_active })}
+            onChange={() =>
+              setForm((prev) => ({ ...prev, is_active: !prev.is_active }))
+            }
           />
 
           <div className="flex justify-end gap-3">
@@ -99,9 +135,10 @@ export default function AddPortfolio() {
             </button>
             <button
               type="submit"
+              disabled={loading}
               className="px-5 py-3 rounded-xl bg-blue-600 text-white flex items-center gap-2 hover:bg-blue-700"
             >
-              <FiSave /> Save Portfolio
+              <FiSave /> {loading ? "Saving..." : "Save Portfolio"}
             </button>
           </div>
         </form>

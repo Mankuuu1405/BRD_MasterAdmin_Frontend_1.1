@@ -11,9 +11,6 @@ import {
   DeleteConfirmButton,
 } from "../../../components/Controls/SharedUIHelpers";
 
-
-
-
 export default function ProductList() {
   const navigate = useNavigate();
 
@@ -41,7 +38,7 @@ export default function ProductList() {
   const confirmDelete = async () => {
     await productManagementService.deleteProduct(deleteId);
     setDeleteId(null);
-    fetchProducts();
+    loadProducts(); // ✅ correct function
   };
 
   /* ================= FILTER ================= */
@@ -72,14 +69,12 @@ export default function ProductList() {
     {
       icon: <FiEye />,
       color: "gray",
-      onClick: (row) =>
-        navigate(`/product-management/${row.id}/view`),
+      onClick: (row) => navigate(`/product-management/${row.id}/view`),
     },
     {
       icon: <FiEdit />,
       color: "blue",
-      onClick: (row) =>
-        navigate(`/product-management/${row.id}/edit`),
+      onClick: (row) => navigate(`/product-management/${row.id}/edit`),
     },
     {
       icon: <FiTrash2 />,
@@ -110,9 +105,7 @@ export default function ProductList() {
       {loading ? (
         <p className="text-center py-6 text-gray-500">Loading...</p>
       ) : filtered.length === 0 ? (
-        <p className="text-center py-6 text-gray-500">
-          No products found
-        </p>
+        <p className="text-center py-6 text-gray-500">No products found</p>
       ) : (
         <ListView
           data={filtered}
@@ -134,4 +127,3 @@ export default function ProductList() {
     </MainLayout>
   );
 }
-  

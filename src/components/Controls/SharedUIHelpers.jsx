@@ -380,7 +380,7 @@ const MobileRow = ({ label, value }) => (
   </div>
 );
 
-const StatusBadge = ({ status }) => {
+export const StatusBadge = ({ status }) => {
   const isActive =
     status === true ||
     status === 1 ||
@@ -402,7 +402,7 @@ const StatusBadge = ({ status }) => {
 };
 
 
-const IconButton = ({ children, color, onClick }) => {
+export const IconButton = ({ children, color, onClick }) => {
   const map = {
     gray: "bg-gray-100 hover:bg-gray-200 text-gray-600",
     blue: "bg-blue-100 hover:bg-blue-200 text-blue-600",
@@ -648,4 +648,6 @@ export default {
   ListView,
   DeleteConfirmButton,
   FormCard,
+  StatusBadge,
+  IconButton
 };
