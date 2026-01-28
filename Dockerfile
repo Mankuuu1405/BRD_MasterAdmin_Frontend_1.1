@@ -2,14 +2,12 @@
 FROM node:22  as build
 WORKDIR /app
 
-ARG REACT_APP_API_URL
-ARG API_BASE_FALLBACK
-ENV REACT_APP_API_URL=${REACT_APP_API_URL}
-ENV API_BASE_FALLBACK=${API_BASE_FALLBACK}
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 
 # faster reproducible install when lockfile exists:
 COPY package.json package-lock.json ./
-RUN npm install --no-optional
+RUN npm install 
 
 COPY . .
 RUN npm run build
