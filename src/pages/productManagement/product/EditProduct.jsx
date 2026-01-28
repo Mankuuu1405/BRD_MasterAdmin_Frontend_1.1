@@ -20,8 +20,8 @@ const CATEGORY_OPTIONS = [
 ];
 
 const TYPE_OPTIONS = [
-  { label: "Personal Loan", value: "Personal Loan" },
-  { label: "Home Loan", value: "Home Loan" },
+  { label: "Secure Loan", value: "Secure Loan" },
+  { label: "Unsecure Loan", value: "Unsecure Loan" },
 ];
 
 const PERIOD_UNITS = [
